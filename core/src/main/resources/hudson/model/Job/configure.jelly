@@ -70,6 +70,7 @@ THE SOFTWARE.
       </f:form>
       <j:if test="${h.hasPermission(it,it.CONFIGURE)}">
         <st:adjunct includes="lib.form.confirm" />
+        <st:adjunct includes="lib.form.config-reformat" />
       </j:if>
     </l:main-panel>
   </l:layout>

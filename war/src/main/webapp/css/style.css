@@ -80,25 +80,15 @@ dt {
 }
 
 #main-panel {
-  padding: 10px;
-    padding-top: 0px;
-}
-
-#side-panel {
-  padding: 4px;
-  width: 220px;
-}
-
-#footer {
-  text-align: right;
-  font-size: 8pt;
-  margin-top: 10em;
-  padding: 10px;
-  border-top: 1px solid #bbb;
+  padding: 30px;
 }
 
 #tasks {
-  padding: 4px;
+  margin: 0px -20px 15px -20px;
+}
+
+.task {
+  padding-left: 15px;
 }
 
 .skiplink {
@@ -126,6 +116,11 @@ a:link {
 a:visited {
   text-decoration: underline;
   color: #5c3566;
+}
+
+#tasks a:link, #tasks a:visited {
+  text-decoration: none;
+  color: inherit;
 }
 
 a.lowkey:link {
@@ -293,20 +288,11 @@ div.dashboard {
 }
 
 .pane  {
-  margin-top: 4px;
+  margin-top: 10px;
   white-space: nowrap;
 }
 .pane td {
   padding: 4px 4px 3px 4px;
-}
-
-table.pane {
-  width: 100%;
-  border-collapse: collapse;
-  border: 1px #bbb solid;
-}
-table.pane > tbody > tr > td:last-child {
-  border-right: 1px #bbb solid;
 }
 
 td.pane {
@@ -316,12 +302,13 @@ td.pane {
 }
 
 td.pane-header {
-  border: 1px #bbb solid;
+  border: 1px #838383 solid;
   border-right: none;
   border-left: none;
-  background-color: #f0f0f0;
+  background-color: #bbb;
   font-weight: bold;
   padding-right: 24px;
+  color: #535353;
 }
 
 td.pane-header > div {
@@ -341,6 +328,14 @@ td.pane-header > div > a.collapse {
 th.pane {
   border: 1px #bbb solid;
   font-weight: bold;
+}
+
+table.pane {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px #838383 solid !important;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,.3);
 }
 
 .bigtable tr {
@@ -598,6 +593,9 @@ LABEL.attach-previous {
 #viewList td.inactive a {
   text-decoration: none;
   color: #444
+}
+#viewList td.inactive a:hover {
+  color: #f5f5f5;
 }
 #viewList td.noleft {
   border-left: none;
@@ -1142,4 +1140,132 @@ td.matrix-cell {
 /* ========================= legend.jelly ================== */
 table#legend-table td {
 	vertical-align: middle;
+}
+
+html {
+  position: relative;
+}
+
+body {
+  padding-top: 50px;
+}
+
+/*
+ * Base structure
+ */
+
+/*
+ * Global add-ons
+ */
+
+.sub-header {
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+/*
+ * Sidebar
+ */
+
+/* Hide for mobile, show later */
+.sidebar {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 51px;
+    bottom: 60px;
+    left: 0;
+    z-index: 1000;
+    display: block;
+    padding: 20px;
+    overflow-x: hidden;
+    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+    background-color: #f5f5f5;
+    border-right: 1px solid #eee;
+  }
+}
+
+/* Sidebar navigation */
+.nav-sidebar {
+  margin-right: -21px; /* 20px padding + 1px border */
+  margin-bottom: 20px;
+  margin-left: -20px;
+}
+
+.nav-sidebar > li > a {
+  padding-right: 20px;
+  padding-left: 20px;
+}
+
+.nav-sidebar > .active > a {
+  color: #fff;
+  background-color: #428bca;
+}
+
+#jenkins-home-link {
+  margin-left: 0px;
+}
+
+#jenkins-home-link img {
+  position: relative;
+  top: -6px;
+}
+
+/*
+ * Main content
+ */
+
+.main {
+  padding: 20px;
+  margin-bottom: 60px;
+}
+
+@media (min-width: 768px) {
+  .main {
+    padding-right: 40px;
+    padding-left: 40px;
+  }
+}
+
+.main .page-header {
+  margin-top: 0;
+}
+
+/*
+ * Placeholder dashboard ideas
+ */
+
+.placeholders {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.placeholders h4 {
+  margin-bottom: 0;
+}
+
+.placeholder {
+  margin-bottom: 20px;
+}
+
+.placeholder img {
+  display: inline-block;
+  border-radius: 50%;
+}
+
+#footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+  background-color: #f5f5f5;
+
+  text-align: right;
+  margin-top: 10em;
+  padding: 10px;
+  border-top: 1px solid #bbb;
 }
