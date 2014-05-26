@@ -1172,11 +1172,15 @@ body {
   display: none;
 }
 
+#side-panel {
+  border-right: 1px solid #bbb;
+}
+
 @media (min-width: 768px) {
   .sidebar {
     position: fixed;
     top: 51px;
-    bottom: 60px;
+    bottom: 40px;
     left: 0;
     z-index: 1000;
     display: block;
@@ -1261,11 +1265,15 @@ body {
   bottom: 0;
   width: 100%;
   /* Set the fixed height of the footer here */
-  height: 60px;
+  height: 40px;
   background-color: #f5f5f5;
 
   text-align: right;
   margin-top: 10em;
   padding: 10px;
   border-top: 1px solid #bbb;
+}
+
+#footer .container {
+  margin-right: 0px;
 }
