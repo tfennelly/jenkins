@@ -205,7 +205,7 @@ a.yuimenulabel, a.yuimenuitemlabel,
   border-radius: 50%;
 }
 
-.doony-circle-aborted {
+.doony-circle-nobuilt, .doony-circle-aborted {
   background: #999;
   background-image: -moz-radial-gradient(3px 3px 45deg, circle cover, #cccccc 0%, #999999 100%);
   background-image: -webkit-radial-gradient(3px 3px, circle cover, #cccccc, #999999);
