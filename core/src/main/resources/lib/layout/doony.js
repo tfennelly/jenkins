@@ -4,13 +4,12 @@
         elems = document.getElementsByClassName('orb-building');
         for (var i = 0; i < elems.length; i++) {
             var elem = elems[i];
-            console.log(elem);
             var canvas = document.createElement('canvas');
             canvas.className = 'doony-canvas';
             var dimension;
-            if (elem.getAttribute('width') === "48" || elem.getAttribute('width') === "24") {
+            if (elem.offsetWidth === "48" || elem.offsetWidth === "24") {
                 // an overly large ball is scary
-                dimension = elem.getAttribute('width') * 0.5 + 8;
+                dimension = elem.offsetWidth * 0.5 + 8;
                 canvas.style.marginRight = "15px";
                 canvas.style.verticalAlign = "middle";
             // XXX hack, this is for the main page job list
@@ -19,7 +18,7 @@
                 canvas.style.marginTop = "4px";
                 canvas.style.marginLeft = "4px";
             } else {
-                dimension = elem.getAttribute('width') || 12;
+                dimension = elem.offsetWidth || 12;
             }
             canvas.setAttribute('width', dimension);
             canvas.setAttribute('height', dimension);
@@ -39,7 +38,7 @@
                 },
             });
             circle.start(24);
-            elem.parentNode.appendChild(canvas);
+            elem.parentNode.insertBefore(canvas);
         }
 
         //// 48 -> dimension 32.
