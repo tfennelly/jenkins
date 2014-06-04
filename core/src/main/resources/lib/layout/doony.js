@@ -49,5 +49,5 @@
     setInterval(function() {
         drawFillingOrbs();
     }, 10);
-)();
+})();
 
