@@ -38,7 +38,9 @@ textarea {
 }
 
 .yui-skin-sam #top-panel img {
-  display: none;
+  position: relative;
+  top: 5px;
+  left: 20px;
 }
 
 .yui-skin-sam #search-box {

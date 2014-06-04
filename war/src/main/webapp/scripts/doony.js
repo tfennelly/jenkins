@@ -430,9 +430,10 @@ jQuery(function($) {
         $("#main-panel").prepend(div);
     };
 
-    var doonyTitleLink = $("#top-panel a").first();
     var domain = getSubdomain(window.location.hostname);
-    doonyTitleLink.html("<div id='doony-title'>" + domain + "</div>");
+    var firstBreadcrumb = $('#breadcrumbs li a').first();
+    firstBreadcrumb.text(domain);
+    firstBreadcrumb.addClass('first');
 
     var color = colors[Math.abs(hashCode(domain)) % colors.length];
     $("#top-panel").css('background-color', color);

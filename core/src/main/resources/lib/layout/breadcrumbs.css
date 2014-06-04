@@ -83,3 +83,10 @@
 A.model-link.inside {/* additional 'inside' class allows pre-allocation of the context menu space */
   padding-right: 16px;
 }
+
+#breadcrumbs LI A.first {
+    background-color: #808080;
+    margin-top: -1px;
+    height: 28px;
+    color: white;
+}
