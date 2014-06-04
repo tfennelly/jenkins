@@ -243,20 +243,20 @@ ${h.initPageVariables(context)}
         </td>
       </tr>
     </table>
-    <table width="100%">
-      <tr><td id="footer">
+    <div id="footer">
         <span style="padding-right:2em; color:gray">
-          ${%Page generated}:
-          <i:formatDate value="${h.getCurrentTime()}" type="both" dateStyle="medium" timeStyle="medium"/>
+            ${%Page generated}:
+            <i:formatDate value="${h.getCurrentTime()}" type="both" dateStyle="medium" timeStyle="medium"/>
         </span>
         <j:if test="${it.api!=null}">
-          <span style="padding-right:2em">
-            <a href="api/">REST API</a>
-          </span>
+            <span style="padding-right:2em">
+                <a href="api/">REST API</a>
+            </span>
         </j:if>
-        <a href="${h.getFooterURL()}">Jenkins ver. ${h.version}</a>
-      </td></tr>
-    </table>
+        <span style="padding-right:2em">
+            <a href="${h.getFooterURL()}">Jenkins ver. ${h.version}</a>
+        </span>
+    </div>
     <j:forEach var="pd" items="${h.pageDecorators}">
       <st:include it="${pd}" page="footer.jelly" optional="true" />
     </j:forEach>

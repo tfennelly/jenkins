@@ -37,7 +37,7 @@ textarea {
   border-bottom: 1px solid #ccc;
 }
 
-.yui-skin-sam #top-panel img {
+.yui-skin-sam #top-panel a#jenkins-home-link img {
   position: relative;
   top: 5px;
   left: 20px;
@@ -281,4 +281,17 @@ a.yuimenulabel, a.yuimenuitemlabel,
   box-sizing: border-box;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 40px;
+}
+
+#l10n-footer {
+  padding-left: 20px;
 }
