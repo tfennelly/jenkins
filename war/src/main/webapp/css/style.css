@@ -558,6 +558,15 @@ LABEL.attach-previous {
     height: 32px;
 }
 
+/* ====================== orb styles =============================== */
+
+.orb-size-32x32 {
+    margin-top: 4px;
+    margin-left: 4px;
+    width: 24px;
+    height: 24px;
+}
+
 /* ====================== help ===================================== */
 
 .help {

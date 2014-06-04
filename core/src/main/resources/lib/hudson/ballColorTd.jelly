@@ -34,8 +34,14 @@ THE SOFTWARE.
   </st:documentation>
   <td data="${it.ordinal()}">
     <j:if test="${attrs.it!=null}">
-      <img src="${it.getImageOf(iconSize)}" alt="${it.description}"
-           tooltip="${it.description}" style="${attrs.style}" class="icon${iconSize}"/>
+      <j:choose>
+        <j:when test='${it.getImage().endsWith("_anime.gif")}' >
+          <div class="orb-building orb-size-${iconSize} orb-${it.description}" data-dimension="${iconSize}"></div>
+       </j:when>
+       <j:otherwise>
+        not an anime image
+       </j:otherwise>
+      </j:choose>
     </j:if>
   </td>
 </j:jelly>
