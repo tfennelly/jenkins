@@ -141,6 +141,16 @@ ${h.initPageVariables(context)}
     <j:forEach var="pd" items="${h.pageDecorators}">
       <st:include it="${pd}" page="header.jelly" optional="true" />
     </j:forEach>
+
+    <!--<st:adjunct includes="org.kohsuke.stapler.jquery" />-->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <!-- avoid conflict with prototype.js in core -->
+    <script>var Q=jQuery.noConflict()</script>
+
+    <link rel="stylesheet" href="${resURL}/css/doony-bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="${resURL}/css/doony.css" type="text/css" />
+    <script src="${resURL}/scripts/doony.js" type="text/javascript"/>
+
   </head>
   <body id="jenkins" class="yui-skin-sam jenkins-${h.version}" data-version="jenkins-${h.version}">
     <!-- for accessibility, skip the entire navigation bar and etc and go straight to the head of the content -->

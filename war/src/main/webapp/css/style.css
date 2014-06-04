@@ -903,6 +903,20 @@ DIV.yahooTree td {
   margin-bottom: 1em;
 }
 
+body.yui-skin-sam,
+.yui-skin-sam table,
+.yui-skin-sam form,
+.yui-skin-sam input,
+.yui-skin-sam td,
+.yui-skin-sam th,
+.yui-skin-sam p,
+.yui-skin-sam textarea,
+.yui-skin-sam select {
+    font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    color: #333;
+}
+
 /* ========================= search box at the top-right of the page ========================= */
 #search-box {
   background: white url(../images/16x16/search.png) no-repeat 2px center;

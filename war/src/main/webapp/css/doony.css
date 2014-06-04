@@ -1,0 +1,282 @@
+pre, code, .CodeMirror {
+  font-family: Consolas, Monaco, monospace;
+}
+
+.cm-s-default {
+  border: none !important;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="password"],
+select,
+textarea,
+.CodeMirror {
+  font-size: 16px;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+}
+
+input[type="text"],
+input[type="number"],
+input[type="password"],
+select,
+textarea {
+  padding: 6px 12px;
+}
+
+#main-table {
+  background-image: none !important;
+}
+
+/********************   top panel styles      ***********************/
+.yui-skin-sam #top-panel {
+  background-url: none;
+  background-image: none;
+  border-bottom: 1px solid #ccc;
+}
+
+.yui-skin-sam #top-panel img {
+  display: none;
+}
+
+.yui-skin-sam #search-box {
+  font-size: 16px;
+  padding: 5px 10px;
+  background-image: none;
+  margin: 7px;
+}
+
+/******************* side panel styles ***********************/
+#side-panel {
+  padding-left: 15px;
+}
+
+#tasks {
+  margin-top: 5px;
+  font-size: 16px;
+  margin-right: 30px;
+  padding-left: 0;
+}
+
+#tasks a,
+#buildHistory a {
+  text-decoration: none;
+}
+
+#tasks a:hover,
+#buildHistory a:hover {
+  text-decoration: underline;
+}
+
+.task a:nth-child(n+1) {
+  padding: 10px 30px 10px 0;
+  display: inline-block;
+}
+
+.task a:first-child,
+.task img {
+  display: none;
+}
+
+/* make the link target bigger */
+#buildHistory .model-link {
+  padding: 10px 16px 10px 0;
+}
+
+#buildHistory .pane-header {
+  font-size: 16px;
+}
+
+#buildHistory .build-row td:not(.pane-header) {
+  padding: 10px 0 10px 10px;
+}
+
+.doony-canvas {
+  margin-bottom: -2px;
+}
+
+#buildHistory .build-row:nth-child(2n) {
+  background-color: #f9f9f9;
+}
+
+#buildHistory .build-row {
+  border-top: 1px solid #ddd;
+}
+
+#buildHistory .build-row:last-child {
+  display: none;
+}
+
+.healthReport img {
+  vertical-align: top;
+  padding-top: 1px;
+  display: inline-block;
+}
+
+/*
+ * The console output doesn't have an ID on it, sadly, so style its place in
+ * the DOM and hope nothing else is affected
+ *
+ * If you hit consoleText you can view the raw console text, let's style that
+ * too.
+ */
+body > pre,
+#main-panel > pre {
+  font-size: 14px;
+  background-color: #111;
+  color: #eee;
+  padding: 10px 10px 30px;
+  border-radius: 3px;
+}
+
+/**
+ * Set the link color in console output
+ */
+body > pre a,
+body > pre a:visited,
+#main-panel pre a,
+#main-panel pre a:visited {
+  color: #ED4A6A;
+}
+
+/** style permalinks **/
+#main-panel > ul {
+  padding-left: 0;
+  list-style-type: none;
+}
+
+#main-panel > ul .model-link,
+#main-panel > ul li {
+  padding-bottom: 7px;
+}
+
+#main-panel {
+  padding-left: 15px;
+}
+
+a.yuimenulabel, a.yuimenuitemlabel,
+.yui-skin-sam .yuimenuitemlabel {
+  cursor: pointer;
+}
+
+.doony-alert {
+  max-width: 750px;
+  margin-top: 10px;
+}
+
+.doony-build {
+  margin: 0 0 15px 30px;
+  min-width: 100px;
+}
+
+#doony-title {
+  color: #fff;
+  margin: 5px 10px;
+}
+
+/* copied from twitter bootstrap */
+.doony-callout {
+  margin: 0;
+  padding: 20px 30px 20px 25px;
+  border-left: 5px solid #eee;
+  font-weight: bold;
+  font-size: 16px;
+  display: inline-block;
+}
+
+.doony-callout a,
+#matrix .doony-callout a,
+.doony-callout a:visited {
+  text-decoration: none;
+}
+
+.doony-callout-info {
+  background-color: #f0f7fd;
+  border-color: #d0e3f0;
+}
+
+.doony-downstream-link {
+  display: block;
+}
+
+.doony-circle {
+  border-radius: 50%;
+}
+
+.doony-circle-aborted {
+  background: #999;
+  background-image: -moz-radial-gradient(3px 3px 45deg, circle cover, #cccccc 0%, #999999 100%);
+  background-image: -webkit-radial-gradient(3px 3px, circle cover, #cccccc, #999999);
+  background-image: radial-gradient(circle at 3px 3px, #cccccc 0%, #999999 100%);
+}
+
+.doony-circle-failure {
+  background: #ac2925;
+  background-image: -moz-radial-gradient(3px 3px 45deg, circle cover, #d9534f 0%, #ac2925 100%);
+  background-image: -webkit-radial-gradient(3px 3px, circle cover, #d9534f, #ac2925);
+  background-image: radial-gradient(circle at 3px 3px, #d9534f 0%, #ac2925 100%);
+}
+
+.doony-circle-success {
+  background: #397439;
+  background-image: -moz-radial-gradient(3px 3px 45deg, circle cover, #72d472 0%, #397439 100%);
+  background-image: -webkit-radial-gradient(3px 3px, circle cover, #72d472, #397439);
+  background-image: radial-gradient(circle at 3px 3px, #72d472 0%, #397439 100%);
+}
+
+.doony-circle-warning {
+  background: #f0ad4e;
+  background-image: -moz-radial-gradient(3px 3px 45deg, circle cover, #f0ad4e 0%, #d58512 100%);
+  background-image: -webkit-radial-gradient(3px 3px, circle cover, #f0ad4e, #d58512);
+  background-image: radial-gradient(circle at 3px 3px, #f0ad4e 0%, #d58512 100%);
+}
+
+.doony-theme {
+  color: grey;
+  margin-right: 10px;
+}
+
+.yui-skin-sam .phing-target {
+  font-weight: bold;
+  color: #0ABFBC;
+}
+
+.yui-skin-sam .phing-outcome-finished {
+  color: #C7FCD7;
+}
+
+/* Remove the bouncy balls */
+#buildHistory img[src*="anime.gif"] {
+  visibility: hidden;
+}
+
+/**
+ * XXX For us this is the "Jobs List" plugin. This probably doesn't work well for
+ * all use cases.
+ */
+.yui-skin-sam #dashboard_portlet_1 tr:nth-child(n+4) td {
+  padding: 15px 3px;
+}
+
+/* Fix add description */
+#description img {
+  padding-right: 5px;
+}
+
+#description div {
+  margin-top: 10px;
+}
+
+/* Add some margin to the disable project button */
+#main-panel div[align=right] form[action=disable] {
+  margin-top: 10px;
+}
+
+/* Configuration/Settings page styles */
+.setting-input {
+  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+}
