@@ -34,14 +34,7 @@ THE SOFTWARE.
   </st:documentation>
   <td data="${it.ordinal()}">
     <j:if test="${attrs.it!=null}">
-      <j:choose>
-        <j:when test='${it.getImage().endsWith("_anime.gif")}' >
-          <div class="orb-building orb-size-${iconSize} orb-${it.name}" data-dimension="${iconSize}"></div>
-       </j:when>
-       <j:otherwise>
-        not an anime image
-       </j:otherwise>
-      </j:choose>
+      <div class="jenkins-orb orb-size-${iconSize}" orb-status="${it.name}" orb-color="${it.htmlBaseColor}" orb-anime="${it.animated}" ></div>
     </j:if>
   </td>
 </j:jelly>
