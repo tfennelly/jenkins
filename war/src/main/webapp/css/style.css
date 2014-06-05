@@ -567,6 +567,13 @@ LABEL.attach-previous {
     width: 14px;
     height: 14px;
 }
+.jenkins-orb.orb-size-24x24 {
+    display: inline-block;
+    margin-top: 3px;
+    margin-left: 3px;
+    width: 18px;
+    height: 18px;
+}
 .jenkins-orb.orb-size-32x32 {
     display: inline-block;
     margin-top: 4px;
