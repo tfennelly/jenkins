@@ -566,6 +566,13 @@ LABEL.attach-previous {
     width: 24px;
     height: 24px;
 }
+.jenkins-orb.orb-size-16x16 {
+    display: inline-block;
+    margin-top: 2px;
+    margin-left: 2px;
+    width: 14px;
+    height: 14px;
+}
 
 /*
     Unanimated orbs.  All colors based on colors from the BallColor class colors.
@@ -734,6 +741,11 @@ table.parameters > tbody:hover {
 #buildHistory td.desc {
     padding: 0;
     white-space: normal;
+}
+
+#buildHistory .buildNum {
+    position: relative;
+    top: -3px;
 }
 
 /* ========================= editable combobox style ========================= */
