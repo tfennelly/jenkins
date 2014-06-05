@@ -48,8 +48,10 @@ THE SOFTWARE.
       </div>
 
       <t:buildCaption>
+        <span class="displayName">
         ${%Build} ${it.displayName}
         (<i:formatDate value="${it.timestamp.time}" type="both" dateStyle="medium" timeStyle="medium"/>)
+        </span>
       </t:buildCaption>
 
       <div>

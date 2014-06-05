@@ -4,7 +4,7 @@
         var orbs = document.getElementsByClassName('jenkins-orb');
         for (var i = 0; i < orbs.length; i++) {
             var orb = orbs[i];
-            var dimension = Math.min(orb.offsetWidth, 24);
+            var dimension = Math.min(orb.offsetWidth, 36);
             var orbColor = orb.getAttribute('orb-color');
             var orbAnimated = orb.getAttribute('orb-anime');
 

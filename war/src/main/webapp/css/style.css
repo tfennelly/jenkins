@@ -560,18 +560,26 @@ LABEL.attach-previous {
 
 /* ====================== orb styles =============================== */
 
-.jenkins-orb.orb-size-32x32 {
-    margin-top: 4px;
-    margin-left: 4px;
-    width: 24px;
-    height: 24px;
-}
 .jenkins-orb.orb-size-16x16 {
     display: inline-block;
     margin-top: 2px;
     margin-left: 2px;
     width: 14px;
     height: 14px;
+}
+.jenkins-orb.orb-size-32x32 {
+    display: inline-block;
+    margin-top: 4px;
+    margin-left: 4px;
+    width: 24px;
+    height: 24px;
+}
+.jenkins-orb.orb-size-48x48 {
+    display: inline-block;
+    margin-top: 4px;
+    margin-left: 4px;
+    width: 36px;
+    height: 36px;
 }
 
 /*
@@ -746,6 +754,12 @@ table.parameters > tbody:hover {
 #buildHistory .buildNum {
     position: relative;
     top: -3px;
+}
+
+/* ========================= build details ========================= */
+.build-caption .displayName {
+    position: relative;
+    top: -10px;
 }
 
 /* ========================= editable combobox style ========================= */
