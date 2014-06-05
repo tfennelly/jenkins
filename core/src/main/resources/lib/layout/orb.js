@@ -1,9 +1,36 @@
 (function() {
 
-    var drawFillingOrbs = function() {
+    var drawOrbs = function() {
         // Some orb <img> elements are hardcoded in plugins.  Manually transforming for now.  Maybe
         // there's a better way.
         transformImgElements();
+
+        function drawAnimatedOrb(orb, orbColor, dimension) {
+            var canvas = document.createElement('canvas');
+
+            canvas.className = 'orb-canvas';
+            canvas.setAttribute('width', dimension);
+            canvas.setAttribute('height', dimension);
+            var circle = new ProgressCircle({
+                canvas: canvas,
+                minRadius: dimension * 3 / 8 - 2,
+                arcWidth: dimension / 8 + 1
+            });
+
+            var x = 0;
+            circle.addEntry({
+                fillColor: orbColor,
+                progressListener: function() {
+                    if (x >= 1) {
+                        x = 0;
+                    }
+                    x = x + 0.005;
+                    return x; // between 0 and 1
+                }
+            });
+            circle.start(24);
+            orb.appendChild(canvas);
+        }
 
         var orbs = document.getElementsByClassName('jenkins-orb');
         for (var i = 0; i < orbs.length; i++) {
@@ -21,30 +48,7 @@
             removeChildElements(orb, 'canvas');
 
             if (orbAnimated && orbAnimated === 'true') {
-                var canvas = document.createElement('canvas');
-
-                canvas.className = 'orb-canvas';
-                canvas.setAttribute('width', dimension);
-                canvas.setAttribute('height', dimension);
-                var circle = new ProgressCircle({
-                    canvas: canvas,
-                    minRadius: dimension * 3 / 8 - 2,
-                    arcWidth: dimension / 8 + 1
-                });
-
-                var x = 0;
-                circle.addEntry({
-                    fillColor: orbColor,
-                    progressListener: function() {
-                        if (x >= 1) {
-                            x = 0;
-                        }
-                        x = x + 0.005;
-                        return x; // between 0 and 1
-                    }
-                });
-                circle.start(24);
-                orb.appendChild(canvas);
+                drawAnimatedOrb(orb, orbColor, dimension);
             } else {
                 // Add some class info to trigger non-animated css styles...
                 var orbStatus = orb.getAttribute('orb-status');
@@ -153,8 +157,8 @@
 
     document.addEventListener("DOMContentLoaded", function() {
         console.log("DOM fully loaded and parsed");
-        drawFillingOrbs();
-        layoutUpdateCallback.add(drawFillingOrbs);
+        drawOrbs();
+        layoutUpdateCallback.add(drawOrbs);
     });
 
 })();
