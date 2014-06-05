@@ -95,6 +95,14 @@ public enum BallColor implements StatusIcon {
     }
 
     /**
+     * Get the name.
+     * @return The name, as with {@link Enum#name()}.
+     */
+    public String getName() {
+        return name();
+    }
+
+    /**
      * Gets the human-readable description used as img/@alt.
      */
     public String getDescription() {

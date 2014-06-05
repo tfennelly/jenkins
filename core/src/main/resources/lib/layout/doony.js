@@ -38,7 +38,7 @@
                 },
             });
             circle.start(24);
-            elem.parentNode.insertBefore(canvas);
+            elem.appendChild(canvas);
         }
 
         //// 48 -> dimension 32.

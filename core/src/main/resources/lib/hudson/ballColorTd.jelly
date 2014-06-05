@@ -36,7 +36,7 @@ THE SOFTWARE.
     <j:if test="${attrs.it!=null}">
       <j:choose>
         <j:when test='${it.getImage().endsWith("_anime.gif")}' >
-          <div class="orb-building orb-size-${iconSize} orb-${it.description}" data-dimension="${iconSize}"></div>
+          <div class="orb-building orb-size-${iconSize} orb-${it.name}" data-dimension="${iconSize}"></div>
        </j:when>
        <j:otherwise>
         not an anime image
