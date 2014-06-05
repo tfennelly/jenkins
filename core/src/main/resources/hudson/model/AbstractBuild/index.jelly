@@ -115,7 +115,9 @@ THE SOFTWARE.
         </j:forEach>
       </table>
 
-      <st:include page="main.jelly" optional="true" />
+      <div class="abstractBuildMain">
+        <st:include page="main.jelly" optional="true" />
+      </div>
 
       <!-- upstream/downstream builds -->
       <j:set var="upstream" value="${it.upstreamBuilds}" />
