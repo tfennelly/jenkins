@@ -562,29 +562,21 @@ LABEL.attach-previous {
 
 .jenkins-orb.orb-size-16x16 {
     display: inline-block;
-    margin-top: 2px;
-    margin-left: 2px;
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
 }
 .jenkins-orb.orb-size-24x24 {
     display: inline-block;
-    margin-top: 3px;
-    margin-left: 3px;
     width: 18px;
     height: 18px;
 }
 .jenkins-orb.orb-size-32x32 {
     display: inline-block;
-    margin-top: 4px;
-    margin-left: 4px;
     width: 24px;
     height: 24px;
 }
 .jenkins-orb.orb-size-48x48 {
     display: inline-block;
-    margin-top: 4px;
-    margin-left: 4px;
     width: 36px;
     height: 36px;
 }
@@ -612,7 +604,7 @@ LABEL.attach-previous {
     background-image: -webkit-radial-gradient(3px 3px, circle cover, #729FCF, #577baa);
     background-image: radial-gradient(circle at 3px 3px, #729FCF 0%, #577baa 100%);
 }
-.jenkins-orb.ABORTED, .jenkins-orb.NOTBUILT, .jenkins-orb.GREY, .jenkins-orb.DISABLED {
+.jenkins-orb.ABORTED, .jenkins-orb.NOBUILT, .jenkins-orb.GREY, .jenkins-orb.DISABLED {
     background: #8b8b8b;
     background-image: -moz-radial-gradient(3px 3px 45deg, circle cover, #ABABAB 0%, #8b8b8b 100%);
     background-image: -webkit-radial-gradient(3px 3px, circle cover, #ABABAB, #8b8b8b);
@@ -756,11 +748,6 @@ table.parameters > tbody:hover {
 #buildHistory td.desc {
     padding: 0;
     white-space: normal;
-}
-
-#buildHistory .buildNum {
-    position: relative;
-    top: -3px;
 }
 
 /* ========================= build details ========================= */
