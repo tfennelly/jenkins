@@ -34,7 +34,7 @@ THE SOFTWARE.
   </st:documentation>
   <td data="${it.ordinal()}">
     <j:if test="${attrs.it!=null}">
-      <div class="jenkins-orb orb-size-${iconSize}" orb-status="${it.name}" orb-color="${it.htmlBaseColor}" orb-anime="${it.animated}" ></div>
+      <div class="jenkins-orb orb-size-${iconSize}" orb-status="${it.name}"></div>
     </j:if>
   </td>
 </j:jelly>

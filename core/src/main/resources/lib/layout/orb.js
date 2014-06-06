@@ -5,8 +5,9 @@
         // there's a better way.
         transformImgElements();
 
-        function drawAnimatedOrb(orb, orbColor, dimension) {
+        function drawAnimatedOrb(orb, dimension, imgMapEntry) {
             var canvas = document.createElement('canvas');
+            var orbColor = imgMapEntry.color;
 
             canvas.className = 'orb-canvas';
             canvas.setAttribute('width', dimension);
@@ -32,47 +33,44 @@
             orb.appendChild(canvas);
         }
 
+        /**
+         * We are applying the style here in JS (Vs CSS) because we need to maintain a color map anyway
+         * (for the animated progressive orb) here in the JS, which means there's no point in also maintaining
+         * color styles in the CSS.
+         */
+        function applyStaticOrbStyle(orb, imgMapEntry) {
+            var style = STATIC_ORB_STYLE_TEMPLATE;
+
+            style = style.replace(/@background@/g, imgMapEntry.color.stop2);
+            style = style.replace(/@stop1@/g, imgMapEntry.color.stop1);
+            style = style.replace(/@stop2@/g, imgMapEntry.color.stop2);
+
+            orb.setAttribute('style', style);
+        }
+
         var orbs = document.getElementsByClassName('jenkins-orb');
         for (var i = 0; i < orbs.length; i++) {
             var orb = orbs[i];
             var dimension = Math.min(orb.offsetWidth, 36);
-            var orbColor = orb.getAttribute('orb-color');
-            var orbAnimated = orb.getAttribute('orb-anime');
+            var orbStatus = orb.getAttribute('orb-status');
+            var imgMapEntry = imgNameMap[orbStatus.toLowerCase()];
 
-            if (!orbColor) {
-                orbColor = '#ABABAB'; // Hudson Gray
+            if (!imgMapEntry) {
+                continue;
             }
 
             storeOriginalClassSpecs(orb);
             restoreOriginalClassSpec(orb);
             removeChildElements(orb, 'canvas');
 
-            if (orbAnimated && orbAnimated === 'true') {
-                drawAnimatedOrb(orb, orbColor, dimension);
+            if (imgMapEntry.animated) {
+                drawAnimatedOrb(orb, dimension, imgMapEntry);
             } else {
                 // Add some class info to trigger non-animated css styles...
-                var orbStatus = orb.getAttribute('orb-status');
                 orb.className += ' NO_ANIME ' + orbStatus;
+                applyStaticOrbStyle(orb, imgMapEntry);
             }
         }
-    };
-
-    var imgSizeSet = ['16x16', '24x24', '32x32', '48x48'];
-    var imgNameMap = {
-        red: {animated: false, color: '#EF2929'},
-        red_anime: {animated: true, color: '#EF2929'},
-        yellow: {animated: false, color: '#FCE94F'},
-        yellow_anime: {animated: true, color: '#FCE94F'},
-        blue: {animated: false, color: '#729FCF'},
-        blue_anime: {animated: true, color: '#729FCF'},
-        grey: {animated: false, color: '#ABABAB'},
-        grey_anime: {animated: true, color: '#ABABAB'},
-        disabled: {animated: false, color: '#ABABAB'},
-        disabled_anime: {animated: true, color: '#ABABAB'},
-        aborted: {animated: false, color: '#ABABAB'},
-        aborted_anime: {animated: true, color: '#ABABAB'},
-        nobuilt: {animated: false, color: '#ABABAB'},
-        nobuilt_anime: {animated: true, color: '#ABABAB'}
     };
 
     function transformImgElements() {
@@ -106,11 +104,9 @@
                                 status = imgNameNormalized.toUpperCase();
                             }
 
-                            // e.g. <div class="jenkins-orb orb-size-16x16" orb-status="RED" orb-color="#123123" orb-anime="false" ></div>
+                            // e.g. <div class="jenkins-orb orb-size-16x16" orb-status="RED"></div>
                             orbDiv.className = 'jenkins-orb orb-size-' + imgSize;
                             orbDiv.setAttribute('orb-status', status);
-                            orbDiv.setAttribute('orb-color', imgNameMapping.color);
-                            orbDiv.setAttribute('orb-anime', imgNameMapping.animated);
 
                             img.parentNode.insertBefore(orbDiv, img);
                             imgsToRemove.push(img);
@@ -160,6 +156,66 @@
         drawOrbs();
         layoutUpdateCallback.add(drawOrbs);
     });
+
+    var imgSizeSet = ['16x16', '24x24', '32x32', '48x48'];
+    var imgNameMap = {
+        red: {
+            animated: false,
+            color: {
+                stop1: '#EF2929',
+                stop2: '#BD2727'
+            }
+        },
+        red_anime: {
+            animated: true,
+            color: '#EF2929'
+        },
+        yellow: {
+            animated: false,
+            color: {
+                stop1: '#FCE94F',
+                stop2: '#DCC942'
+            }
+        },
+        yellow_anime: {
+            animated: true,
+            color: '#FCE94F'
+        },
+        blue: {
+            animated: false,
+            color: {
+                NOTE: "**** Blue is used to signify success. We have actually applied a green color - looks way better ****",
+                stop1: '#66CC00',
+                stop2: '#009900'
+            }
+        },
+        blue_anime: {
+            animated: true,
+            color: '#729FCF'
+        },
+        grey: {
+            animated: false,
+            color: {
+                stop1: '#ABABAB',
+                stop2: '#8B8B8B'
+            }
+        },
+        grey_anime: {
+            animated: true,
+            color: '#ABABAB'
+        }
+    };
+    imgNameMap.disabled = imgNameMap.grey;
+    imgNameMap.disabled_anime = imgNameMap.grey_anime;
+    imgNameMap.aborted = imgNameMap.grey;
+    imgNameMap.aborted_anime = imgNameMap.grey_anime;
+    imgNameMap.nobuilt = imgNameMap.grey;
+    imgNameMap.nobuilt_anime = imgNameMap.grey_anime;
+
+    var STATIC_ORB_STYLE_TEMPLATE = "background: @background@;" +
+        " background-image: -moz-radial-gradient(3px 3px 45deg, circle cover, @stop1@ 0%, @stop2@ 100%);" +
+        " background-image: -webkit-radial-gradient(3px 3px, circle cover, @stop1@, @stop2@);" +
+        " background-image: radial-gradient(circle at 3px 3px, @stop1@ 0%, @stop2@ 100%);}";
 
 })();
 

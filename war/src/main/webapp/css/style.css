@@ -588,10 +588,10 @@ LABEL.attach-previous {
     border-radius: 50%;
 }
 .jenkins-orb.RED {
-    background: #bd2727;
-    background-image: -moz-radial-gradient(3px 3px 45deg, circle cover, #EF2929 0%, #bd2727 100%);
-    background-image: -webkit-radial-gradient(3px 3px, circle cover, #EF2929, #bd2727);
-    background-image: radial-gradient(circle at 3px 3px, #EF2929 0%, #bd2727 100%);}
+background: #bd2727;
+background-image: -moz-radial-gradient(3px 3px 45deg, circle cover, #EF2929 0%, #bd2727 100%);
+background-image: -webkit-radial-gradient(3px 3px, circle cover, #EF2929, #bd2727);
+background-image: radial-gradient(circle at 3px 3px, #EF2929 0%, #bd2727 100%);}
 .jenkins-orb.YELLOW {
     background: #dcc942;
     background-image: -moz-radial-gradient(3px 3px 45deg, circle cover, #FCE94F 0%, #dcc942 100%);

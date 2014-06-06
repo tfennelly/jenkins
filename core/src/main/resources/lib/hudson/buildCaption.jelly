@@ -44,7 +44,7 @@ THE SOFTWARE.
 	    </div>
 	  </j:if>
 	  
-      <div class="jenkins-orb orb-size-48x48" orb-status="${it.iconColor.name}" orb-color="${it.iconColor.htmlBaseColor}" orb-anime="${it.iconColor.animated}" tooltip="${it.iconColor.description}"></div>
+      <div class="jenkins-orb orb-size-48x48" orb-status="${it.iconColor.name}" tooltip="${it.iconColor.description}"></div>
 	  <d:invokeBody />
 	</h1>
 </j:jelly>
