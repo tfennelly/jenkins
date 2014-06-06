@@ -40,6 +40,9 @@ FORM {
 td {
   vertical-align: top;
 }
+.abstractBuildMain table td.no-wrap a {
+    vertical-align: top;
+}
 
 dt {
   font-weight: bold;
@@ -586,29 +589,6 @@ LABEL.attach-previous {
  */
 .jenkins-orb.NO_ANIME {
     border-radius: 50%;
-}
-.jenkins-orb.RED {
-background: #bd2727;
-background-image: -moz-radial-gradient(3px 3px 45deg, circle cover, #EF2929 0%, #bd2727 100%);
-background-image: -webkit-radial-gradient(3px 3px, circle cover, #EF2929, #bd2727);
-background-image: radial-gradient(circle at 3px 3px, #EF2929 0%, #bd2727 100%);}
-.jenkins-orb.YELLOW {
-    background: #dcc942;
-    background-image: -moz-radial-gradient(3px 3px 45deg, circle cover, #FCE94F 0%, #dcc942 100%);
-    background-image: -webkit-radial-gradient(3px 3px, circle cover, #FCE94F, #dcc942);
-    background-image: radial-gradient(circle at 3px 3px, #FCE94F 0%, #dcc942 100%);
-}
-.jenkins-orb.BLUE {
-    background: #577baa;
-    background-image: -moz-radial-gradient(3px 3px 45deg, circle cover, #729FCF 0%, #577baa 100%);
-    background-image: -webkit-radial-gradient(3px 3px, circle cover, #729FCF, #577baa);
-    background-image: radial-gradient(circle at 3px 3px, #729FCF 0%, #577baa 100%);
-}
-.jenkins-orb.ABORTED, .jenkins-orb.NOBUILT, .jenkins-orb.GREY, .jenkins-orb.DISABLED {
-    background: #8b8b8b;
-    background-image: -moz-radial-gradient(3px 3px 45deg, circle cover, #ABABAB 0%, #8b8b8b 100%);
-    background-image: -webkit-radial-gradient(3px 3px, circle cover, #ABABAB, #8b8b8b);
-    background-image: radial-gradient(circle at 3px 3px, #ABABAB 0%, #8b8b8b 100%);
 }
 
 /* ====================== help ===================================== */
