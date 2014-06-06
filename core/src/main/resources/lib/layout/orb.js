@@ -5,79 +5,84 @@
         // there's a better way.
         transformImgElements();
 
-        function drawAnimatedOrb(orb, dimension, imgMapEntry) {
-            var canvas = document.createElement('canvas');
-            var orbColor = imgMapEntry.color;
-
-            canvas.className = 'orb-canvas';
-            canvas.setAttribute('width', dimension);
-            canvas.setAttribute('height', dimension);
-            var circle = new ProgressCircle({
-                canvas: canvas,
-                minRadius: dimension * 3 / 8 - 2,
-                arcWidth: dimension / 8 + 1
-            });
-
-            var x = 0;
-            circle.addEntry({
-                fillColor: orbColor,
-                progressListener: function() {
-                    if (x >= 1) {
-                        x = 0;
-                    }
-                    x = x + 0.005;
-                    return x; // between 0 and 1
-                }
-            });
-            circle.start(24);
-            orb.appendChild(canvas);
-        }
-
-        /**
-         * We are applying the style here in JS (Vs CSS) because we need to maintain a color map anyway
-         * (for the animated progressive orb) here in the JS, which means there's no point in also maintaining
-         * color styles in the CSS.
-         */
-        function applyStaticOrbStyle(orb, imgMapEntry) {
-            var style = STATIC_ORB_STYLE_TEMPLATE;
-
-            style = style.replace(/@background@/g, imgMapEntry.color.stop2);
-            style = style.replace(/@stop1@/g, imgMapEntry.color.stop1);
-            style = style.replace(/@stop2@/g, imgMapEntry.color.stop2);
-
-            orb.setAttribute('style', style);
-        }
-
         var orbs = document.getElementsByClassName('jenkins-orb');
         for (var i = 0; i < orbs.length; i++) {
             var orb = orbs[i];
-            var dimension = Math.min(orb.offsetWidth, 36);
-            var orbStatus = orb.getAttribute('orb-status');
-            var imgMapEntry = imgNameMap[orbStatus.toLowerCase()];
-
-            if (!imgMapEntry) {
-                continue;
-            }
-
-            storeOriginalClassSpecs(orb);
-            restoreOriginalClassSpec(orb);
-            removeChildElements(orb, 'canvas');
-
-            if (imgMapEntry.animated) {
-                drawAnimatedOrb(orb, dimension, imgMapEntry);
-            } else {
-                // Add some class info to trigger non-animated css styles...
-                orb.className += ' NO_ANIME ' + orbStatus;
-                applyStaticOrbStyle(orb, imgMapEntry);
-            }
+            drawOrb(orb);
         }
     };
+
+    function drawOrb(orb) {
+        var dimension = Math.min(orb.offsetWidth, 36);
+        var orbStatus = orb.getAttribute('orb-status');
+        var imgMapEntry = imgNameMap[orbStatus.toLowerCase()];
+
+        if (!imgMapEntry) {
+            return;
+        }
+
+        storeOriginalClassSpecs(orb);
+        restoreOriginalClassSpec(orb);
+        removeChildElements(orb, 'canvas');
+
+        if (imgMapEntry.animated) {
+            drawAnimatedOrb(orb, dimension, imgMapEntry);
+        } else {
+            // Add some class info to trigger non-animated css styles...
+            orb.className += ' NO_ANIME ' + orbStatus;
+            applyStaticOrbStyle(orb, imgMapEntry);
+        }
+    }
+
+    function drawAnimatedOrb(orb, dimension, imgMapEntry) {
+        var canvas = document.createElement('canvas');
+        var orbColor = imgMapEntry.color;
+
+        canvas.className = 'orb-canvas';
+        canvas.setAttribute('width', dimension);
+        canvas.setAttribute('height', dimension);
+        var circle = new ProgressCircle({
+            canvas: canvas,
+            minRadius: dimension * 3 / 8 - 2,
+            arcWidth: dimension / 8 + 1
+        });
+
+        var x = 0;
+        circle.addEntry({
+            fillColor: orbColor,
+            progressListener: function() {
+                if (x >= 1) {
+                    x = 0;
+                }
+                x = x + 0.005;
+                return x; // between 0 and 1
+            }
+        });
+        circle.start(24);
+        orb.appendChild(canvas);
+    }
+
+    /**
+     * We are applying the style here in JS (Vs CSS) because we need to maintain a color map anyway
+     * (for the animated progressive orb) here in the JS, which means there's no point in also maintaining
+     * color styles in the CSS.
+     */
+    function applyStaticOrbStyle(orb, imgMapEntry) {
+        var style = STATIC_ORB_STYLE_TEMPLATE;
+
+        style = style.replace(/@background@/g, imgMapEntry.color.stop2);
+        style = style.replace(/@stop1@/g, imgMapEntry.color.stop1);
+        style = style.replace(/@stop2@/g, imgMapEntry.color.stop2);
+
+        orb.setAttribute('style', style);
+    }
 
     /**
      * Some orb <img> elements are hardcoded in some/many plugins external to the core Jenkins codebase.
      * Manually transforming for now.  Maybe there's a better way.
      */
     function transformImgElements() {
+        var createdOrbs = [];
         var imgsToRemove = [];
 
         function transformImgElement(img) {
@@ -115,6 +120,7 @@
                             orbDiv.setAttribute('orb-status', status);
 
                             img.parentNode.insertBefore(orbDiv, img);
+                            createdOrbs.push(orbDiv);
                             imgsToRemove.push(img);
                         }
                     }
@@ -131,6 +137,8 @@
             var img = imgsToRemove[i];
             img.parentNode.removeChild(img);
         }
+
+        return createdOrbs;
     }
 
     function storeOriginalClassSpecs(element) {
@@ -157,9 +165,28 @@
         }
     }
 
+    /**
+     * It's a fact of life (sad one) that we still need to perform a periodic screen-scrape to
+     * make sure we are catching all possible situations where the old style orb <img>s are
+     * in use (in plugins etc).  Would have been far easier if all icons were done via css,
+     * but that's not the case.
+     */
+    function periodicImgTransform() {
+        setTimeout(function() {
+            var createdOrbs = transformImgElements();
+            for (var i = 0; i < createdOrbs.length; i++) {
+                var orb = createdOrbs[i];
+                drawOrb(orb);
+            }
+            // Set it up again... keep doing it.
+            periodicImgTransform();
+        }, 100);
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
         drawOrbs();
         layoutUpdateCallback.add(drawOrbs);
+        periodicImgTransform();
     });
 
     var imgSizeSet = ['16x16', '24x24', '32x32', '48x48'];
@@ -167,8 +194,8 @@
         red: {
             animated: false,
             color: {
-                stop1: '#EF2929',
-                stop2: '#BD2727'
+                stop1: '#F69E9E',
+                stop2: '#9E1010'
             }
         },
         red_anime: {
@@ -190,7 +217,7 @@
             animated: false,
             color: {
                 NOTE: "**** Blue is used to signify success. We have actually applied a green color - looks way better ****",
-                stop1: '#66CC00',
+                stop1: '#ACF563',
                 stop2: '#009900'
             }
         },
@@ -201,7 +228,7 @@
         grey: {
             animated: false,
             color: {
-                stop1: '#ABABAB',
+                stop1: '#ECECEC',
                 stop2: '#8B8B8B'
             }
         },
