@@ -200,7 +200,7 @@
         },
         red_anime: {
             animated: true,
-            color: '#EF2929'
+            color: '#9E1010'
         },
         yellow: {
             animated: false,
@@ -211,19 +211,18 @@
         },
         yellow_anime: {
             animated: true,
-            color: '#FCE94F'
+            color: '#DCC942'
         },
         blue: {
             animated: false,
             color: {
-                NOTE: "**** Blue is used to signify success. We have actually applied a green color - looks way better ****",
-                stop1: '#ACF563',
-                stop2: '#009900'
+                stop1: '#79B1E9',
+                stop2: '#3269A0'
             }
         },
         blue_anime: {
             animated: true,
-            color: '#729FCF'
+            color: '#3269A0'
         },
         grey: {
             animated: false,
@@ -234,7 +233,7 @@
         },
         grey_anime: {
             animated: true,
-            color: '#ABABAB'
+            color: '#8B8B8B'
         }
     };
     imgNameMap.disabled = imgNameMap.grey;
