@@ -73,10 +73,16 @@
         }
     };
 
+    /**
+     * Some orb <img> elements are hardcoded in some/many plugins external to the core Jenkins codebase.
+     * Manually transforming for now.  Maybe there's a better way.
+     */
     function transformImgElements() {
         var imgsToRemove = [];
 
         function transformImgElement(img) {
+            // Mark <img> element so as to avoid processing it again if there's a JS
+            // triggered refresh.
             if (img.hasAttribute('orb-skip')) {
                 return;
             }
