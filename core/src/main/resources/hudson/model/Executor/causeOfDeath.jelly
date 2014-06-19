@@ -28,19 +28,19 @@ THE SOFTWARE.
     <l:header />
     <l:side-panel>
       <l:tasks>
-        <l:task icon="images/24x24/up.png" href="../.." title="${%Back}" />
+        <l:task icon="up-24x24" href="../.." title="${%Back}" />
       </l:tasks>
     </l:side-panel>
     <l:main-panel>
       <j:choose>
         <j:when test="${it.alive}">
           <h1>
-            <div class="jenkins-orb orb-size-48x48" orb-status="BLUE" /><st:nbsp /><span class="text-align top">${%Thread is still alive}</span>
+            <l:icon name="blue-48x48" text="${%Thread is still alive}" />
           </h1>
         </j:when>
         <j:otherwise>
           <h1>
-            <div class="jenkins-orb orb-size-48x48" orb-status="RED" /><st:nbsp /><span class="text-align top">${%Thread has died}</span>
+            <l:icon name="red-48x48" text="${%Thread has died}" />
           </h1>
           <pre>${h.printThrowable(it.causeOfDeath)}</pre>
           <pre>

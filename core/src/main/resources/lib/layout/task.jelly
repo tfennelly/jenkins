@@ -112,9 +112,6 @@ THE SOFTWARE.
       </j:when>
       <j:otherwise>
         <div class="task">
-          <j:set var="icon" value="${rootURL}${icon.startsWith('images/') || icon.startsWith('plugin/') ? h.resourcePath : ''}/${icon}"/>
-          ${taskTags!=null and attrs.contextMenu!='false' ? taskTags.add(href, icon, title, post == 'true', requiresConfirmation == 'true') : null}
-
           <j:set var="id" value="${h.generateId()}"/>
           <j:if test="${attrs.onclick == null and post and not requiresConfirmation}">
               <script>
@@ -125,19 +122,40 @@ THE SOFTWARE.
                   }
               </script>
           </j:if>
-
           <j:choose>
-            <j:when test="${requiresConfirmation and not attrs.onClick}">
-              <l:confirmationLink href="${href}" post="${post}" message="${confirmationMessage ?: title}">
-                <img class="task-icon" width="24" height="24" style="margin: 2px;" alt="" src="${icon}"/>
-              </l:confirmationLink>
+            <j:when test="${h.isIconAlias(icon)}">
+                <j:choose>
+                    <j:when test="${requiresConfirmation and not attrs.onClick}">
+                        <l:confirmationLink href="${href}" post="${post}" message="${confirmationMessage ?: title}">
+                            <l:icon name="${icon}" />
+                        </l:confirmationLink>
+                    </j:when>
+                    <j:otherwise>
+                        <a href="${href}" class="task-icon-link" onclick="${attrs.onclick ?: (post ? 'postRequest_' + id + '(this)' : null)}">
+                            <l:icon name="${icon}" />
+                        </a>
+                    </j:otherwise>
+                </j:choose>
             </j:when>
             <j:otherwise>
-              <a href="${href}" class="task-icon-link" onclick="${attrs.onclick ?: (post ? 'postRequest_' + id + '(this)' : null)}">
-                <img class="task-icon" width="24" height="24" style="margin: 2px;" alt="" src="${icon}"/>
-              </a>
+                <j:set var="icon" value="${rootURL}${icon.startsWith('images/') || icon.startsWith('plugin/') ? h.resourcePath : ''}/${icon}"/>
+                ${taskTags!=null and attrs.contextMenu!='false' ? taskTags.add(href, icon, title, post == 'true', requiresConfirmation == 'true') : null}
+
+                <j:choose>
+                    <j:when test="${requiresConfirmation and not attrs.onClick}">
+                        <l:confirmationLink href="${href}" post="${post}" message="${confirmationMessage ?: title}">
+                            <img class="task-icon" width="24" height="24" style="margin: 2px;" alt="" src="${icon}"/>
+                        </l:confirmationLink>
+                    </j:when>
+                    <j:otherwise>
+                        <a href="${href}" class="task-icon-link" onclick="${attrs.onclick ?: (post ? 'postRequest_' + id + '(this)' : null)}">
+                            <img class="task-icon" width="24" height="24" style="margin: 2px;" alt="" src="${icon}"/>
+                        </a>
+                    </j:otherwise>
+                </j:choose>
             </j:otherwise>
           </j:choose>
+
           <st:nbsp />
 
           <j:choose>

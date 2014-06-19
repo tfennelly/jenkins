@@ -290,6 +290,10 @@ pre.console {
   white-space: nowrap;
 }
 
+.task-icon-link .jenkins-icon {
+    margin: 2px;
+}
+
 .subtasks {
   padding-left: 1em;
 }
@@ -575,36 +579,6 @@ LABEL.attach-previous {
 .icon32x32 {
     width: 32px;
     height: 32px;
-}
-
-/* ====================== orb styles =============================== */
-
-.jenkins-orb.orb-size-16x16 {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-}
-.jenkins-orb.orb-size-24x24 {
-    display: inline-block;
-    width: 18px;
-    height: 18px;
-}
-.jenkins-orb.orb-size-32x32 {
-    display: inline-block;
-    width: 24px;
-    height: 24px;
-}
-.jenkins-orb.orb-size-48x48 {
-    display: inline-block;
-    width: 36px;
-    height: 36px;
-}
-
-/*
-    Unanimated orbs.  All colors based on colors from the BallColor class colors.
- */
-.jenkins-orb.NO_ANIME {
-    border-radius: 50%;
 }
 
 /* ====================== help ===================================== */

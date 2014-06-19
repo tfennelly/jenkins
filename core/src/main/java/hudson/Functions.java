@@ -294,6 +294,10 @@ public class Functions {
         return buf.toString();
     }
 
+    public static boolean isIconAlias(String iconConfigVal) {
+        return !iconConfigVal.contains("/");
+    }
+
     public static RunUrl decompose(StaplerRequest req) {
         List<Ancestor> ancestors = req.getAncestors();
 

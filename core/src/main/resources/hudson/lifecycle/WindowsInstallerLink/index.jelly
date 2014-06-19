@@ -51,7 +51,7 @@ THE SOFTWARE.
         <!-- already installed -->
         <j:otherwise>
           <h1>
-            <div class="jenkins-orb orb-size-48x48" orb-status="BLUE" /><st:nbsp /><span class="text-align top">${%Installation Complete}</span>
+            <l:icon name="blue-48x48" text="${%Installation Complete}" />
           </h1>
 
           <p>${%restartBlurb}</p>

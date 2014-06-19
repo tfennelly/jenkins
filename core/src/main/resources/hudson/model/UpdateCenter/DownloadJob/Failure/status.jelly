@@ -26,7 +26,7 @@ THE SOFTWARE.
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
   <div>
-    <div class="jenkins-orb orb-size-24x24" orb-status="RED" /><st:nbsp /><span class="text-align top">${%Failure}</span>
+    <l:icon name="red-24x24" text="${%Failure}" />
     -
     <a href="" onclick="var n=findNext(this,function(e){return e.tagName=='PRE'});
                n.style.display='block';this.style.display='none';return false">${%Details}</a>

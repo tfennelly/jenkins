@@ -22,6 +22,6 @@
  * THE SOFTWARE.
  */
 
-raw("<div class='jenkins-orb orb-size-24x24' orb-status='YELLOW'></div>");
+raw("<div class='jenkins-icon yellow-24x24' icon-name='yellow-24x24'></div>");
 raw("&nbsp;")
 raw("<span class='text-align top'>" + my.message + '</span>')
