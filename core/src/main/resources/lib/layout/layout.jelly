@@ -123,7 +123,7 @@ ${h.initPageVariables(context)}
     <script src="${resURL}/scripts/hudson-behavior.js" type="text/javascript"></script>
     <script src="${resURL}/scripts/sortable.js" type="text/javascript"/>
 
-    <st:adjunct includes="lib.layout.icon"/>
+    <st:adjunct includes="lib.layout.icons"/>
     <script>
         crumb.init("${h.getCrumbRequestField()}", "${h.getCrumb(request)}");
     </script>
