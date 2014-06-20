@@ -35,8 +35,9 @@ THE SOFTWARE.
       <j:set var="id" value="${h.generateId()}"/>
       <tr class="build-row transitive" id="${id}">
         <td nowrap="nowrap">
+          <l:icon name="grey-16x16" />
           <!-- Don't use math unless needed, in case nextBuildNumber is not numeric -->
-          <l:icon name="grey-16x16" text="#${queuedItems.size()==1 ? it.owner.nextBuildNumber : it.owner.nextBuildNumber+queuedItems.size()-i-1}" />
+          #${queuedItems.size()==1 ? it.owner.nextBuildNumber : it.owner.nextBuildNumber+queuedItems.size()-i-1}
         </td>
         <td style="white-space:normal;" colspan="2">
           <div style="float:right">

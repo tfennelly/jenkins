@@ -30,18 +30,8 @@ THE SOFTWARE.
     <st:attribute name="tooltip">Tooltip (optional)</st:attribute>
     <st:attribute name="style">Inline styles</st:attribute>
     <st:attribute name="onclick">On-click Javascript.</st:attribute>
-    <st:attribute name="text" />
   </st:documentation>
 
   <j:set var="normalizedIconName" value="${attrs.name.toLowerCase()}" />
-
-  <!-- Might make more sense to use the tag body and call invokeBody? -->
-  <j:choose>
-    <j:when test="${attrs.text != null}">
-        <div class="jenkins-icon ${normalizedIconName}" icon-name="${normalizedIconName}" tooltip="${attrs.tooltip}" style="${attrs.style}" onclick="${attrs.onclick}"><span>${attrs.text}</span></div>
-    </j:when>
-    <j:otherwise>
-        <div class="jenkins-icon ${normalizedIconName}" icon-name="${normalizedIconName}" tooltip="${attrs.tooltip}" style="${attrs.style}" onclick="${attrs.onclick}"/>
-    </j:otherwise>
-  </j:choose>
+  <div class="jenkins-icon ${normalizedIconName}" icon-name="${normalizedIconName}" tooltip="${attrs.tooltip}" style="${attrs.style}" onclick="${attrs.onclick}"/>
 </j:jelly>

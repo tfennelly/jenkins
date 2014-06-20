@@ -35,12 +35,14 @@ THE SOFTWARE.
       <j:choose>
         <j:when test="${it.alive}">
           <h1>
-            <l:icon name="blue-48x48" text="${%Thread is still alive}" />
+            <l:icon name="blue-48x48" />
+            ${%Thread is still alive}
           </h1>
         </j:when>
         <j:otherwise>
           <h1>
-            <l:icon name="red-48x48" text="${%Thread has died}" />
+            <l:icon name="red-48x48" />
+            ${%Thread has died}
           </h1>
           <pre>${h.printThrowable(it.causeOfDeath)}</pre>
           <pre>

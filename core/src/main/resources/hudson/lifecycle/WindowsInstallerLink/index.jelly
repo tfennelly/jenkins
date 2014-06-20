@@ -51,7 +51,8 @@ THE SOFTWARE.
         <!-- already installed -->
         <j:otherwise>
           <h1>
-            <l:icon name="blue-48x48" text="${%Installation Complete}" />
+            <l:icon name="blue-48x48" />
+            ${%Installation Complete}
           </h1>
 
           <p>${%restartBlurb}</p>
