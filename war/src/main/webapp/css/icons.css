@@ -78,7 +78,7 @@
 .jenkins-icon.yellow-16x16, .jenkins-icon.yellow_anime-16x16 {width: 16px; height: 16px;}
 .jenkins-icon.disabled-16x16, .jenkins-icon.disabled_anime-16x16 {width: 16px; height: 16px;}
 .jenkins-icon.aborted-16x16, .jenkins-icon.aborted_anime-16x16 {width: 16px; height: 16px;}
-.jenkins-icon.notbuilt-16x1, .jenkins-icon.notbuilt_anime-16x16, .jenkins-icon.nobuilt-16x16, .jenkins-icon.nobuilt_anime-16x16 {width: 16px; height: 16px;}
+.jenkins-icon.notbuilt-16x16, .jenkins-icon.notbuilt_anime-16x16, .jenkins-icon.nobuilt-16x16, .jenkins-icon.nobuilt_anime-16x16 {width: 16px; height: 16px;}
 
 /*
  * 24x24 icons.
@@ -137,7 +137,7 @@
 .jenkins-icon.yellow-24x24, .jenkins-icon.yellow_anime-24x24 {width: 24px; height: 24px;}
 .jenkins-icon.aborted-24x24, .jenkins-icon.aborted_anime-24x24 {width: 24px; height: 24px;}
 .jenkins-icon.disabled-24x24, .jenkins-icon.disabled_anime-24x24 {width: 24px; height: 24px;}
-.jenkins-icon.notbuilt-24x2, .jenkins-icon.notbuilt_anime-24x24, .jenkins-icon.nobuilt-24x24, .jenkins-icon.nobuilt_anime-24x24 {width: 24px; height: 24px;}
+.jenkins-icon.notbuilt-24x24, .jenkins-icon.notbuilt_anime-24x24, .jenkins-icon.nobuilt-24x24, .jenkins-icon.nobuilt_anime-24x24 {width: 24px; height: 24px;}
 
 /*
  * 32x32 icons.
@@ -174,7 +174,7 @@
 .jenkins-icon.yellow-32x32, .jenkins-icon.yellow_anime-32x32 {width: 32px; height: 32px;}
 .jenkins-icon.aborted-32x32, .jenkins-icon.aborted_anime-32x32 {width: 32px; height: 32px;}
 .jenkins-icon.disabled-32x32, .jenkins-icon.disabled_anime-32x32 {width: 32px; height: 32px;}
-.jenkins-icon.notbuilt-32x3, .jenkins-icon.notbuilt_anime-32x32, .jenkins-icon.nobuilt-32x32, .jenkins-icon.nobuilt_anime-32x32 {width: 32px; height: 32px;}
+.jenkins-icon.notbuilt-32x32, .jenkins-icon.notbuilt_anime-32x32, .jenkins-icon.nobuilt-32x32, .jenkins-icon.nobuilt_anime-32x32 {width: 32px; height: 32px;}
 
 /*
  * 48x48 icons.
@@ -224,7 +224,7 @@
 .jenkins-icon.yellow-48x48, .jenkins-icon.yellow_anime-48x48 {width: 48px; height: 48px;}
 .jenkins-icon.aborted-48x48, .jenkins-icon.aborted_anime-48x48 {width: 48px; height: 48px;}
 .jenkins-icon.disabled-48x48, .jenkins-icon.disabled_anime-48x48 {width: 48px; height: 48px;}
-.jenkins-icon.notbuilt-48x4, .jenkins-icon.notbuilt_anime-48x48, .jenkins-icon.nobuilt-48x48, .jenkins-icon.nobuilt_anime-48x48 {width: 48px; height: 48px;}
+.jenkins-icon.notbuilt-48x48, .jenkins-icon.notbuilt_anime-48x48, .jenkins-icon.nobuilt-48x48, .jenkins-icon.nobuilt_anime-48x48 {width: 48px; height: 48px;}
 
 /*
     Unanimated icons.  All colors based on colors from the BallColor class colors.

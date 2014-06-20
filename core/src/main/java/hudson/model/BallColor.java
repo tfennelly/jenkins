@@ -72,26 +72,36 @@ public enum BallColor implements StatusIcon {
     ;
 
     private final Localizable description;
-    private final String image;
+    private final String iconName;
+    private final String imageFile;
     private final Color baseColor;
 
-    BallColor(String image, Localizable description, Color baseColor) {
+    BallColor(String iconName, Localizable description, Color baseColor) {
+        this.iconName = iconName;
         this.baseColor = baseColor;
         // name() is not usable in the constructor, so I have to repeat the name twice
         // in the constants definition.
-        this.image = image+ (image.endsWith("_anime")?".gif":".png");
+        this.imageFile = iconName + (iconName.endsWith("_anime")?".gif":".png");
         this.description = description;
+    }
+
+    /**
+     * Get the ball/orb icon name.
+     * @return The ball/orb icon name.
+     */
+    public String getIconName() {
+        return iconName;
     }
 
     /**
      * String like "red.png" that represents the file name of the image.
      */
     public String getImage() {
-        return image;
+        return imageFile;
     }
 
     public String getImageOf(String size) {
-        return Stapler.getCurrentRequest().getContextPath()+ Jenkins.RESOURCE_PATH+"/images/"+size+'/'+image;
+        return Stapler.getCurrentRequest().getContextPath()+ Jenkins.RESOURCE_PATH+"/images/"+size+'/'+imageFile;
     }
 
     /**

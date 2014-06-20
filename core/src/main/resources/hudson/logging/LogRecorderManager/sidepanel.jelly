@@ -34,7 +34,7 @@ THE SOFTWARE.
       <l:task icon="setting-24x24" href="${rootURL}/manage" title="${%Manage Jenkins}" />
       <l:task icon="clipboard-24x24" href="." title="${%Logger List}" />
       <l:task icon="notepad-24x24" href="all" title="${%All Logs}" />
-      <l:task icon="new-24x24.png" href="new" title="${%New Log Recorder}" />
+      <l:task icon="new-package-24x24" href="new" title="${%New Log Recorder}" />
       <l:task icon="gear-24x24" href="levels" title="${%Log Levels}" />
     </l:tasks>
   </l:side-panel>

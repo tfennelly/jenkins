@@ -720,12 +720,6 @@ table.parameters > tbody:hover {
     white-space: normal;
 }
 
-/* ========================= build details ========================= */
-.build-caption .displayName {
-    position: relative;
-    top: -10px;
-}
-
 /* ========================= editable combobox style ========================= */
 .comboBoxList {
   border: 1px solid #000;

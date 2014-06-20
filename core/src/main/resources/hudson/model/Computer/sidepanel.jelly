@@ -32,7 +32,7 @@ THE SOFTWARE.
     <l:tasks>
       <l:task icon="up-24x24" href=".." title="${%Back to List}" contextMenu="false"/>
       <l:task icon="search-24x24" href="${rootURL}/${it.url}" title="${%Status}" contextMenu="false"/>
-      <l:task icon="edit-24x24.png" href="delete" title="${%Delete Slave}" permission="${it.DELETE}" />
+      <l:task icon="edit-delete-24x24" href="delete" title="${%Delete Slave}" permission="${it.DELETE}" />
       <l:task icon="setting-24x24" href="configure" title="${%Configure}" permission="${it.CONFIGURE}" />
       <l:task icon="notepad-24x24" href="builds" title="${%Build History}" />
       <l:task icon="monitor-24x24" href="load-statistics" title="${%Load Statistics}" />
