@@ -26,7 +26,7 @@ THE SOFTWARE.
   Renders the nest view in <projectView />
 -->
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:x="jelly:xml" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+<j:jelly xmlns:j="jelly:core" xmlns:x="jelly:xml" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:ui="/lib/ui/icon"
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
   <tr>
     <td colspan="2">
@@ -44,7 +44,7 @@ THE SOFTWARE.
             </a>
           </j:otherwise>
         </j:choose>
-        <img src="${imagesURL}/${iconSize}/folder.png" style="margin-left:4px" alt="" class="icon${iconSize}" />
+        <ui:icon class="icon-folder ${icons.toNormalizedIconSizeClass(iconSize)}" style="margin-left:4px" />
       </div>
     </td>
     <td colspan="5" style="${indenter.getCss(job)}">

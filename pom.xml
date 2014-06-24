@@ -48,6 +48,7 @@ THE SOFTWARE.
 
   <modules>
     <module>core</module>
+    <module>icon</module>
     <module>war</module>
     <module>test</module>
     <module>cli</module>

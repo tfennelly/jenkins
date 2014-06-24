@@ -27,7 +27,7 @@ THE SOFTWARE.
   Render build histories.
 -->
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:ui="/lib/ui/icon" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
   <!-- pending build -->
   <j:set var="queuedItems" value="${it.queuedItems}" />
   <j:if test="${!pending.isEmpty()}">
@@ -35,7 +35,7 @@ THE SOFTWARE.
       <j:set var="id" value="${h.generateId()}"/>
       <tr class="build-row transitive" id="${id}">
         <td nowrap="nowrap">
-          <img width="16" height="16" src="${imagesURL}/16x16/grey.png" alt="${%pending}"/>
+          <ui:icon class="icon-grey icon-sm"/>
           <st:nbsp/>
           <!-- Don't use math unless needed, in case nextBuildNumber is not numeric -->
           #${queuedItems.size()==1 ? it.owner.nextBuildNumber

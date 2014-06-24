@@ -29,7 +29,7 @@ THE SOFTWARE.
   <%@ attribute name="link" required="false" type="java.lang.String" %>
 -->
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:x="jelly:xml" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+<j:jelly xmlns:j="jelly:core" xmlns:x="jelly:xml" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:ui="/lib/ui/icon" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
     <j:set var="buildHealth" value="${job.buildHealth}"/>
     <j:set var="healthReports" value="${job.buildHealthReports}"/>
     <j:if test="${td}"><j:set var="useTdElement" value="x"/></j:if>
@@ -44,13 +44,13 @@ THE SOFTWARE.
               <j:when  test="${!empty(healthReports)}">
                 <a class="build-health-link" href="${empty(link)?'#':link}" 
                     style="${attrs.style}">
-                    <img src="${rootURL}${buildHealth.getIconUrl(iconSize)}"
+                    <ui:icon src="${rootURL}${buildHealth.getIconUrl(iconSize)}"
                          alt="${buildHealth.score}%" 
                          class="build-health-icon icon${iconSize}"/>
                 </a>
               </j:when>
               <j:otherwise>
-                 <img src="${rootURL}${buildHealth.getIconUrl(iconSize)}"
+                 <ui:icon src="${rootURL}${buildHealth.getIconUrl(iconSize)}"
                       alt="${buildHealth.score}%" class="build-health-icon icon${iconSize}"/>
                </j:otherwise>
              </j:choose>  
@@ -69,7 +69,7 @@ THE SOFTWARE.
                         <j:forEach var="rpt" items="${job.buildHealthReports}">
                             <tr>
                                 <td align="left">
-                                    <img src="${rootURL}${rpt.getIconUrl('16x16')}" alt=""
+                                    <ui:icon src="${rootURL}${rpt.getIconUrl('16x16')}" alt=""
                                          title=""/>
                                 </td>
                                 <td>${rpt.localizableDescription}</td>

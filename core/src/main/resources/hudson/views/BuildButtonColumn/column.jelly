@@ -23,7 +23,7 @@ THE SOFTWARE.
 -->
 
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:ui="/lib/ui/icon" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
       <td>
           <j:if test="${job.buildable and job.hasPermission(job.BUILD)}">
               <j:set var="id" value="${h.generateId()}"/>
@@ -38,11 +38,10 @@ THE SOFTWARE.
                           <j:set var="onclick" value="return build_${id}(this)"/>
                       </j:otherwise>
                   </j:choose>
-                  <j:set var="icon" value="${app.queue.contains(job) ? 'clock_anime.gif' : 'clock.png'}"/>
-                  <img src="${imagesURL}/${subIconSize}/${icon}"
+                  <j:set var="icon" value="${app.queue.contains(job) ? 'icon-clock-anime' : 'icon-clock'}"/>
+                  <ui:icon class="${icon} ${icons.toNormalizedIconSizeClass(subIconSize)}"
                          title="${title}" alt="${title}"
-                         onclick="${onclick}"
-                         border="0"/>
+                         onclick="${onclick}"/>
               </a>
               <script>
                 function build_${id}(img) {

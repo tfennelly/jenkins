@@ -24,7 +24,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:i="jelly:fmt" xmlns:x="jelly:xml">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:ui="/lib/ui/icon" xmlns:i="jelly:fmt" xmlns:x="jelly:xml">
   <st:documentation>
     Outer-most tag for a normal (non-AJAX) HTML rendering.
     This is used with nested &lt;header>, &lt;side-panel>, and &lt;main-panel>
@@ -164,7 +164,7 @@ ${h.initPageVariables(context)}
                 <div id="searchform">
                   <input name="q" placeholder="${%search}" id="search-box" class="has-default-text" value="${request.getParameter('q')}" />
                   <st:nbsp />
-                  <a href="${%searchBox.url}"><img src="${imagesURL}/16x16/help.png" alt="help for search" height="16" width="16" /></a>
+                  <a href="${%searchBox.url}"><ui:icon class="icon-help icon-sm"/></a>
                   <div id="search-box-completion" />
                   <script>createSearchBox("${searchURL}");</script>
                 </div>
@@ -203,7 +203,7 @@ ${h.initPageVariables(context)}
       </tr>
       <l:breadcrumbBar>
         <j:set var="mode" value="breadcrumbs" />
-        <d:invokeBody />
+        <d:invokeBody/>
       </l:breadcrumbBar>
     </table>
     <table id="main-table" width="100%" height="70%" border="0"

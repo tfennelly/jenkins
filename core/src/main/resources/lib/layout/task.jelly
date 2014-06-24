@@ -23,7 +23,7 @@ THE SOFTWARE.
 -->
 
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:ui="/lib/ui/icon">
   <st:documentation>
     This tag inside &lt;l:tasks> tag renders the left navigation bar of Hudson.
     Each &lt;task> tag gets an icon and link.
@@ -94,7 +94,7 @@ THE SOFTWARE.
       <j:when test="${enabled==false}">
         <div class="task disabled">
           <span>
-            <img width="24" height="24" style="margin: 2px;" alt="" src="${rootURL}${icon.startsWith('images/') || icon.startsWith('plugin/') ? h.resourcePath : ''}/${icon}"/>
+            <ui:icon width="24" height="24" style="margin: 2px;" alt="" src="${rootURL}${icon.startsWith('images/') || icon.startsWith('plugin/') ? h.resourcePath : ''}/${icon}"/>
           </span>
           <st:nbsp />
 
@@ -129,12 +129,12 @@ THE SOFTWARE.
           <j:choose>
             <j:when test="${requiresConfirmation and not attrs.onClick}">
               <l:confirmationLink href="${href}" post="${post}" message="${confirmationMessage ?: title}">
-                <img class="task-icon" width="24" height="24" style="margin: 2px;" alt="" src="${icon}"/>
+                <ui:icon class="task-icon" width="24" height="24" style="margin: 2px;" alt="" src="${icon}"/>
               </l:confirmationLink>
             </j:when>
             <j:otherwise>
               <a href="${href}" class="task-icon-link" onclick="${attrs.onclick ?: (post ? 'postRequest_' + id + '(this)' : null)}">
-                <img class="task-icon" width="24" height="24" style="margin: 2px;" alt="" src="${icon}"/>
+                <ui:icon class="task-icon" width="24" height="24" style="margin: 2px;" alt="" src="${icon}"/>
               </a>
             </j:otherwise>
           </j:choose>

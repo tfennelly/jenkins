@@ -26,7 +26,7 @@ THE SOFTWARE.
     displays a caption for build/externalRun.
 -->
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:ui="/lib/ui/icon" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 	<h1 class="build-caption page-headline">
 	  <j:if test="${it.building}">
 	    <div class="build-caption-progress-container" style="float:right">
@@ -44,7 +44,7 @@ THE SOFTWARE.
 	    </div>
 	  </j:if>
 	  
-	  <img class="build-caption-status-icon" src="${imagesURL}/48x48/${it.buildStatusUrl}" width="48" height="48" alt="${it.iconColor.description}" tooltip="${it.iconColor.description}" />
+	  <ui:icon alt="${it.iconColor.description}" class="${icons.toNormalizedIconNameClass(it.buildStatusUrl)} icon-xlg" tooltip="${it.iconColor.description}"/>
 	  <d:invokeBody />
 	</h1>
 </j:jelly>

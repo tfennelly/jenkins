@@ -23,7 +23,7 @@ THE SOFTWARE.
 -->
 
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:ui="/lib/ui/icon" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
   <st:documentation>
     Renders ${it.description} and then allow it to be editable in place,
     if the current user has the specified permission.
@@ -41,7 +41,7 @@ THE SOFTWARE.
 
     <l:hasPermission permission="${permission}">
       <div align="right"><a id="description-link" href="editDescription" onclick="${h.isAutoRefresh(request) ? null : 'return replaceDescription();'}">
-        <img id="description-image" src="${imagesURL}/16x16/notepad.png" alt="" height="16" width="16" />
+        <ui:icon class="icon-notepad icon-sm"/>
         <j:choose>
           <j:when test="${empty(it.description)}">
             ${%add description}

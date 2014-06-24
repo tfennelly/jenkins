@@ -26,7 +26,7 @@ THE SOFTWARE.
   Entrance to the configuration page
 -->
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:s="/lib/form">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:ui="/lib/ui/icon" xmlns:t="/lib/hudson" xmlns:s="/lib/form">
 <l:layout title="${%Nodes}">
   <st:include page="sidepanel.jelly" />
   <l:header>
@@ -55,7 +55,7 @@ THE SOFTWARE.
       <j:forEach var="c" items="${it._all}">
         <tr id="node_${c.name}">
           <td width="32" data="${c.icon}">
-            <img src="${imagesURL}/32x32/${c.icon}" width="32" height="32" alt="${c.iconAltText}"/>
+            <ui:icon class="${icons.toNormalizedIconNameClass(c.icon)} icon-lg" alt="${c.iconAltText}"/>
           </td>
           <td><a href="${rootURL}/${c.url}" class="model-link inside">${c.displayName}</a></td>
           <j:forEach var="m" items="${monitors}">
@@ -68,9 +68,7 @@ THE SOFTWARE.
           <td><!-- config link -->
             <j:if test="${c.hasPermission(c.CONFIGURE)}">
               <a href="${rootURL}/${c.url}configure">
-                <img src="${imagesURL}/32x32/setting.png"
-                     title="${%Configure}" alt="${%Configure}"
-                     height="32" width="32" border="0"/>
+                <ui:icon class="icon-setting icon-lg" tooltip="${%Configure}"/>
               </a>
             </j:if>
           </td>

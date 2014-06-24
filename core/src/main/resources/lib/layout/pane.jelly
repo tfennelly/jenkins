@@ -48,9 +48,7 @@ THE SOFTWARE.
       <j:out value="${title}"/>
       <a class="collapse" href="${rootURL}/toggleCollapse?paneId=${attrs.id}" 
          title="${h.isCollapsed(attrs.id) ? '%expand' : '%collapse'}">
-        <img src="${imagesURL}/16x16/${h.isCollapsed(attrs.id) ? 'expand' : 'collapse'}.png" 
-             class="icon16x16" 
-             alt="${h.isCollapsed(attrs.id) ? '%expand' : '%collapse'}" />
+        <ui:icon alt="${h.isCollapsed(attrs.id) ? '%expand' : '%collapse'}" class="icon16x16" src="${imagesURL}/16x16/${h.isCollapsed(attrs.id) ? 'expand' : 'collapse'}.png" xmlns:ui="/lib/ui/icon"/>
       </a>
       </div>
     </td></tr>

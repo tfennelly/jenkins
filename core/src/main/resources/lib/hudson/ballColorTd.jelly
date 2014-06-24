@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:x="jelly:xml" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+<j:jelly xmlns:j="jelly:core" xmlns:x="jelly:xml" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:ui="/lib/ui/icon" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
   <st:documentation>
     Display the ball in a TD.
     <st:attribute name="it" type="hudson.model.BallColor">
@@ -34,7 +34,7 @@ THE SOFTWARE.
   </st:documentation>
   <td data="${it.ordinal()}">
     <j:if test="${attrs.it!=null}">
-      <img src="${it.getImageOf(iconSize)}" alt="${it.description}"
+      <ui:icon src="${it.getImageOf(iconSize)}" alt="${it.description}"
            tooltip="${it.description}" style="${attrs.style}" class="icon${iconSize}"/>
     </j:if>
   </td>

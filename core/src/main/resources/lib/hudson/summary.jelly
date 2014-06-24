@@ -23,7 +23,7 @@ THE SOFTWARE.
 -->
 
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:ui="/lib/ui/icon" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
   <st:documentation>
     Displays a link with a large icon. Used in the project top page.
 
@@ -48,12 +48,12 @@ THE SOFTWARE.
           <j:choose>
             <j:when test="${attrs.href!=null}">
               <a href="${attrs.href}">
-                <img src="${icon.startsWith('/') ? resURL+icon : imagesURL+'/48x48/'+icon}"
+                <ui:icon src="${icon.startsWith('/') ? resURL+icon : imagesURL+'/48x48/'+icon}"
                      alt="" width="48" height="48" style="margin-right:1em" />
               </a>
             </j:when>
             <j:otherwise>
-              <img src="${icon.startsWith('/') ? resURL+icon : imagesURL+'/48x48/'+icon}"
+              <ui:icon src="${icon.startsWith('/') ? resURL+icon : imagesURL+'/48x48/'+icon}"
                    alt="" width="48" height="48" style="margin-right:1em" />
             </j:otherwise>
           </j:choose>
