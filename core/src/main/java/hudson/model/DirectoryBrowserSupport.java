@@ -419,6 +419,13 @@ public final class DirectoryBrowserSupport implements HttpResponse {
                 return isFolder?"folder-error.png":"text-error.png";
         }
 
+        public String getIconClassName() {
+            if (isReadable)
+                return isFolder?"icon-folder":"icon-text";
+            else
+                return isFolder?"icon-folder-error":"icon-text-error";
+        }
+
         public long getSize() {
             return size;
         }

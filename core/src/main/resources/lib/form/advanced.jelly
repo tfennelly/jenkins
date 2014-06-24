@@ -47,7 +47,7 @@ THE SOFTWARE.
 	    <div class="advancedLink" style="${attrs.align!=null?('text-align:'+attrs.align):''}">
               <j:set var="id" value="${h.generateId()}"/>
               <span style="display: none" id="${id}">
-                <img src="${imagesURL}/16x16/document_edit.png" style="vertical-align: super" alt="${%customizedFields}" tooltip="${%customizedFields}"/>
+                <l:icon class="icon-document-edit icon-sm" style="vertical-align: super" tooltip="${%customizedFields}"/>
               </span>
 	      <input type="button" value="${attrs.title?:'%Advanced'}..." class="advanced-button advancedButton" /><!-- advancedButton is legacy -->
 	    </div>

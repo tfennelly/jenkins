@@ -83,7 +83,7 @@ THE SOFTWARE.
             </td>
             <j:if test="${help!=null}">
               <td>
-                <a href="#" class="help-button" helpURL="${rootURL}${help}"><img src="${imagesURL}/16x16/help.png" alt="[help]" height="16" width="16"/></a>
+                <a class="help-button" helpURL="${rootURL}${help}" href="#"><l:icon class="icon-help icon-sm"/></a>
               </td>
             </j:if>
           </tr>
