@@ -41,6 +41,7 @@ import hudson.security.PermissionScope;
 import hudson.util.CyclicGraphDetector;
 import hudson.util.CyclicGraphDetector.CycleDetectedException;
 import hudson.util.PersistedList;
+import hudson.util.PluginServletFilter;
 import hudson.util.Service;
 import hudson.util.VersionNumber;
 import hudson.util.XStream2;
@@ -74,8 +75,15 @@ import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
@@ -84,6 +92,7 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -190,6 +199,12 @@ public abstract class PluginManager extends AbstractModelObject implements OnMas
             compatibilityTransformer.loadRules(getClass().getClassLoader());
         } catch (IOException e) {
             LOGGER.log(Level.WARNING, "Failed to load compatibility rewrite rules",e);
+        }
+
+        try {
+            PluginServletFilter.addFilter(new PluginStylesFilter());
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Failed to install PluginStylesFilter.", e);
         }
     }
 
@@ -324,6 +339,12 @@ public abstract class PluginManager extends AbstractModelObject implements OnMas
 //                                }
 //                            });
 
+                            g.followedBy().attains(PLUGINS_LISTED).add("Building plugin UI styles", new Executable() {
+                                public void run(Reactor session) throws Exception {
+                                    buildPluginStyles();
+                                }
+                            });
+
                             session.addAll(g.discoverTasks(session));
 
                             pluginListed = true; // technically speaking this is still too early, as at this point tasks are merely scheduled, not necessarily executed.
@@ -396,6 +417,16 @@ public abstract class PluginManager extends AbstractModelObject implements OnMas
                 }
             });
         }});
+    }
+
+    private void buildPluginStyles() {
+        LOGGER.info("***** Building plugin styles (" + plugins.size() + ")...");
+
+        // Iterate the plugins looking for style.css files ... concat them together.
+        //
+        // Qs:
+        //  - Perhaps look at using LESS ??  With LESS, we can parameterize.. but do we really need it?
+        //  - Use all plugins, or just active plugins?  I think use them all??
     }
 
     /*
@@ -486,6 +517,8 @@ public abstract class PluginManager extends AbstractModelObject implements OnMas
         }
         
         LOGGER.info("Plugin " + sn + " dynamically installed");
+
+        buildPluginStyles();
     }
 
     /**
@@ -1215,5 +1248,34 @@ public abstract class PluginManager extends AbstractModelObject implements OnMas
             }
         }
 
-    }    
+    }
+
+    private static final class PluginStylesFilter implements Filter {
+        public void init(FilterConfig config) throws ServletException {
+        }
+
+        public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+            HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+            String pathInfo = httpServletRequest.getPathInfo();
+
+            if (pathInfo.equals("/plugin/styles.css")) {
+                HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+
+                // Obviously... change this to serve the in-mem styles
+                String css = "a {background-color: black;}";
+                byte[] cssBytes = css.getBytes(Charset.forName("UTF-8"));
+
+                httpServletResponse.setContentType("text/css;charset=UTF-8");
+                httpServletResponse.setContentLength(cssBytes.length);
+                httpServletResponse.getOutputStream().write(cssBytes);
+                httpServletResponse.setStatus(HttpServletResponse.SC_OK);
+            } else {
+                chain.doFilter(request,response);
+            }
+        }
+
+        public void destroy() {
+        }
+    };
+
 }
