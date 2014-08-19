@@ -431,6 +431,8 @@ function registerValidator(e) {
     };
     var method = e.getAttribute("checkMethod") || "get";
 
+    method = method.toLowerCase();
+
     var url = e.targetUrl();
     try {
       FormChecker.delayedCheck(url, method, e.targetElement);
@@ -443,20 +445,37 @@ function registerValidator(e) {
 
     var checker = function() {
         var target = this.targetElement;
-        FormChecker.sendRequest(this.targetUrl(), {
-            method : method,
-            onComplete : function(x) {
-                target.innerHTML = x.responseText;
-                Behaviour.applySubtree(target);
-            }
-        });
+
+        // On fire the validation request if it something different from the last request.
+        if (method != "get" || this.targetUrl() !== this.lastValidatedTargetUrl) {
+            this.lastValidatedTargetUrl = this.targetUrl();
+            FormChecker.sendRequest(this.targetUrl(), {
+                method : method,
+                onComplete : function(x) {
+                    target.innerHTML = x.responseText;
+                    Behaviour.applySubtree(target);
+                }
+            });
+        }
     }
+
     var oldOnchange = e.onchange;
     if(typeof oldOnchange=="function") {
         e.onchange = function() { checker.call(this); oldOnchange.call(this); }
-    } else
+    } else {
         e.onchange = checker;
+    }
     e.onblur = checker;
+
+    // Capture the current targetUrl value on the input.  This way we can:
+    // 1. Block unnecessary validations when nothing has changed (e.g. onblur)
+    // 2. Block multiple validations - onchange and onblur
+    //
+    // The real question is... should we really be validating off both the onblur and
+    // onchange event handlers?  What is the onblur handler catching that
+    // onchange cannot?
+    //
+    e.lastValidatedTargetUrl = e.targetUrl();
 
     var v = e.getAttribute("checkDependsOn");
     if (v) {
