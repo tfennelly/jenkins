@@ -32,6 +32,7 @@ import hudson.Extension;
 import hudson.ExtensionPoint;
 import hudson.PermalinkList;
 import hudson.Util;
+import hudson.cli.declarative.CLIMethod;
 import hudson.cli.declarative.CLIResolver;
 import hudson.model.Descriptor.FormException;
 import hudson.model.Fingerprint.Range;
@@ -45,6 +46,9 @@ import hudson.search.SearchItem;
 import hudson.search.SearchItems;
 import hudson.security.ACL;
 import hudson.tasks.LogRotator;
+import hudson.tasks.Publisher;
+import hudson.triggers.Trigger;
+import hudson.triggers.TriggerDescriptor;
 import hudson.util.AlternativeUiTextProvider;
 import hudson.util.ChartUtil;
 import hudson.util.ColorPalette;
@@ -70,6 +74,7 @@ import jenkins.util.io.OnMaster;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
+import org.jenkinsci.bytecode.AdaptField;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
@@ -83,6 +88,8 @@ import org.jfree.ui.RectangleInsets;
 import org.jvnet.localizer.Localizable;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.stapler.HttpRedirect;
+import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.StaplerOverridable;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -96,6 +103,7 @@ import java.io.*;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -117,6 +125,8 @@ import jenkins.model.lazy.LazyBuildMixIn;
 public abstract class Job<JobT extends Job<JobT, RunT>, RunT extends Run<JobT, RunT>>
         extends AbstractItem implements ExtensionPoint, StaplerOverridable, ModelObjectWithChildren, OnMaster {
 
+    private static final AtomicReferenceFieldUpdater<Job,DescribableList> triggersUpdater
+            = AtomicReferenceFieldUpdater.newUpdater(Job.class,DescribableList.class,"triggers");
     /**
      * Next build number. Kept in a separate file because this is the only
      * information that gets updated often. This allows the rest of the
@@ -126,6 +136,15 @@ public abstract class Job<JobT extends Job<JobT, RunT>, RunT extends Run<JobT, R
      * file, so even though this is marked as transient, don't move it around.
      */
     protected transient volatile int nextBuildNumber = 1;
+    /**
+     * List of all {@link hudson.triggers.Trigger}s for this project.
+     */
+    @AdaptField(was=List.class)
+    protected volatile DescribableList<Trigger<?>,TriggerDescriptor> triggers = new DescribableList<Trigger<?>,TriggerDescriptor>(this);
+    /**
+     * True to suspend new builds.
+     */
+    protected volatile boolean disabled;
 
     /**
      * Newly copied jobs get this flag set, so that Hudson doesn't try to run the job until its configuration
@@ -222,6 +241,141 @@ public abstract class Job<JobT extends Job<JobT, RunT>, RunT extends Run<JobT, R
             this.holdOffBuildUntilUserSave = true;
             this.holdOffBuildUntilSave = this.holdOffBuildUntilUserSave;
         }
+    }
+
+    /**
+     * Gets the nearest ancestor {@link hudson.model.TopLevelItem} that's also an {@link hudson.model.AbstractProject}.
+     *
+     * <p>
+     * Some projects (such as matrix projects, Maven projects, or promotion processes) form a tree of jobs
+     * that acts as a single unit. This method can be used to find the top most dominating job that
+     * covers such a tree.
+     *
+     * @return never null.
+     * @see hudson.model.AbstractBuild#getRootBuild()
+     */
+    public Job<?,?> getRootProject() {
+        if (this instanceof TopLevelItem) {
+            return this;
+        } else {
+            ItemGroup p = this.getParent();
+            if (p instanceof Job)
+                return ((Job) p).getRootProject();
+            return this;
+        }
+    }
+
+    @WithBridgeMethods(List.class)
+    protected DescribableList<Trigger<?>,TriggerDescriptor> triggers() {
+        if (triggers == null) {
+            triggersUpdater.compareAndSet(this,null,new DescribableList<Trigger<?>,TriggerDescriptor>(this));
+        }
+        return triggers;
+    }
+
+    /**
+     * Builds the dependency graph.
+     * Since 1.558, not abstract and by default includes dependencies contributed by {@link #triggers()}.
+     */
+    protected void buildDependencyGraph(DependencyGraph graph) {
+        triggers().buildDependencyGraph(this, graph);
+    }
+
+    /**
+     * Returns the live list of all {@link hudson.tasks.Publisher}s configured for this project.
+     *
+     * <p>
+     * This method couldn't be called <tt>getPublishers()</tt> because existing methods
+     * in sub-classes return different inconsistent types.
+     */
+    public abstract DescribableList<Publisher,Descriptor<Publisher>> getPublishersList();
+
+    public boolean isDisabled() {
+        return disabled;
+    }
+
+    /**
+     * Marks the build as disabled.
+     */
+    public void makeDisabled(boolean b) throws IOException {
+        if(disabled==b)     return; // noop
+        this.disabled = b;
+        if(b && this instanceof BuildableItem) {
+            Jenkins.getInstance().getQueue().cancel((BuildableItem) this);
+        }
+
+        save();
+        ItemListener.fireOnUpdated(this);
+    }
+
+    /**
+     * Specifies whether this project may be disabled by the user.
+     * By default, it can be only if this is a {@link hudson.model.TopLevelItem};
+     * would be false for matrix configurations, etc.
+     * @return true if the GUI should allow {@link #doDisable} and the like
+     * @since 1.475
+     */
+    public boolean supportsMakeDisabled() {
+        return this instanceof TopLevelItem;
+    }
+
+    public void disable() throws IOException {
+        makeDisabled(true);
+    }
+
+    public void enable() throws IOException {
+        makeDisabled(false);
+    }
+
+    @CLIMethod(name="disable-job")
+    @RequirePOST
+    public HttpResponse doDisable() throws IOException, ServletException {
+        checkPermission(CONFIGURE);
+        makeDisabled(true);
+        return new HttpRedirect(".");
+    }
+
+    @CLIMethod(name="enable-job")
+    @RequirePOST
+    public HttpResponse doEnable() throws IOException, ServletException {
+        checkPermission(CONFIGURE);
+        makeDisabled(false);
+        return new HttpRedirect(".");
+    }
+
+    /**
+     * True if the builds of this project produces {@link hudson.model.Fingerprint} records.
+     */
+    public abstract boolean isFingerprintConfigured();
+
+    /**
+     * Gets the other {@link hudson.model.AbstractProject}s that should be built
+     * when a build of this project is completed.
+     */
+    @Exported
+    public final List<Job> getDownstreamProjects() {
+        return Jenkins.getInstance().getDependencyGraph().getDownstream(this);
+    }
+
+    @Exported
+    public final List<Job> getUpstreamProjects() {
+        return Jenkins.getInstance().getDependencyGraph().getUpstream(this);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Map<TriggerDescriptor,Trigger<?>> getTriggers() {
+        return triggers().toMap();
+    }
+
+    /**
+     * Gets the specific trigger, or null if the propert is not configured for this job.
+     */
+    public <T extends Trigger> T getTrigger(Class<T> clazz) {
+        for (Trigger p : triggers()) {
+            if(clazz.isInstance(p))
+                return clazz.cast(p);
+        }
+        return null;
     }
 
     @Extension(ordinal = -Double.MAX_VALUE)

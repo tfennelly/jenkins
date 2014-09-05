@@ -73,6 +73,8 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
+import static jenkins.model.ParameterizedJobMixIn.ParameterizedJob;
+
 /**
  * Triggers builds of other projects.
  *
@@ -148,7 +150,7 @@ public class BuildTrigger extends Recorder implements DependencyDeclarer {
         return getChildProjects(Jenkins.getInstance());
     }
 
-    public List<AbstractProject> getChildProjects(AbstractProject owner) {
+    public List<AbstractProject> getChildProjects(Job owner) {
         return getChildProjects(owner==null?null:owner.getParent());
     }
 
@@ -241,21 +243,24 @@ public class BuildTrigger extends Recorder implements DependencyDeclarer {
             SecurityContext orig = ACL.impersonate(auth);
             try {
                 if (dep.shouldTriggerBuild(build, listener, buildActions)) {
-                    AbstractProject p = dep.getDownstreamProject();
+                    Job p = dep.getDownstreamProject();
                     // Allow shouldTriggerBuild to return false first, in case it is skipping because of a lack of Item.READ/DISCOVER permission:
                     if (p.isDisabled()) {
                         logger.println(Messages.BuildTrigger_Disabled(ModelHyperlinkNote.encodeTo(p)));
                         continue;
                     }
-                    boolean scheduled = p.scheduleBuild(p.getQuietPeriod(), new UpstreamCause((Run)build), buildActions.toArray(new Action[buildActions.size()]));
-                    if (Jenkins.getInstance().getItemByFullName(p.getFullName()) == p) {
-                        String name = ModelHyperlinkNote.encodeTo(p);
-                        if (scheduled) {
-                            logger.println(Messages.BuildTrigger_Triggering(name));
-                        } else {
-                            logger.println(Messages.BuildTrigger_InQueue(name));
-                        }
-                    } // otherwise upstream users should not know that it happened
+                    // TODO: I think this is OK... these are AbstractProject specific methods being called.
+                    if (p instanceof AbstractProject) {
+                        boolean scheduled = ((AbstractProject)p).scheduleBuild(((AbstractProject)p).getQuietPeriod(), new UpstreamCause((Run)build), buildActions.toArray(new Action[buildActions.size()]));
+                        if (Jenkins.getInstance().getItemByFullName(p.getFullName()) == p) {
+                            String name = ModelHyperlinkNote.encodeTo(p);
+                            if (scheduled) {
+                                logger.println(Messages.BuildTrigger_Triggering(name));
+                            } else {
+                                logger.println(Messages.BuildTrigger_InQueue(name));
+                            }
+                        } // otherwise upstream users should not know that it happened
+                    }
                 }
             } finally {
                 SecurityContextHolder.setContext(orig);
@@ -265,13 +270,13 @@ public class BuildTrigger extends Recorder implements DependencyDeclarer {
         return true;
     }
 
-    public void buildDependencyGraph(AbstractProject owner, DependencyGraph graph) {
-        for (AbstractProject p : getChildProjects(owner))
+    public void buildDependencyGraph(Job owner, DependencyGraph graph) {
+        for (Job p : getChildProjects(owner))
             graph.addDependency(new Dependency(owner, p) {
                 @Override
                 public boolean shouldTriggerBuild(AbstractBuild build, TaskListener listener,
                                                   List<Action> actions) {
-                    AbstractProject downstream = getDownstreamProject();
+                    Job downstream = getDownstreamProject();
                     if (Jenkins.getInstance().getItemByFullName(downstream.getFullName()) != downstream) { // this checks Item.READ also on parent folders
                         LOGGER.log(Level.WARNING, "Running as {0} cannot even see {1} for trigger from {2}", new Object[] {Jenkins.getAuthentication().getName(), downstream, getUpstreamProject()});
                         return false; // do not even issue a warning to build log

@@ -28,10 +28,10 @@ import hudson.DependencyRunner.ProjectRunnable;
 import hudson.DescriptorExtensionList;
 import hudson.Extension;
 import hudson.ExtensionPoint;
-import hudson.model.AbstractProject;
 import hudson.model.Action;
 import hudson.model.Build;
 import hudson.model.Describable;
+import hudson.model.Job;
 import hudson.scheduler.Hash;
 import jenkins.model.Jenkins;
 import hudson.model.Item;
@@ -240,7 +240,7 @@ public abstract class Trigger<J extends Item> implements Describable<Trigger<?>>
                 // terminated.
                 // FIXME allow to set a global crontab spec
                 previousSynchronousPolling = scmd.getExecutor().submit(new DependencyRunner(new ProjectRunnable() {
-                    public void run(AbstractProject p) {
+                    public void run(Job p) {
                         for (Trigger t : (Collection<Trigger>) p.getTriggers().values()) {
                             if (t instanceof SCMTrigger) {
                                 LOGGER.fine("synchronously triggering SCMTrigger for project " + t.job.getName());

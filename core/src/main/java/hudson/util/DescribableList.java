@@ -31,6 +31,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.mapper.Mapper;
 import hudson.model.AbstractProject;
+import hudson.model.Job;
 import jenkins.model.DependencyDeclarer;
 import hudson.model.DependencyGraph;
 import hudson.model.Describable;
@@ -203,10 +204,15 @@ public class DescribableList<T extends Describable<T>, D extends Descriptor<T>> 
         replaceBy(Descriptor.newInstancesFromHeteroList(req,formData,key,descriptors));
     }
 
+    @Deprecated
+    public void buildDependencyGraph(AbstractProject owner,DependencyGraph graph) {
+        buildDependencyGraph((Job)owner, graph);
+    }
+
     /**
      * Picks up {@link DependencyDeclarer}s and allow it to build dependencies.
      */
-    public void buildDependencyGraph(AbstractProject owner,DependencyGraph graph) {
+    public void buildDependencyGraph(Job owner,DependencyGraph graph) {
         for (Object o : this) {
             if (o instanceof DependencyDeclarer) {
                 DependencyDeclarer dd = (DependencyDeclarer) o;

@@ -26,6 +26,8 @@ package hudson.model;
 
 import java.io.File;
 import java.io.IOException;
+
+import hudson.scm.ChangeLogSet;
 import jenkins.model.Jenkins;
 import static org.junit.Assert.*;
 import org.junit.Rule;
@@ -53,6 +55,11 @@ public class ViewJobTest {
 
         public J(ItemGroup parent, String name) {
             super(parent, name);
+        }
+
+        @Override
+        public boolean isFingerprintConfigured() {
+            return false;
         }
 
         @Override protected void reload() {
@@ -96,6 +103,11 @@ public class ViewJobTest {
 
         public R(J j, File d) throws IOException {
             super(j, d);
+        }
+
+        @Override
+        public ChangeLogSet<? extends ChangeLogSet.Entry> getChangeSet() {
+            return null;
         }
 
     }

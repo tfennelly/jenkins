@@ -68,7 +68,6 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.io.StringWriter;
 import java.lang.ref.WeakReference;
-import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -103,11 +102,6 @@ import org.kohsuke.accmod.restrictions.DoNotUse;
 public abstract class AbstractBuild<P extends AbstractProject<P,R>,R extends AbstractBuild<P,R>> extends Run<P,R> implements Queue.Executable, LazyBuildMixIn.LazyLoadingRun<P,R> {
 
     /**
-     * Set if we want the blame information to flow from upstream to downstream build.
-     */
-    private static final boolean upstreamCulprits = Boolean.getBoolean("hudson.upstreamCulprits");
-
-    /**
      * Name of the slave this project was built on.
      * Null or "" if built by the master. (null happens when we read old record that didn't have this information.)
      */
@@ -134,21 +128,6 @@ public abstract class AbstractBuild<P extends AbstractProject<P,R>,R extends Abs
      * Changes in this build.
      */
     private volatile transient WeakReference<ChangeLogSet<? extends Entry>> changeSet;
-
-    /**
-     * Cumulative list of people who contributed to the build problem.
-     *
-     * <p>
-     * This is a list of {@link User#getId() user ids} who made a change
-     * since the last non-broken build. Can be null (which should be
-     * treated like empty set), because of the compatibility.
-     *
-     * <p>
-     * This field is semi-final --- once set the value will never be modified.
-     *
-     * @since 1.137
-     */
-    private volatile Set<String> culprits;
 
     /**
      * During the build this field remembers {@link hudson.tasks.BuildWrapper.Environment}s created by
@@ -318,66 +297,6 @@ public abstract class AbstractBuild<P extends AbstractProject<P,R>,R extends Abs
         FilePath ws = getWorkspace();
         if (ws==null)    return null;
         return getParent().getScm().getModuleRoots(ws, this);
-    }
-
-    /**
-     * List of users who committed a change since the last non-broken build till now.
-     *
-     * <p>
-     * This list at least always include people who made changes in this build, but
-     * if the previous build was a failure it also includes the culprit list from there.
-     *
-     * @return
-     *      can be empty but never null.
-     */
-    @Exported
-    public Set<User> getCulprits() {
-        if (culprits==null) {
-            Set<User> r = new HashSet<User>();
-            R p = getPreviousCompletedBuild();
-            if (p !=null && isBuilding()) {
-                Result pr = p.getResult();
-                if (pr!=null && pr.isWorseThan(Result.SUCCESS)) {
-                    // we are still building, so this is just the current latest information,
-                    // but we seems to be failing so far, so inherit culprits from the previous build.
-                    // isBuilding() check is to avoid recursion when loading data from old Hudson, which doesn't record
-                    // this information
-                    r.addAll(p.getCulprits());
-                }
-            }
-            for (Entry e : getChangeSet())
-                r.add(e.getAuthor());
-
-            if (upstreamCulprits) {
-                // If we have dependencies since the last successful build, add their authors to our list
-                if (getPreviousNotFailedBuild() != null) {
-                    Map <AbstractProject,DependencyChange> depmap = getDependencyChanges(getPreviousSuccessfulBuild());
-                    for (DependencyChange dep : depmap.values()) {
-                        for (AbstractBuild<?,?> b : dep.getBuilds()) {
-                            for (Entry entry : b.getChangeSet()) {
-                                r.add(entry.getAuthor());
-                            }
-                        }
-                    }
-                }
-            }
-
-            return r;
-        }
-
-        return new AbstractSet<User>() {
-            public Iterator<User> iterator() {
-                return new AdaptedIterator<String,User>(culprits.iterator()) {
-                    protected User adapt(String id) {
-                        return User.get(id);
-                    }
-                };
-            }
-
-            public int size() {
-                return culprits.size();
-            }
-        };
     }
 
     /**
@@ -1027,10 +946,10 @@ public abstract class AbstractBuild<P extends AbstractProject<P,R>,R extends Abs
         // if any of the downstream project is configured with 'keep dependency component',
         // we need to keep this log
         OUTER:
-        for (AbstractProject<?,?> p : getParent().getDownstreamProjects()) {
+        for (Job<?,?> p : getParent().getDownstreamProjects()) {
             if (!p.isKeepDependencies()) continue;
 
-            AbstractBuild<?,?> fb = p.getFirstBuild();
+            Run<?,?> fb = p.getFirstBuild();
             if (fb==null)        continue; // no active record
 
             // is there any active build that depends on us?
@@ -1041,7 +960,7 @@ public abstract class AbstractBuild<P extends AbstractProject<P,R>,R extends Abs
                 if (i<fb.getNumber())
                     continue OUTER; // all the other records are younger than the first record, so pointless to search.
 
-                AbstractBuild<?,?> b = p.getBuildByNumber(i);
+                Run<?,?> b = p.getBuildByNumber(i);
                 if (b!=null)
                     return Messages.AbstractBuild_KeptBecause(b);
             }
@@ -1058,7 +977,7 @@ public abstract class AbstractBuild<P extends AbstractProject<P,R>,R extends Abs
      *      range of build numbers that represent which downstream builds are using this build.
      *      The range will be empty if no build of that project matches this (or there is no {@link FingerprintAction}), but it'll never be null.
      */
-    public RangeSet getDownstreamRelationship(AbstractProject that) {
+    public RangeSet getDownstreamRelationship(Job that) {
         RangeSet rs = new RangeSet();
 
         FingerprintAction f = getAction(FingerprintAction.class);
@@ -1082,7 +1001,7 @@ public abstract class AbstractBuild<P extends AbstractProject<P,R>,R extends Abs
     }
 
     /**
-     * Works like {@link #getDownstreamRelationship(AbstractProject)} but returns
+     * Works like {@link #getDownstreamRelationship(Job)} but returns
      * the actual build objects, in ascending order.
      * @since 1.150
      */
@@ -1109,7 +1028,7 @@ public abstract class AbstractBuild<P extends AbstractProject<P,R>,R extends Abs
      *      Build number of the upstream build that feed into this build,
      *      or -1 if no record is available (for example if there is no {@link FingerprintAction}, even if there is an {@link Cause.UpstreamCause}).
      */
-    public int getUpstreamRelationship(AbstractProject that) {
+    public int getUpstreamRelationship(Job that) {
         FingerprintAction f = getAction(FingerprintAction.class);
         if (f==null)     return -1;
 
@@ -1135,7 +1054,7 @@ public abstract class AbstractBuild<P extends AbstractProject<P,R>,R extends Abs
     }
 
     /**
-     * Works like {@link #getUpstreamRelationship(AbstractProject)} but returns the
+     * Works like {@link #getUpstreamRelationship(Job)} but returns the
      * actual build object.
      *
      * @return
@@ -1156,9 +1075,9 @@ public abstract class AbstractBuild<P extends AbstractProject<P,R>,R extends Abs
      *      For each project with fingerprinting enabled, returns the range
      *      of builds (which can be empty if no build uses the artifact from this build or downstream is not {@link AbstractProject#isFingerprintConfigured}.)
      */
-    public Map<AbstractProject,RangeSet> getDownstreamBuilds() {
-        Map<AbstractProject,RangeSet> r = new HashMap<AbstractProject,RangeSet>();
-        for (AbstractProject p : getParent().getDownstreamProjects()) {
+    public Map<Job,RangeSet> getDownstreamBuilds() {
+        Map<Job,RangeSet> r = new HashMap<Job,RangeSet>();
+        for (Job p : getParent().getDownstreamProjects()) {
             if (p.isFingerprintConfigured())
                 r.put(p,getDownstreamRelationship(p));
         }
@@ -1171,7 +1090,7 @@ public abstract class AbstractBuild<P extends AbstractProject<P,R>,R extends Abs
      * @return empty if there is no {@link FingerprintAction} (even if there is an {@link Cause.UpstreamCause})
      * @see #getTransitiveUpstreamBuilds()
      */
-    public Map<AbstractProject,Integer> getUpstreamBuilds() {
+    public Map<Job,Integer> getUpstreamBuilds() {
         return _getUpstreamBuilds(getParent().getUpstreamProjects());
     }
 
@@ -1179,98 +1098,18 @@ public abstract class AbstractBuild<P extends AbstractProject<P,R>,R extends Abs
      * Works like {@link #getUpstreamBuilds()}  but also includes all the transitive
      * dependencies as well.
      */
-    public Map<AbstractProject,Integer> getTransitiveUpstreamBuilds() {
+    public Map<Job,Integer> getTransitiveUpstreamBuilds() {
         return _getUpstreamBuilds(getParent().getTransitiveUpstreamProjects());
     }
 
-    private Map<AbstractProject, Integer> _getUpstreamBuilds(Collection<AbstractProject> projects) {
-        Map<AbstractProject,Integer> r = new HashMap<AbstractProject,Integer>();
-        for (AbstractProject p : projects) {
+    private Map<Job, Integer> _getUpstreamBuilds(Collection<Job> projects) {
+        Map<Job,Integer> r = new HashMap<Job,Integer>();
+        for (Job p : projects) {
             int n = getUpstreamRelationship(p);
             if (n>=0)
                 r.put(p,n);
         }
         return r;
-    }
-
-    /**
-     * Gets the changes in the dependency between the given build and this build.
-     * @return empty if there is no {@link FingerprintAction}
-     */
-    public Map<AbstractProject,DependencyChange> getDependencyChanges(AbstractBuild from) {
-        if (from==null)             return Collections.emptyMap(); // make it easy to call this from views
-        FingerprintAction n = this.getAction(FingerprintAction.class);
-        FingerprintAction o = from.getAction(FingerprintAction.class);
-        if (n==null || o==null)     return Collections.emptyMap();
-
-        Map<AbstractProject,Integer> ndep = n.getDependencies(true);
-        Map<AbstractProject,Integer> odep = o.getDependencies(true);
-
-        Map<AbstractProject,DependencyChange> r = new HashMap<AbstractProject,DependencyChange>();
-
-        for (Map.Entry<AbstractProject,Integer> entry : odep.entrySet()) {
-            AbstractProject p = entry.getKey();
-            Integer oldNumber = entry.getValue();
-            Integer newNumber = ndep.get(p);
-            if (newNumber!=null && oldNumber.compareTo(newNumber)<0) {
-                r.put(p,new DependencyChange(p,oldNumber,newNumber));
-            }
-        }
-
-        return r;
-    }
-
-    /**
-     * Represents a change in the dependency.
-     */
-    public static final class DependencyChange {
-        /**
-         * The dependency project.
-         */
-        public final AbstractProject project;
-        /**
-         * Version of the dependency project used in the previous build.
-         */
-        public final int fromId;
-        /**
-         * {@link Build} object for {@link #fromId}. Can be null if the log is gone.
-         */
-        public final AbstractBuild from;
-        /**
-         * Version of the dependency project used in this build.
-         */
-        public final int toId;
-
-        public final AbstractBuild to;
-
-        public DependencyChange(AbstractProject<?,?> project, int fromId, int toId) {
-            this.project = project;
-            this.fromId = fromId;
-            this.toId = toId;
-            this.from = project.getBuildByNumber(fromId);
-            this.to = project.getBuildByNumber(toId);
-        }
-
-        /**
-         * Gets the {@link AbstractBuild} objects (fromId,toId].
-         * <p>
-         * This method returns all such available builds in the ascending order
-         * of IDs, but due to log rotations, some builds may be already unavailable.
-         */
-        public List<AbstractBuild> getBuilds() {
-            List<AbstractBuild> r = new ArrayList<AbstractBuild>();
-
-            AbstractBuild<?,?> b = (AbstractBuild)project.getNearestBuild(fromId);
-            if (b!=null && b.getNumber()==fromId)
-                b = b.getNextBuild(); // fromId exclusive
-
-            while (b!=null && b.getNumber()<=toId) {
-                r.add(b);
-                b = b.getNextBuild();
-            }
-
-            return r;
-        }
     }
 
     //

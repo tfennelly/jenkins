@@ -25,6 +25,7 @@
 package hudson;
 
 import hudson.model.AbstractProject;
+import hudson.model.Job;
 import jenkins.model.Jenkins;
 import hudson.security.ACL;
 
@@ -35,7 +36,6 @@ import java.util.Set;
 import java.util.Collection;
 import java.util.logging.Logger;
 
-import org.acegisecurity.Authentication;
 import org.acegisecurity.context.SecurityContext;
 import org.acegisecurity.context.SecurityContextHolder;
 
@@ -48,7 +48,7 @@ public class DependencyRunner implements Runnable {
 	
     ProjectRunnable runnable;
 
-    List<AbstractProject> polledProjects = new ArrayList<AbstractProject>();
+    List<Job> polledProjects = new ArrayList<Job>();
 
     public DependencyRunner(ProjectRunnable runnable) {
         this.runnable = runnable;
@@ -68,7 +68,7 @@ public class DependencyRunner implements Runnable {
                     LOGGER.fine("skipping project since not a top level project: " + p.getName());
                 }
             populate(topLevelProjects);
-            for (AbstractProject p : polledProjects) {
+            for (Job p : polledProjects) {
                     LOGGER.fine("running project in correct dependency order: " + p.getName());
                 runnable.run(p);
             }
@@ -77,8 +77,8 @@ public class DependencyRunner implements Runnable {
         }
     }
 
-    private void populate(Collection<? extends AbstractProject> projectList) {
-        for (AbstractProject<?,?> p : projectList) {
+    private void populate(Collection<? extends Job> projectList) {
+        for (Job<?,?> p : projectList) {
             if (polledProjects.contains(p)) {
                 // Project will be readded at the queue, so that we always use
                 // the longest path
@@ -95,6 +95,6 @@ public class DependencyRunner implements Runnable {
     }
 
     public interface ProjectRunnable {
-        void run(AbstractProject p);
+        void run(Job p);
     }
 }

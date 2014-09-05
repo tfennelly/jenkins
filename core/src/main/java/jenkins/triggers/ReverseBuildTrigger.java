@@ -133,7 +133,7 @@ public final class ReverseBuildTrigger extends Trigger<Job> implements Dependenc
         return result != null && result.isBetterOrEqualTo(threshold);
     }
 
-    @Override public void buildDependencyGraph(final AbstractProject downstream, DependencyGraph graph) {
+    @Override public void buildDependencyGraph(final Job downstream, DependencyGraph graph) {
         for (AbstractProject upstream : Items.fromNameList(downstream.getParent(), upstreamProjects, AbstractProject.class)) {
             graph.addDependency(new DependencyGraph.Dependency(upstream, downstream) {
                 @Override public boolean shouldTriggerBuild(AbstractBuild upstreamBuild, TaskListener listener, List<Action> actions) {

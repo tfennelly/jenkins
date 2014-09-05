@@ -23,6 +23,9 @@
  */
 package hudson.model;
 
+import hudson.tasks.Publisher;
+import hudson.util.DescribableList;
+
 import java.io.File;
 import java.util.SortedMap;
 
@@ -68,7 +71,18 @@ class StubJob extends Job {
     @Override
     public void save() {
         
-    }   
+    }
+
+    @Override
+    public DescribableList<Publisher, Descriptor<Publisher>> getPublishersList() {
+        // TODO: ???
+        return null;
+    }
+
+    @Override
+    public boolean isFingerprintConfigured() {
+        return false;
+    }
 
     @Override public ItemGroup getParent() {
         return null;

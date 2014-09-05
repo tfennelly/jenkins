@@ -146,7 +146,7 @@ public class Fingerprinter extends Recorder implements Serializable, DependencyD
         return BuildStepMonitor.NONE;
     }
 
-    public void buildDependencyGraph(AbstractProject owner, DependencyGraph graph) {
+    public void buildDependencyGraph(Job owner, DependencyGraph graph) {
         if (enableFingerprintsInDependencyGraph) {
             RunList builds = owner.getBuilds();
             Set<String> seenUpstreamProjects = new HashSet<String>();
@@ -154,12 +154,12 @@ public class Fingerprinter extends Recorder implements Serializable, DependencyD
             for ( ListIterator iter = builds.listIterator(); iter.hasNext(); ) {
                 Run build = (Run) iter.next();
                 for (FingerprintAction action : build.getActions(FingerprintAction.class)) {
-                    for (AbstractProject key : action.getDependencies().keySet()) {
+                    for (Job key : action.getDependencies().keySet()) {
                         if (key == owner) {
                             continue;   // Avoid self references
                         }
 
-                        AbstractProject p = key;
+                        Job p = key;
                         // TODO is this harmful to call unconditionally, so it would apply also to MavenModule for example?
                         if (key.getClass().getName().equals("hudson.matrix.MatrixConfiguration")) {
                             p = key.getRootProject();
@@ -413,7 +413,7 @@ public class Fingerprinter extends Recorder implements Serializable, DependencyD
         /**
          * Gets the dependency to other existing builds in a map.
          */
-        public Map<AbstractProject,Integer> getDependencies() {
+        public Map<Job,Integer> getDependencies() {
             return getDependencies(false);
         }
         
@@ -424,8 +424,8 @@ public class Fingerprinter extends Recorder implements Serializable, DependencyD
          *  the result, even if it doesn't exist
          * @since 1.430
          */
-        public Map<AbstractProject,Integer> getDependencies(boolean includeMissing) {
-            Map<AbstractProject,Integer> r = new HashMap<AbstractProject,Integer>();
+        public Map<Job,Integer> getDependencies(boolean includeMissing) {
+            Map<Job,Integer> r = new HashMap<Job,Integer>();
 
             for (Fingerprint fp : getFingerprints().values()) {
                 BuildPtr bp = fp.getOriginal();

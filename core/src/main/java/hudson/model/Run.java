@@ -47,6 +47,7 @@ import hudson.model.Descriptor.FormException;
 import hudson.model.Run.RunExecution;
 import hudson.model.listeners.RunListener;
 import hudson.model.listeners.SaveableListener;
+import hudson.scm.ChangeLogSet;
 import hudson.search.SearchIndexBuilder;
 import hudson.security.ACL;
 import hudson.security.AccessControlled;
@@ -54,6 +55,8 @@ import hudson.security.Permission;
 import hudson.security.PermissionGroup;
 import hudson.security.PermissionScope;
 import hudson.tasks.BuildWrapper;
+import hudson.tasks.Fingerprinter;
+import hudson.util.AdaptedIterator;
 import hudson.util.FlushProofOutputStream;
 import hudson.util.FormApply;
 import hudson.util.LogTaskListener;
@@ -77,6 +80,7 @@ import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -86,6 +90,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -137,6 +142,11 @@ import org.kohsuke.stapler.interceptor.RequirePOST;
 @ExportedBean
 public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,RunT>>
         extends Actionable implements ExtensionPoint, Comparable<RunT>, AccessControlled, PersistenceRoot, DescriptorByNameOwner, OnMaster {
+
+    /**
+     * Set if we want the blame information to flow from upstream to downstream build.
+     */
+    protected static final boolean upstreamCulprits = Boolean.getBoolean("hudson.upstreamCulprits");
 
     protected transient final @Nonnull JobT project;
 
@@ -209,6 +219,21 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
      * The current build state.
      */
     private volatile transient State state;
+
+    /**
+     * Cumulative list of people who contributed to the build problem.
+     *
+     * <p>
+     * This is a list of {@link hudson.model.User#getId() user ids} who made a change
+     * since the last non-broken build. Can be null (which should be
+     * treated like empty set), because of the compatibility.
+     *
+     * <p>
+     * This field is semi-final --- once set the value will never be modified.
+     *
+     * @since 1.137
+     */
+    protected volatile Set<String> culprits;
 
     private static enum State {
         /**
@@ -293,7 +318,7 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
      * an arbitrary state.
      */
     protected Run(@Nonnull JobT job, @Nonnull Calendar timestamp) {
-        this(job,timestamp.getTimeInMillis());
+        this(job, timestamp.getTimeInMillis());
     }
 
     protected Run(@Nonnull JobT job, long timestamp) {
@@ -394,6 +419,93 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
             bvc.buildVariablesFor(this,r);
 
         return r;
+    }
+
+    /**
+     * Gets the changes in the dependency between the given build and this build.
+     * @return empty if there is no {@link hudson.tasks.Fingerprinter.FingerprintAction}
+     */
+    public Map<Job,DependencyChange> getDependencyChanges(Run from) {
+        if (from==null)             return Collections.emptyMap(); // make it easy to call this from views
+        Fingerprinter.FingerprintAction n = this.getAction(Fingerprinter.FingerprintAction.class);
+        Fingerprinter.FingerprintAction o = from.getAction(Fingerprinter.FingerprintAction.class);
+        if (n==null || o==null)     return Collections.emptyMap();
+
+        Map<Job,Integer> ndep = n.getDependencies(true);
+        Map<Job,Integer> odep = o.getDependencies(true);
+
+        Map<Job,DependencyChange> r = new HashMap<Job,DependencyChange>();
+
+        for (Map.Entry<Job,Integer> entry : odep.entrySet()) {
+            Job p = entry.getKey();
+            Integer oldNumber = entry.getValue();
+            Integer newNumber = ndep.get(p);
+            if (newNumber!=null && oldNumber.compareTo(newNumber)<0) {
+                r.put(p,new DependencyChange(p,oldNumber,newNumber));
+            }
+        }
+
+        return r;
+    }
+
+    /**
+     * List of users who committed a change since the last non-broken build till now.
+     *
+     * <p>
+     * This list at least always include people who made changes in this build, but
+     * if the previous build was a failure it also includes the culprit list from there.
+     *
+     * @return
+     *      can be empty but never null.
+     */
+    @Exported
+    public Set<User> getCulprits() {
+        if (culprits==null) {
+            Set<User> r = new HashSet<User>();
+            RunT p = getPreviousCompletedBuild();
+            if (p !=null && isBuilding()) {
+                Result pr = p.getResult();
+                if (pr!=null && pr.isWorseThan(Result.SUCCESS)) {
+                    // we are still building, so this is just the current latest information,
+                    // but we seems to be failing so far, so inherit culprits from the previous build.
+                    // isBuilding() check is to avoid recursion when loading data from old Hudson, which doesn't record
+                    // this information
+                    r.addAll(p.getCulprits());
+                }
+            }
+            for (ChangeLogSet.Entry e : getChangeSet())
+                r.add(e.getAuthor());
+
+            if (upstreamCulprits) {
+                // If we have dependencies since the last successful build, add their authors to our list
+                if (getPreviousNotFailedBuild() != null) {
+                    Map <Job,DependencyChange> depmap = getDependencyChanges(getPreviousSuccessfulBuild());
+                    for (DependencyChange dep : depmap.values()) {
+                        for (Run<?,?> b : dep.getBuilds()) {
+                            for (ChangeLogSet.Entry entry : b.getChangeSet()) {
+                                r.add(entry.getAuthor());
+                            }
+                        }
+                    }
+                }
+            }
+
+            return r;
+        }
+
+        return new AbstractSet<User>() {
+            public Iterator<User> iterator() {
+                return new AdaptedIterator<String,User>(culprits.iterator()) {
+                    protected User adapt(String id) {
+                        return User.get(id);
+                    }
+                };
+            }
+
+            public int size() {
+                return culprits.size();
+            }
+        };
     }
 
     /**
@@ -856,6 +968,14 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
         if(previousBuild!=null)
             previousBuild.nextBuild = nextBuild;
     }
+
+    /**
+     * Gets the changes incorporated into this build.
+     *
+     * @return never null.
+     */
+    @Exported
+    public abstract ChangeLogSet<? extends ChangeLogSet.Entry> getChangeSet();
 
     /**
      * @see jenkins.model.lazy.LazyBuildMixIn.RunMixIn#getPreviousBuild

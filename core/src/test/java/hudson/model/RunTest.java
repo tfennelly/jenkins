@@ -26,6 +26,7 @@ package hudson.model;
 
 import hudson.Util;
 import hudson.model.Run.Artifact;
+import hudson.scm.ChangeLogSet;
 import hudson.util.StreamTaskListener;
 
 import java.io.File;
@@ -55,7 +56,12 @@ public class RunTest {
             try {
                 r = svc.submit(new Callable<Run>() {
                     @Override public Run call() throws Exception {
-                        return new Run(new StubJob(), 1234567890) {};
+                        return new Run(new StubJob(), 1234567890) {
+                            @Override
+                            public ChangeLogSet<? extends ChangeLogSet.Entry> getChangeSet() {
+                                return null;
+                            }
+                        };
                     }
                 }).get();
                 TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"));
@@ -114,7 +120,12 @@ public class RunTest {
     }
 
     private List<? extends Run<?, ?>.Artifact> createArtifactList(String... paths) throws Exception {
-        Run r = new Run(new StubJob(), 0) {};
+        Run r = new Run(new StubJob(), 0) {
+            @Override
+            public ChangeLogSet<? extends ChangeLogSet.Entry> getChangeSet() {
+                return null;
+            }
+        };
         Run.ArtifactList list = r.new ArtifactList();
         for (String p : paths) {
             list.add(r.new Artifact(p, p, p, String.valueOf(p.length()), "n" + list.size()));  // Assuming all test inputs don't need urlencoding

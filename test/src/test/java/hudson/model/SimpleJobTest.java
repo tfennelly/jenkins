@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import hudson.scm.ChangeLogSet;
+import hudson.tasks.Publisher;
+import hudson.util.DescribableList;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -145,7 +148,12 @@ public class SimpleJobTest {
         public boolean isBuilding() {
             return false;
         }
-        
+
+        @Override
+        public ChangeLogSet<? extends ChangeLogSet.Entry> getChangeSet() {
+            return null;
+        }
+
     }
 
     @SuppressWarnings("unchecked")
@@ -158,6 +166,17 @@ public class SimpleJobTest {
             super(rule.jenkins, "name");
             this.runs = runs;
             i = 1;
+        }
+
+        @Override
+        public DescribableList<Publisher, Descriptor<Publisher>> getPublishersList() {
+            // TODO: ???
+            return null;
+        }
+
+        @Override
+        public boolean isFingerprintConfigured() {
+            return false;
         }
 
         @Override

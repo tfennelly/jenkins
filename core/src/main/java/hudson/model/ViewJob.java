@@ -31,6 +31,9 @@ import java.util.SortedMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
+
+import hudson.tasks.Publisher;
+import hudson.util.DescribableList;
 import jenkins.model.Jenkins;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -85,6 +88,12 @@ public abstract class ViewJob<JobT extends ViewJob<JobT,RunT>, RunT extends Run<
 
     protected ViewJob(ItemGroup parent, String name) {
         super(parent,name);
+    }
+
+    @Override
+    public DescribableList<Publisher, Descriptor<Publisher>> getPublishersList() {
+        // TODO: ???
+        return null;
     }
 
     public boolean isBuildable() {

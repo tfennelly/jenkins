@@ -39,7 +39,6 @@ import hudson.FilePath;
 import hudson.Functions;
 import hudson.Launcher;
 import hudson.Util;
-import hudson.cli.declarative.CLIMethod;
 import hudson.cli.declarative.CLIResolver;
 import hudson.model.Cause.LegacyCodeCause;
 import hudson.model.Descriptor.FormException;
@@ -49,7 +48,6 @@ import hudson.model.Queue.Executable;
 import hudson.model.Queue.Task;
 import hudson.model.labels.LabelAtom;
 import hudson.model.labels.LabelExpression;
-import hudson.model.listeners.ItemListener;
 import hudson.model.listeners.SCMPollListener;
 import hudson.model.queue.CauseOfBlockage;
 import hudson.model.queue.QueueTaskFuture;
@@ -74,13 +72,11 @@ import hudson.tasks.BuildStep;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildTrigger;
 import hudson.tasks.BuildWrapperDescriptor;
-import hudson.tasks.Publisher;
 import hudson.triggers.SCMTrigger;
 import hudson.triggers.Trigger;
 import hudson.triggers.TriggerDescriptor;
 import hudson.util.AlternativeUiTextProvider;
 import hudson.util.AlternativeUiTextProvider.Message;
-import hudson.util.DescribableList;
 import hudson.util.FormValidation;
 import hudson.util.TimeUnit2;
 import hudson.widgets.HistoryWidget;
@@ -94,13 +90,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.Vector;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
@@ -117,7 +111,6 @@ import jenkins.scm.SCMCheckoutStrategyDescriptor;
 import jenkins.util.TimeDuration;
 import net.sf.json.JSONObject;
 import org.acegisecurity.Authentication;
-import org.jenkinsci.bytecode.AdaptField;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 import org.kohsuke.args4j.Argument;
@@ -203,11 +196,6 @@ public abstract class AbstractProject<P extends AbstractProject<P,R>,R extends A
     private volatile boolean canRoam;
 
     /**
-     * True to suspend new builds.
-     */
-    protected volatile boolean disabled;
-
-    /**
      * True to keep builds of this project in queue when downstream projects are
      * building. False by default to keep from breaking existing behavior.
      */
@@ -232,14 +220,6 @@ public abstract class AbstractProject<P extends AbstractProject<P,R>,R extends A
     private volatile String jdk;
 
     private volatile BuildAuthorizationToken authToken = null;
-
-    /**
-     * List of all {@link Trigger}s for this project.
-     */
-    @AdaptField(was=List.class)
-    protected volatile DescribableList<Trigger<?>,TriggerDescriptor> triggers = new DescribableList<Trigger<?>,TriggerDescriptor>(this);
-    private static final AtomicReferenceFieldUpdater<AbstractProject,DescribableList> triggersUpdater
-            = AtomicReferenceFieldUpdater.newUpdater(AbstractProject.class,DescribableList.class,"triggers");
 
     /**
      * {@link Action}s contributed from subsidiary objects associated with
@@ -330,14 +310,6 @@ public abstract class AbstractProject<P extends AbstractProject<P,R>,R extends A
         if(transientActions==null)
             transientActions = new Vector<Action>();    // happens when loaded from disk
         updateTransientActions();
-    }
-
-    @WithBridgeMethods(List.class)
-    protected DescribableList<Trigger<?>,TriggerDescriptor> triggers() {
-        if (triggers == null) {
-            triggersUpdater.compareAndSet(this,null,new DescribableList<Trigger<?>,TriggerDescriptor>(this));
-        }
-        return triggers;
     }
 
     @Override
@@ -465,28 +437,6 @@ public abstract class AbstractProject<P extends AbstractProject<P,R>,R extends A
      */
     public String getBuildNowText() {
         return AlternativeUiTextProvider.get(BUILD_NOW_TEXT, this, getParameterizedJobMixIn().getBuildNowText());
-    }
-
-    /**
-     * Gets the nearest ancestor {@link TopLevelItem} that's also an {@link AbstractProject}.
-     *
-     * <p>
-     * Some projects (such as matrix projects, Maven projects, or promotion processes) form a tree of jobs
-     * that acts as a single unit. This method can be used to find the top most dominating job that
-     * covers such a tree.
-     *
-     * @return never null.
-     * @see AbstractBuild#getRootBuild()
-     */
-    public AbstractProject<?,?> getRootProject() {
-        if (this instanceof TopLevelItem) {
-            return this;
-        } else {
-            ItemGroup p = this.getParent();
-            if (p instanceof AbstractProject)
-                return ((AbstractProject) p).getRootProject();
-            return this;
-        }
     }
 
     /**
@@ -671,10 +621,6 @@ public abstract class AbstractProject<P extends AbstractProject<P,R>,R extends A
         save();
     }
 
-    public boolean isDisabled() {
-        return disabled;
-    }
-    
     /**
      * Validates the retry count Regex
      */
@@ -686,38 +632,6 @@ public abstract class AbstractProject<P extends AbstractProject<P,R>,R extends A
             return FormValidation.error("Invalid retry count");
         } 
         return FormValidation.ok();
-    }
-
-    /**
-     * Marks the build as disabled.
-     */
-    public void makeDisabled(boolean b) throws IOException {
-        if(disabled==b)     return; // noop
-        this.disabled = b;
-        if(b)
-            Jenkins.getInstance().getQueue().cancel(this);
-        
-        save();
-        ItemListener.fireOnUpdated(this);
-    }
-
-    /**
-     * Specifies whether this project may be disabled by the user.
-     * By default, it can be only if this is a {@link TopLevelItem};
-     * would be false for matrix configurations, etc.
-     * @return true if the GUI should allow {@link #doDisable} and the like
-     * @since 1.475
-     */
-    public boolean supportsMakeDisabled() {
-        return this instanceof TopLevelItem;
-    }
-
-    public void disable() throws IOException {
-        makeDisabled(true);
-    }
-
-    public void enable() throws IOException {
-        makeDisabled(false);
     }
 
     @Override
@@ -749,15 +663,6 @@ public abstract class AbstractProject<P extends AbstractProject<P,R>,R extends A
             ta.addAll(Util.fixNull(tpaf.createFor(this))); // be defensive against null
         return ta;
     }
-
-    /**
-     * Returns the live list of all {@link Publisher}s configured for this project.
-     *
-     * <p>
-     * This method couldn't be called <tt>getPublishers()</tt> because existing methods
-     * in sub-classes return different inconsistent types.
-     */
-    public abstract DescribableList<Publisher,Descriptor<Publisher>> getPublishersList();
 
     @Override
     public void addProperty(JobProperty<? super P> jobProp) throws IOException {
@@ -1094,9 +999,9 @@ public abstract class AbstractProject<P extends AbstractProject<P,R>,R extends A
      * Because the downstream build is in progress, and we are configured to wait for that.
      */
     public static class BecauseOfDownstreamBuildInProgress extends CauseOfBlockage {
-        public final AbstractProject<?,?> up;
+        public final Job<?,?> up;
 
-        public BecauseOfDownstreamBuildInProgress(AbstractProject<?,?> up) {
+        public BecauseOfDownstreamBuildInProgress(Job<?,?> up) {
             this.up = up;
         }
 
@@ -1110,9 +1015,9 @@ public abstract class AbstractProject<P extends AbstractProject<P,R>,R extends A
      * Because the upstream build is in progress, and we are configured to wait for that.
      */
     public static class BecauseOfUpstreamBuildInProgress extends CauseOfBlockage {
-        public final AbstractProject<?,?> up;
+        public final Job<?,?> up;
 
-        public BecauseOfUpstreamBuildInProgress(AbstractProject<?,?> up) {
+        public BecauseOfUpstreamBuildInProgress(Job<?,?> up) {
             this.up = up;
         }
 
@@ -1127,12 +1032,12 @@ public abstract class AbstractProject<P extends AbstractProject<P,R>,R extends A
         if (isLogUpdated() && !isConcurrentBuild())
             return new BecauseOfBuildInProgress(getLastBuild());
         if (blockBuildWhenDownstreamBuilding()) {
-            AbstractProject<?,?> bup = getBuildingDownstream();
+            Job<?,?> bup = getBuildingDownstream();
             if (bup!=null)
                 return new BecauseOfDownstreamBuildInProgress(bup);
         }
         if (blockBuildWhenUpstreamBuilding()) {
-            AbstractProject<?,?> bup = getBuildingUpstream();
+            Job<?,?> bup = getBuildingUpstream();
             if (bup!=null)
                 return new BecauseOfUpstreamBuildInProgress(bup);
         }
@@ -1146,10 +1051,10 @@ public abstract class AbstractProject<P extends AbstractProject<P,R>,R extends A
      * This means eventually there will be an automatic triggering of
      * the given project (provided that all builds went smoothly.)
      */
-    public AbstractProject getBuildingDownstream() {
+    public Job getBuildingDownstream() {
         Set<Task> unblockedTasks = Jenkins.getInstance().getQueue().getUnblockedTasks();
 
-        for (AbstractProject tup : getTransitiveDownstreamProjects()) {
+        for (Job tup : getTransitiveDownstreamProjects()) {
 			if (tup!=this && (tup.isBuilding() || unblockedTasks.contains(tup)))
                 return tup;
         }
@@ -1163,10 +1068,10 @@ public abstract class AbstractProject<P extends AbstractProject<P,R>,R extends A
      * This means eventually there will be an automatic triggering of
      * the given project (provided that all builds went smoothly.)
      */
-    public AbstractProject getBuildingUpstream() {
+    public Job getBuildingUpstream() {
         Set<Task> unblockedTasks = Jenkins.getInstance().getQueue().getUnblockedTasks();
 
-        for (AbstractProject tup : getTransitiveUpstreamProjects()) {
+        for (Job tup : getTransitiveUpstreamProjects()) {
 			if (tup!=this && (tup.isBuilding() || unblockedTasks.contains(tup)))
                 return tup;
         }
@@ -1580,45 +1485,11 @@ public abstract class AbstractProject<P extends AbstractProject<P,R>,R extends A
         }
     }
 
-    @SuppressWarnings("unchecked")
-    @Override public Map<TriggerDescriptor,Trigger<?>> getTriggers() {
-        return triggers().toMap();
-    }
-
-    /**
-     * Gets the specific trigger, or null if the propert is not configured for this job.
-     */
-    public <T extends Trigger> T getTrigger(Class<T> clazz) {
-        for (Trigger p : triggers()) {
-            if(clazz.isInstance(p))
-                return clazz.cast(p);
-        }
-        return null;
-    }
-
 //
 //
 // fingerprint related
 //
 //
-    /**
-     * True if the builds of this project produces {@link Fingerprint} records.
-     */
-    public abstract boolean isFingerprintConfigured();
-
-    /**
-     * Gets the other {@link AbstractProject}s that should be built
-     * when a build of this project is completed.
-     */
-    @Exported
-    public final List<AbstractProject> getDownstreamProjects() {
-        return Jenkins.getInstance().getDependencyGraph().getDownstream(this);
-    }
-
-    @Exported
-    public final List<AbstractProject> getUpstreamProjects() {
-        return Jenkins.getInstance().getDependencyGraph().getUpstream(this);
-    }
 
     /**
      * Returns only those upstream projects that defines {@link BuildTrigger} to this project.
@@ -1626,9 +1497,9 @@ public abstract class AbstractProject<P extends AbstractProject<P,R>,R extends A
      * <p>No longer used in the UI.
      * @return A List of upstream projects that has a {@link BuildTrigger} to this project.
      */
-    public final List<AbstractProject> getBuildTriggerUpstreamProjects() {
-        ArrayList<AbstractProject> result = new ArrayList<AbstractProject>();
-        for (AbstractProject<?,?> ap : getUpstreamProjects()) {
+    public final List<Job> getBuildTriggerUpstreamProjects() {
+        ArrayList<Job> result = new ArrayList<Job>();
+        for (Job<?,?> ap : getUpstreamProjects()) {
             BuildTrigger buildTrigger = ap.getPublishersList().get(BuildTrigger.class);
             if (buildTrigger != null)
                 if (buildTrigger.getChildProjects(ap).contains(this))
@@ -1642,7 +1513,7 @@ public abstract class AbstractProject<P extends AbstractProject<P,R>,R extends A
      *
      * @since 1.138
      */
-    public final Set<AbstractProject> getTransitiveUpstreamProjects() {
+    public final Set<Job> getTransitiveUpstreamProjects() {
         return Jenkins.getInstance().getDependencyGraph().getTransitiveUpstream(this);
     }
 
@@ -1651,7 +1522,7 @@ public abstract class AbstractProject<P extends AbstractProject<P,R>,R extends A
      *
      * @since 1.138
      */
-    public final Set<AbstractProject> getTransitiveDownstreamProjects() {
+    public final Set<Job> getTransitiveDownstreamProjects() {
         return Jenkins.getInstance().getDependencyGraph().getTransitiveDownstream(this);
     }
 
@@ -1691,14 +1562,6 @@ public abstract class AbstractProject<P extends AbstractProject<P,R>,R extends A
             else
                 value.add(rs);
         }
-    }
-
-    /**
-     * Builds the dependency graph.
-     * Since 1.558, not abstract and by default includes dependencies contributed by {@link #triggers()}.
-     */
-    protected void buildDependencyGraph(DependencyGraph graph) {
-        triggers().buildDependencyGraph(this, graph);
     }
 
     @Override
@@ -1907,23 +1770,6 @@ public abstract class AbstractProject<P extends AbstractProject<P,R>,R extends A
             return new ForwardToView(this,"wipeOutWorkspaceBlocked.jelly");
         }
     }
-
-    @CLIMethod(name="disable-job")
-    @RequirePOST
-    public HttpResponse doDisable() throws IOException, ServletException {
-        checkPermission(CONFIGURE);
-        makeDisabled(true);
-        return new HttpRedirect(".");
-    }
-
-    @CLIMethod(name="enable-job")
-    @RequirePOST
-    public HttpResponse doEnable() throws IOException, ServletException {
-        checkPermission(CONFIGURE);
-        makeDisabled(false);
-        return new HttpRedirect(".");
-    }
-    
 
     /**
      * RSS feed for changes in this project.

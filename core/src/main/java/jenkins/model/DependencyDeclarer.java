@@ -25,6 +25,7 @@ package jenkins.model;
 
 import hudson.model.AbstractProject;
 import hudson.model.DependencyGraph;
+import hudson.model.Job;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.Builder;
 import hudson.tasks.Publisher;
@@ -61,5 +62,5 @@ public interface DependencyDeclarer {
      * @param graph
      *      The dependency graph being built. Never null.
      */
-    void buildDependencyGraph(AbstractProject owner, DependencyGraph graph);
+    void buildDependencyGraph(Job owner, DependencyGraph graph);
 }
