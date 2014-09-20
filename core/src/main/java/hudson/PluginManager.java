@@ -398,6 +398,24 @@ public abstract class PluginManager extends AbstractModelObject implements OnMas
         }});
     }
 
+    private void buildPluginStyles() {
+        PluginWrapper uiThemesPlugin = getPlugin("uithemes");
+        if (uiThemesPlugin != null) {
+            // NB: Calling UIThemesPlugin.postInitialize() to re-initialise the styles in the event of a plugin
+            // being added or removed.  Not a good way imo but could not see another way (is there one?).  Would be
+            // nice if the plugin could listen for an event that gets emitted by the PluginManager.
+            try {
+                LOGGER.log(Level.INFO, "Rebuilding plugin styles.");
+                uiThemesPlugin.getPlugin().postInitialize();
+                LOGGER.log(Level.INFO, "Plugin styles rebuilt successfully.");
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Error rebuilding plugin styles.", e);
+            }
+        } else {
+            LOGGER.log(Level.WARNING, "Error rebuilding plugin styles.  Failed to find a plugin named 'uithemes'.");
+        }
+    }
+
     /*
      * contains operation that considers xxx.hpi and xxx.jpi as equal
      * this is necessary since the bundled plugins are still called *.hpi 
@@ -489,6 +507,8 @@ public abstract class PluginManager extends AbstractModelObject implements OnMas
         }
         
         LOGGER.info("Plugin " + sn + " dynamically installed");
+
+        buildPluginStyles();
     }
 
     /**
@@ -1245,5 +1265,5 @@ public abstract class PluginManager extends AbstractModelObject implements OnMas
             }
         }
 
-    }    
+    }
 }

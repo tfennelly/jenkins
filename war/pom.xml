@@ -267,6 +267,18 @@ THE SOFTWARE.
                 </artifactItem>
                 <!-- bundled plugins -->
                 <artifactItem>
+                  <groupId>org.jenkins-ci.plugins</groupId>
+                  <artifactId>uithemes</artifactId>
+                  <version>1.1</version>
+                  <type>hpi</type>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.jenkins-ci.plugins.icon-shim</groupId>
+                  <artifactId>icon-shim</artifactId>
+                  <version>1.0.4</version>
+                  <type>hpi</type>
+                </artifactItem>
+                <artifactItem>
                   <groupId>${project.groupId}</groupId>
                   <artifactId>maven-plugin</artifactId>
                   <type>hpi</type>

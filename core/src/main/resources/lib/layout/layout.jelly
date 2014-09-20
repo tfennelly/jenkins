@@ -85,9 +85,7 @@ ${h.initPageVariables(context)}
     </j:if>
 
     <title>${h.appendIfNotNull(title, ' [Jenkins]', 'Jenkins')}</title>
-    <link rel="stylesheet" href="${resURL}/css/style.css" type="text/css" />
-    <link rel="stylesheet" href="${resURL}/css/color.css" type="text/css" />
-    <link rel="stylesheet" href="${resURL}/css/responsive-grid.css" type="text/css" />
+    <link rel="stylesheet" href="${resURL}/styles/core.css" type="text/css" />
     <j:if test="${attrs.css!=null}">
       <link rel="stylesheet" href="${resURL}${attrs.css}" type="text/css" />
     </j:if>
