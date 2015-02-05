@@ -27,6 +27,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlFileInput;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import hudson.Launcher;
+import hudson.XmlFile;
 import hudson.matrix.AxisList;
 import hudson.matrix.LabelAxis;
 import hudson.matrix.MatrixBuild;
@@ -81,6 +82,8 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FileUtils;
 import static org.junit.Assert.*;
+
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.Issue;
@@ -100,6 +103,16 @@ public class QueueTest {
 
     @Rule public JenkinsRule r = new NodeProvisionerRule(-1, 0, 10);
 
+    private File queueFile;
+
+    @Before
+    public void resetQueueState() throws IOException {
+        queueFile = new File(r.jenkins.getRootDir(), "queue.xml");
+        XmlFile xmlFile = new XmlFile(Queue.XSTREAM, queueFile);
+        xmlFile.write(new Queue.State());
+        r.jenkins.getQueue().load();
+    }
+
     /**
      * Checks the persistence of queue.
      */
@@ -116,13 +129,13 @@ public class QueueTest {
 
         System.out.println(FileUtils.readFileToString(new File(r.jenkins.getRootDir(), "queue.xml")));
 
-        assertEquals(1,q.getItems().length);
+        assertEquals(1, q.getItems().length);
         q.clear();
         assertEquals(0,q.getItems().length);
 
         // load the contents back
         q.load();
-        assertEquals(1,q.getItems().length);
+        assertEquals(1, q.getItems().length);
 
         // did it bind back to the same object?
         assertSame(q.getItems()[0].task,testProject);        
@@ -134,6 +147,8 @@ public class QueueTest {
      @Test public void persistence2() throws Exception {
         Queue q = r.jenkins.getQueue();
 
+        assertEquals(0, Queue.WaitingItem.getCurrentCounterValue());
+
         // prevent execution to push stuff into the queue
         r.jenkins.setNumExecutors(0);
         r.jenkins.setNodes(r.jenkins.getNodes());
@@ -144,7 +159,7 @@ public class QueueTest {
 
         System.out.println(FileUtils.readFileToString(new File(r.jenkins.getRootDir(), "queue.xml")));
 
-        assertEquals(1,q.getItems().length);
+        assertEquals(1, q.getItems().length);
         q.clear();
         assertEquals(0,q.getItems().length);
 
@@ -152,6 +167,40 @@ public class QueueTest {
         testProject.delete();
         q.load();
         assertEquals(0,q.getItems().length);
+
+        // The counter state should be maintained.
+        assertEquals(1, Queue.WaitingItem.getCurrentCounterValue());
+    }
+
+    /**
+     * Make sure the queue can be reconstructed from a List queue.xml.
+     * Prior to the Queue.State class, the Queue items were just persisted as a List.
+     */
+    @Test
+    public void recover_from_leegacy_list() throws Exception {
+        Queue q = r.jenkins.getQueue();
+
+        // prevent execution to push stuff into the queue
+        r.jenkins.setNumExecutors(0);
+        r.jenkins.setNodes(r.jenkins.getNodes());
+
+        FreeStyleProject testProject = r.createFreeStyleProject("test");
+        testProject.scheduleBuild(new UserIdCause());
+
+        // Persist the List only (as before Queue.State)
+        XmlFile xmlFile = new XmlFile(Queue.XSTREAM, queueFile);
+        xmlFile.write(new ArrayList(Arrays.asList(q.getItems())));
+
+        q.clear();
+        assertEquals(0, q.getItems().length);
+
+        // load the contents back
+        q.load();
+        assertEquals(1, q.getItems().length);
+
+        // The current counter should be the id from the item brought back
+        // from the queue.
+        assertEquals(1, Queue.WaitingItem.getCurrentCounterValue());
     }
 
     /**

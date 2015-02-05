@@ -343,6 +343,14 @@ public class Queue extends ResourceController implements Saveable {
     }
 
     /**
+     * Simple queue state persistence object.
+     */
+    public static class State {
+        public int counter;
+        public List<Object> items = new ArrayList<Object>();
+    }
+
+    /**
      * Loads the queue contents that was {@link #save() saved}.
      */
     public synchronized void load() {
@@ -366,9 +374,20 @@ public class Queue extends ResourceController implements Saveable {
             } else {
                 queueFile = getXMLQueueFile();
                 if (queueFile.exists()) {
-                    List list = (List) new XmlFile(XSTREAM, queueFile).read();
+                    Object unmarshaledObj = new XmlFile(XSTREAM, queueFile).read();
+                    State state;
                     int maxId = 0;
-                    for (Object o : list) {
+
+                    if (unmarshaledObj instanceof State) {
+                        state = (State) unmarshaledObj;
+                        maxId = state.counter;
+                    } else {
+                        // backward compatibility - it's an old List queue.xml
+                        state = new State();
+                        state.items = (List) unmarshaledObj;
+                    }
+
+                    for (Object o : state.items) {
                         if (o instanceof Task) {
                             // backward compatibility
                             schedule((Task)o, 0);
@@ -377,6 +396,9 @@ public class Queue extends ResourceController implements Saveable {
                             if(item.task==null)
                                 continue;   // botched persistence. throw this one away
 
+                            // backward compatibility - in case the serialized queue state was
+                            // a List of items (as of old), then the maxId is the max of the items in
+                            // the persisted queue.
                             maxId = Math.max(maxId, item.id);
                             if (item instanceof WaitingItem) {
                                 item.enter(this);
@@ -413,16 +435,19 @@ public class Queue extends ResourceController implements Saveable {
     public synchronized void save() {
         if(BulkChange.contains(this))  return;
 
+        // write out the queue state we want to save
+        State state = new State();
+        state.counter = WaitingItem.COUNTER.intValue();
+
         // write out the tasks on the queue
-    	ArrayList<Queue.Item> items = new ArrayList<Queue.Item>();
-    	for (Item item: getItems()) {
+        for (Item item: getItems()) {
             if(item.task instanceof TransientTask)  continue;
-    	    items.add(item);
+    	    state.items.add(item);
     	}
 
         try {
             XmlFile queueFile = new XmlFile(XSTREAM, getXMLQueueFile());
-            queueFile.write(items);
+            queueFile.write(state);
             SaveableListener.fireOnChange(this, queueFile);
         } catch (IOException e) {
             LOGGER.log(Level.WARNING, "Failed to write out the queue file " + getXMLQueueFile(), e);
@@ -1807,6 +1832,10 @@ public class Queue extends ResourceController implements Saveable {
         public WaitingItem(Calendar timestamp, Task project, List<Action> actions) {
             super(project, actions, COUNTER.incrementAndGet(), new FutureImpl(project));
             this.timestamp = timestamp;
+        }
+
+        public static int getCurrentCounterValue() {
+            return COUNTER.intValue();
         }
 
         public int compareTo(WaitingItem that) {
