@@ -28,6 +28,7 @@ import hudson.model.Queue;
 import hudson.model.Queue.Executable;
 import hudson.model.Queue.Task;
 import javax.annotation.CheckForNull;
+import hudson.model.Run;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 import org.kohsuke.stapler.export.ExportedBean;
@@ -85,6 +86,10 @@ public final class WorkUnit {
     @Restricted(NoExternalUse.class)
     public void setExecutable(Executable executable) {
         this.executable = executable;
+        if (executable instanceof Run) {
+            // TODO: Not possible via the QueueListener it seems. Is there something else?
+            ((Run) executable).addAction(new QueueIDTrackerAction(context.item.id));
+        }
     }
 
     /**

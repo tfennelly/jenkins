@@ -40,6 +40,7 @@ import hudson.model.Queue.BlockedItem;
 import hudson.model.Queue.Executable;
 import hudson.model.Queue.WaitingItem;
 import hudson.model.queue.AbstractQueueTask;
+import hudson.model.queue.QueueIDTrackerAction;
 import hudson.model.queue.QueueTaskFuture;
 import hudson.model.queue.ScheduleResult;
 import hudson.model.queue.SubTask;
@@ -83,6 +84,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FileUtils;
 import static org.junit.Assert.*;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -201,6 +203,13 @@ public class QueueTest {
         // The current counter should be the id from the item brought back
         // from the queue.
         assertEquals(1, Queue.WaitingItem.getCurrentCounterValue());
+    }
+
+    @Test
+    public void queue_id_tracker() throws Exception {
+        FreeStyleProject testProject = r.createFreeStyleProject("test");
+        FreeStyleBuild build = r.assertBuildStatusSuccess(testProject.scheduleBuild2(0));
+        Assert.assertNotEquals(QueueIDTrackerAction.QUEUE_ID_UNKNOWN, QueueIDTrackerAction.getQueueID(build));
     }
 
     /**
