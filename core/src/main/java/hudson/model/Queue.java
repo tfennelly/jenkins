@@ -345,7 +345,7 @@ public class Queue extends ResourceController implements Saveable {
     /**
      * Simple queue state persistence object.
      */
-    public static class State {
+    static class State {
         public int counter;
         public List<Item> items = new ArrayList<Item>();
     }
