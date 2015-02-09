@@ -347,7 +347,7 @@ public class Queue extends ResourceController implements Saveable {
      */
     public static class State {
         public int counter;
-        public List<Object> items = new ArrayList<Object>();
+        public List<Item> items = new ArrayList<Item>();
     }
 
     /**
@@ -375,31 +375,35 @@ public class Queue extends ResourceController implements Saveable {
                 queueFile = getXMLQueueFile();
                 if (queueFile.exists()) {
                     Object unmarshaledObj = new XmlFile(XSTREAM, queueFile).read();
-                    State state;
-                    int maxId = 0;
+                    List items;
 
                     if (unmarshaledObj instanceof State) {
-                        state = (State) unmarshaledObj;
-                        maxId = state.counter;
+                        State state = (State) unmarshaledObj;
+                        items = state.items;
+                        WaitingItem.COUNTER.set(state.counter);
                     } else {
                         // backward compatibility - it's an old List queue.xml
-                        state = new State();
-                        state.items = (List) unmarshaledObj;
+                        items = (List) unmarshaledObj;
+                        int maxId = 0;
+                        for (Object o : items) {
+                            if (o instanceof Item) {
+                                maxId = Math.max(maxId, ((Item)o).id);
+                            }
+                        }
+                        WaitingItem.COUNTER.set(maxId);
                     }
 
-                    for (Object o : state.items) {
+                    for (Object o : items) {
                         if (o instanceof Task) {
                             // backward compatibility
                             schedule((Task)o, 0);
                         } else if (o instanceof Item) {
                             Item item = (Item)o;
-                            if(item.task==null)
-                                continue;   // botched persistence. throw this one away
 
-                            // backward compatibility - in case the serialized queue state was
-                            // a List of items (as of old), then the maxId is the max of the items in
-                            // the persisted queue.
-                            maxId = Math.max(maxId, item.id);
+                            if (item.task == null) {
+                                continue;   // botched persistence. throw this one away
+                            }
+
                             if (item instanceof WaitingItem) {
                                 item.enter(this);
                             } else if (item instanceof BlockedItem) {
@@ -409,9 +413,8 @@ public class Queue extends ResourceController implements Saveable {
                             } else {
                                 throw new IllegalStateException("Unknown item type! " + item);
                             }
-                        } // this conveniently ignores null
+                        }
                     }
-                    WaitingItem.COUNTER.set(maxId);
 
                     // I just had an incident where all the executors are dead at AbstractProject._getRuns()
                     // because runs is null. Debugger revealed that this is caused by a MatrixConfiguration

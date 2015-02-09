@@ -40,7 +40,6 @@ import hudson.model.Queue.BlockedItem;
 import hudson.model.Queue.Executable;
 import hudson.model.Queue.WaitingItem;
 import hudson.model.queue.AbstractQueueTask;
-import hudson.model.queue.QueueIDTrackerAction;
 import hudson.model.queue.QueueTaskFuture;
 import hudson.model.queue.ScheduleResult;
 import hudson.model.queue.SubTask;
@@ -85,7 +84,6 @@ import org.apache.commons.io.FileUtils;
 import static org.junit.Assert.*;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.Issue;
@@ -93,6 +91,7 @@ import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.MockQueueItemAuthenticator;
 import org.jvnet.hudson.test.SequenceLock;
 import org.jvnet.hudson.test.TestBuilder;
+import org.jvnet.hudson.test.recipes.LocalData;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.servlet.ServletHandler;
@@ -104,16 +103,6 @@ import org.mortbay.jetty.servlet.ServletHolder;
 public class QueueTest {
 
     @Rule public JenkinsRule r = new NodeProvisionerRule(-1, 0, 10);
-
-    private File queueFile;
-
-    @Before
-    public void resetQueueState() throws IOException {
-        queueFile = new File(r.jenkins.getRootDir(), "queue.xml");
-        XmlFile xmlFile = new XmlFile(Queue.XSTREAM, queueFile);
-        xmlFile.write(new Queue.State());
-        r.jenkins.getQueue().load();
-    }
 
     /**
      * Checks the persistence of queue.
@@ -144,11 +133,30 @@ public class QueueTest {
     }
 
     /**
+     * Make sure the queue can be reconstructed from a List queue.xml.
+     * Prior to the Queue.State class, the Queue items were just persisted as a List.
+     */
+    @LocalData
+    @Test
+    public void recover_from_legacy_list() throws Exception {
+        Queue q = r.jenkins.getQueue();
+
+        // loaded the legacy queue.xml from test LocalData located in
+        // resources/hudson/model/QueueTest/recover_from_legacy_list.zip
+        assertEquals(1, q.getItems().length);
+
+        // The current counter should be the id from the item brought back
+        // from the persisted queue.xml.
+        assertEquals(3, Queue.WaitingItem.getCurrentCounterValue());
+    }
+
+    /**
      * Can {@link Queue} successfully recover removal?
      */
      @Test public void persistence2() throws Exception {
         Queue q = r.jenkins.getQueue();
 
+        resetQueueState();
         assertEquals(0, Queue.WaitingItem.getCurrentCounterValue());
 
         // prevent execution to push stuff into the queue
@@ -175,41 +183,21 @@ public class QueueTest {
     }
 
     /**
-     * Make sure the queue can be reconstructed from a List queue.xml.
-     * Prior to the Queue.State class, the Queue items were just persisted as a List.
+     * Forces a reset of the private queue COUNTER.
+     * Could make changes to Queue to make that easier, but decided against that.
      */
-    @Test
-    public void recover_from_leegacy_list() throws Exception {
-        Queue q = r.jenkins.getQueue();
-
-        // prevent execution to push stuff into the queue
-        r.jenkins.setNumExecutors(0);
-        r.jenkins.setNodes(r.jenkins.getNodes());
-
-        FreeStyleProject testProject = r.createFreeStyleProject("test");
-        testProject.scheduleBuild(new UserIdCause());
-
-        // Persist the List only (as before Queue.State)
+    private void resetQueueState() throws IOException {
+        File queueFile = r.jenkins.getQueue().getXMLQueueFile();
         XmlFile xmlFile = new XmlFile(Queue.XSTREAM, queueFile);
-        xmlFile.write(new ArrayList(Arrays.asList(q.getItems())));
-
-        q.clear();
-        assertEquals(0, q.getItems().length);
-
-        // load the contents back
-        q.load();
-        assertEquals(1, q.getItems().length);
-
-        // The current counter should be the id from the item brought back
-        // from the queue.
-        assertEquals(1, Queue.WaitingItem.getCurrentCounterValue());
+        xmlFile.write(new Queue.State());
+        r.jenkins.getQueue().load();
     }
 
     @Test
-    public void queue_id_tracker() throws Exception {
+    public void queue_id_to_run_mapping() throws Exception {
         FreeStyleProject testProject = r.createFreeStyleProject("test");
         FreeStyleBuild build = r.assertBuildStatusSuccess(testProject.scheduleBuild2(0));
-        Assert.assertNotEquals(QueueIDTrackerAction.QUEUE_ID_UNKNOWN, QueueIDTrackerAction.getQueueID(build));
+        Assert.assertNotEquals(Run.QUEUE_ID_UNKNOWN, build.getQueueId());
     }
 
     /**

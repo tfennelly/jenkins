@@ -137,6 +137,11 @@ import org.kohsuke.stapler.interceptor.RequirePOST;
 public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,RunT>>
         extends Actionable implements ExtensionPoint, Comparable<RunT>, AccessControlled, PersistenceRoot, DescriptorByNameOwner, OnMaster {
 
+    /**
+     * The original {@link Queue.Item#id} has not yet been mapped onto the {@link Run} instance.
+     */
+    public static final int QUEUE_ID_UNKNOWN = -1;
+
     protected transient final @Nonnull JobT project;
 
     /**
@@ -147,6 +152,11 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
      * but going forward, it will, and this really replaces the build id.
      */
     public transient /*final*/ int number;
+
+    /**
+     * The original Queue task ID from where this Run instance originated.
+     */
+    private int queueId;
 
     /**
      * Previous build. Can be null.
@@ -400,6 +410,29 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
      */
     public int compareTo(@Nonnull RunT that) {
         return this.number - that.number;
+    }
+
+    /**
+     * Get the {@link Queue.Item#id} of the original queue item from where this Run instance
+     * originated.
+     * @return The queue item ID.
+     * @since TODO
+     */
+    @Exported
+    public int getQueueId() {
+        return queueId;
+    }
+
+    /**
+     * Set the queue item ID.
+     * <p/>
+     * Mapped from the {@link Queue.Item#id}. This method should never be called from outside Jenkins Core.
+     * @param queueId The queue item ID.
+     * @since TODO
+     */
+    @Restricted(NoExternalUse.class)
+    public void setQueueId(int queueId) {
+        this.queueId = queueId;
     }
 
     /**
