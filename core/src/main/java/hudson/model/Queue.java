@@ -1837,7 +1837,7 @@ public class Queue extends ResourceController implements Saveable {
             this.timestamp = timestamp;
         }
 
-        public static int getCurrentCounterValue() {
+        static int getCurrentCounterValue() {
             return COUNTER.intValue();
         }
 
