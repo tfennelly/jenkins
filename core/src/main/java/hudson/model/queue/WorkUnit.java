@@ -87,7 +87,6 @@ public final class WorkUnit {
     public void setExecutable(Executable executable) {
         this.executable = executable;
         if (executable instanceof Run) {
-            // TODO: Not possible via the QueueListener it seems. Is there something else?
             ((Run) executable).setQueueId(context.item.id);
         }
     }

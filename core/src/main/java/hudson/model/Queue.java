@@ -195,7 +195,7 @@ public class Queue extends ResourceController implements Saveable {
      *
      * This map is forgetful, since we can't remember everything that executed in the past.
      */
-    private final Cache<Integer,LeftItem> leftItems = CacheBuilder.newBuilder().expireAfterWrite(5*60, TimeUnit.SECONDS).build();
+    private final Cache<Long,LeftItem> leftItems = CacheBuilder.newBuilder().expireAfterWrite(5*60, TimeUnit.SECONDS).build();
 
     private final CachedItemList itemsView = new CachedItemList();
 
@@ -384,7 +384,7 @@ public class Queue extends ResourceController implements Saveable {
                     } else {
                         // backward compatibility - it's an old List queue.xml
                         items = (List) unmarshaledObj;
-                        int maxId = 0;
+                        long maxId = 0;
                         for (Object o : items) {
                             if (o instanceof Item) {
                                 maxId = Math.max(maxId, ((Item)o).id);
@@ -694,7 +694,7 @@ public class Queue extends ResourceController implements Saveable {
      * Called from {@code queue.jelly} and {@code entries.jelly}.
      */
     @RequirePOST
-    public HttpResponse doCancelItem(@QueryParameter int id) throws IOException, ServletException {
+    public HttpResponse doCancelItem(@QueryParameter long id) throws IOException, ServletException {
         Item item = getItem(id);
         if (item != null) {
             cancel(item);
@@ -751,7 +751,7 @@ public class Queue extends ResourceController implements Saveable {
         return itemsView.get();
     }
 
-    public synchronized Item getItem(int id) {
+    public synchronized Item getItem(long id) {
     	for (Item item: waitingList) if (item.id == id) return item;
     	for (Item item: blockedProjects) if (item.id == id) return item;
     	for (Item item: buildables) if (item.id == id) return item;
@@ -1509,7 +1509,7 @@ public class Queue extends ResourceController implements Saveable {
          * in the queue (each represented by different subtypes of {@link Item}.
          */
         @Exported
-    	public final int id;
+    	public final long id;
 
 		/**
          * Project to be built.
@@ -1623,7 +1623,7 @@ public class Queue extends ResourceController implements Saveable {
             return s.toString();
         }
 
-        protected Item(Task task, List<Action> actions, int id, FutureImpl future) {
+        protected Item(Task task, List<Action> actions, long id, FutureImpl future) {
             this.task = task;
             this.id = id;
             this.future = future;
@@ -1631,7 +1631,7 @@ public class Queue extends ResourceController implements Saveable {
             for (Action action: actions) addAction(action);
         }
 
-        protected Item(Task task, List<Action> actions, int id, FutureImpl future, long inQueueSince) {
+        protected Item(Task task, List<Action> actions, long id, FutureImpl future, long inQueueSince) {
             this.task = task;
             this.id = id;
             this.future = future;
@@ -1824,7 +1824,7 @@ public class Queue extends ResourceController implements Saveable {
      * {@link Item} in the {@link Queue#waitingList} stage.
      */
     public static final class WaitingItem extends Item implements Comparable<WaitingItem> {
-    	private static final AtomicInteger COUNTER = new AtomicInteger(0);
+    	private static final AtomicLong COUNTER = new AtomicLong(0);
 
         /**
          * This item can be run after this time.
@@ -1845,7 +1845,13 @@ public class Queue extends ResourceController implements Saveable {
             int r = this.timestamp.getTime().compareTo(that.timestamp.getTime());
             if (r != 0) return r;
 
-            return this.id - that.id;
+            if (this.id < that.id) {
+                return -1;
+            } else if (this.id == that.id) {
+                return 0;
+            } else {
+                return 1;
+            }
         }
 
         public CauseOfBlockage getCauseOfBlockage() {

@@ -140,7 +140,7 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
     /**
      * The original {@link Queue.Item#id} has not yet been mapped onto the {@link Run} instance.
      */
-    public static final int QUEUE_ID_UNKNOWN = -1;
+    public static final long QUEUE_ID_UNKNOWN = -1;
 
     protected transient final @Nonnull JobT project;
 
@@ -156,7 +156,8 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
     /**
      * The original Queue task ID from where this Run instance originated.
      */
-    private int queueId;
+    // TODO is 'queueId' an okay name for this? Feels like there might be something better.
+    private long queueId;
 
     /**
      * Previous build. Can be null.
@@ -419,7 +420,7 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
      * @since TODO
      */
     @Exported
-    public int getQueueId() {
+    public long getQueueId() {
         return queueId;
     }
 
@@ -431,7 +432,7 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
      * @since TODO
      */
     @Restricted(NoExternalUse.class)
-    public void setQueueId(int queueId) {
+    public void setQueueId(long queueId) {
         this.queueId = queueId;
     }
 
