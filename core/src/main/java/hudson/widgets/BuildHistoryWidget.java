@@ -23,9 +23,11 @@
  */
 package hudson.widgets;
 
+import hudson.model.ModelObject;
 import jenkins.model.Jenkins;
 import hudson.model.Queue.Item;
 import hudson.model.Queue.Task;
+import org.apache.commons.collections.IteratorUtils;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -66,5 +68,17 @@ public class BuildHistoryWidget<T> extends HistoryWidget<Task,T> {
             }
         }
     	return list;
+    }
+
+    @Override
+    public HistoryPage getPage() {
+        final HistoryPage<ModelObject> historyPage = new HistoryPage<ModelObject>(THRESHOLD, newerThan, olderThan);
+        List<ModelObject> items = new LinkedList<ModelObject>();
+
+        items.addAll(getQueuedItems());
+        items.addAll(IteratorUtils.toList(baseList.iterator()));
+        historyPage.add(items);
+
+        return historyPage;
     }
 }
