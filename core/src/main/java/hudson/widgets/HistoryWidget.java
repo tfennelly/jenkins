@@ -28,6 +28,7 @@ import hudson.model.ModelObject;
 import hudson.model.Run;
 import hudson.util.Iterators;
 
+import org.apache.commons.collections.IteratorUtils;
 import org.kohsuke.stapler.Header;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.Stapler;
@@ -73,6 +74,9 @@ public class HistoryWidget<O extends ModelObject,T> extends Widget {
 
     public final Adapter<? super T> adapter;
 
+    final Long newerThan;
+    final Long olderThan;
+
     /**
      * First transient build record. Everything >= this will be discarded when AJAX call is made.
      */
@@ -83,10 +87,13 @@ public class HistoryWidget<O extends ModelObject,T> extends Widget {
      *      The parent model object that owns this widget.
      */
     public HistoryWidget(O owner, Iterable<T> baseList, Adapter<? super T> adapter) {
+	StaplerRequest currentRequest = Stapler.getCurrentRequest();
         this.adapter = adapter;
         this.baseList = baseList;
-        this.baseUrl = Functions.getNearestAncestorUrl(Stapler.getCurrentRequest(),owner);
+	this.baseUrl = Functions.getNearestAncestorUrl(currentRequest,owner);
         this.owner = owner;
+	this.newerThan = getPagingParam(currentRequest, "newer-than");
+	this.olderThan = getPagingParam(currentRequest, "older-than");
     }
 
     /**
@@ -138,6 +145,15 @@ public class HistoryWidget<O extends ModelObject,T> extends Widget {
             // to prevent baseList's concrete type from getting picked up by <j:forEach> in view
             return updateFirstTransientBuildKey(Iterators.wrap(baseList));
         }
+    }
+
+    /**
+     * Render a "page" of records.
+     */
+    public HistoryPage getPage() {
+	HistoryPage<T> historyPage = new HistoryPage<T>(THRESHOLD, newerThan, olderThan);
+	historyPage.add(IteratorUtils.toList(baseList.iterator()));
+	return historyPage;
     }
 
     public boolean isTrimmed() {
@@ -195,7 +211,7 @@ public class HistoryWidget<O extends ModelObject,T> extends Widget {
         req.getView(this,"ajaxBuildHistory.jelly").forward(req,rsp);
     }
 
-    private static final int THRESHOLD = Integer.getInteger(HistoryWidget.class.getName()+".threshold",30);
+    static final int THRESHOLD = Integer.getInteger(HistoryWidget.class.getName()+".threshold",30);
 
     public String getNextBuildNumberToFetch() {
         return nextBuildNumberToFetch;
@@ -213,5 +229,17 @@ public class HistoryWidget<O extends ModelObject,T> extends Widget {
         String getKey(T record);
         boolean isBuilding(T record);
         String getNextKey(String key);
+    }
+
+    private Long getPagingParam(StaplerRequest currentRequest, String name) {
+	String paramVal = currentRequest.getParameter(name);
+	if (paramVal == null) {
+	    return null;
+	}
+	try {
+	    return new Long(paramVal);
+	} catch (NumberFormatException nfe) {
+	    return null;
+	}
     }
 }
