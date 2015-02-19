@@ -156,7 +156,6 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
     /**
      * The original Queue task ID from where this Run instance originated.
      */
-    // TODO is 'queueId' an okay name for this? Feels like there might be something better.
     private long queueId;
 
     /**
@@ -427,7 +426,7 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
     /**
      * Set the queue item ID.
      * <p/>
-     * Mapped from the {@link Queue.Item#id}. This method should never be called from outside Jenkins Core.
+     * Mapped from the {@link Queue.Item#id}.
      * @param queueId The queue item ID.
      * @since TODO
      */

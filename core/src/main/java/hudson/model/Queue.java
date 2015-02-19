@@ -346,7 +346,7 @@ public class Queue extends ResourceController implements Saveable {
      * Simple queue state persistence object.
      */
     static class State {
-        public int counter;
+        public long counter;
         public List<Item> items = new ArrayList<Item>();
     }
 
@@ -440,7 +440,7 @@ public class Queue extends ResourceController implements Saveable {
 
         // write out the queue state we want to save
         State state = new State();
-        state.counter = WaitingItem.COUNTER.intValue();
+        state.counter = WaitingItem.COUNTER.longValue();
 
         // write out the tasks on the queue
         for (Item item: getItems()) {
