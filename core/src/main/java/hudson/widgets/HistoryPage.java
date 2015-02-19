@@ -23,6 +23,7 @@
  */
 package hudson.widgets;
 
+import hudson.model.Job;
 import hudson.model.Queue;
 import hudson.model.Run;
 
@@ -51,6 +52,8 @@ public class HistoryPage<T> {
 
     public boolean hasUpPage = false; // there are also newer builds than on this page
     public boolean hasDownPage = false; // there are also older builds than on this page
+    public long nextBuildNumber;
+    public String firstTransientBuildKey; // Mapped from HistoryWidget.firstTransientBuildKey
 
     public long newestOnPage = Long.MIN_VALUE; // see updateNewestOldest()
     public long oldestOnPage = Long.MAX_VALUE; // see updateNewestOldest()
@@ -80,6 +83,9 @@ public class HistoryPage<T> {
 	}
 
 	sort(items);
+
+	nextBuildNumber = getNextBuildNumber(items.get(0));
+
 	if (newerThan == null && olderThan == null) {
 	    // Just return the first page of entries (newest)
 	    for (T item : items) {
@@ -185,6 +191,20 @@ public class HistoryPage<T> {
 	} else {
 	    return Run.QUEUE_ID_UNKNOWN;
 	}
+    }
+
+    private long getNextBuildNumber(@Nonnull T entry) {
+	if (entry instanceof Queue.Item) {
+	    Queue.Task task = ((Queue.Item) entry).task;
+	    if (task instanceof Job) {
+		return ((Job) task).getNextBuildNumber();
+	    }
+	} else if (entry instanceof Run) {
+	    return ((Run) entry).getParent().getNextBuildNumber();
+	}
+
+	// TODO maybe this should be an error?
+	return getQueueId(entry) + 1;
     }
 
     private void addQueueItem(Queue.Item item) {

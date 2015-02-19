@@ -208,7 +208,10 @@ public class HistoryWidget<O extends ModelObject,T> extends Widget {
         rsp.setHeader("n",nn);
         firstTransientBuildKey = nn; // all builds >= nn should be marked transient
 
-        req.getView(this,"ajaxBuildHistory.jelly").forward(req,rsp);
+	HistoryPage page = getPage();
+	updateFirstTransientBuildKey(page.runs);
+	page.firstTransientBuildKey = firstTransientBuildKey;
+	req.getView(page,"ajaxBuildHistory.jelly").forward(req,rsp);
     }
 
     static final int THRESHOLD = Integer.getInteger(HistoryWidget.class.getName()+".threshold",30);
