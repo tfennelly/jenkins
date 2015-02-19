@@ -192,7 +192,7 @@ public class Queue extends ResourceController implements Saveable {
     private final ItemList<BuildableItem> pendings = new ItemList<BuildableItem>();
 
     /**
-     * Items that left queue would stay here for a while to enable tracking via {@link Item#id}.
+     * Items that left queue would stay here for a while to enable tracking via {@link Item#getId()}.
      *
      * This map is forgetful, since we can't remember everything that executed in the past.
      */
@@ -537,7 +537,7 @@ public class Queue extends ResourceController implements Saveable {
      *      is that such {@link Item} only captures the state of the item at a particular moment,
      *      and by the time you inspect the object, some of its information can be already stale.
      *
-     *      That said, one can still look at {@link Queue.Item#future}, {@link Queue.Item#id}, etc.
+     *      That said, one can still look at {@link Queue.Item#future}, {@link Queue.Item#getId()}, etc.
      */
     public synchronized @Nonnull ScheduleResult schedule2(Task p, int quietPeriod, List<Action> actions) {
         // remove nulls
@@ -565,7 +565,7 @@ public class Queue extends ResourceController implements Saveable {
      *      is that such {@link Item} only captures the state of the item at a particular moment,
      *      and by the time you inspect the object, some of its information can be already stale.
      *
-     *      That said, one can still look at {@link WaitingItem#future}, {@link WaitingItem#id}, etc.
+     *      That said, one can still look at {@link WaitingItem#future}, {@link WaitingItem#getId()}, etc.
      */
     private synchronized @Nonnull ScheduleResult scheduleInternal(Task p, int quietPeriod, List<Action> actions) {
         Calendar due = new GregorianCalendar();
@@ -1509,9 +1509,24 @@ public class Queue extends ResourceController implements Saveable {
          * VM-wide unique ID that tracks the {@link Task} as it moves through different stages
          * in the queue (each represented by different subtypes of {@link Item}.
          */
+    	private final long id;
+
         @Exported
-        @AdaptField(was=int.class)
-    	public final long id;
+        public long getId() {
+            return id;
+        }
+
+        @AdaptField(was=int.class, name="id")
+        @Deprecated
+        public int getIdLegacy() {
+            if (id > Integer.MAX_VALUE) {
+                throw new IllegalStateException("Sorry, you need to update any Plugins attempting to " +
+                        "assign 'Queue.Item.id' to an int value. 'Queue.Item.id' is now a long value and " +
+                        "has incremented to a value greater than Integer.MAX_VALUE (2^32).");
+            }
+            return (int) id;
+        }
+
 
 		/**
          * Project to be built.
@@ -1566,7 +1581,7 @@ public class Queue extends ResourceController implements Saveable {
         /**
          * Can be used to wait for the completion (either normal, abnormal, or cancellation) of the {@link Task}.
          * <p>
-         * Just like {@link #id}, the same object tracks various stages of the queue.
+         * Just like {@link #getId()}, the same object tracks various stages of the queue.
          */
         @WithBridgeMethods(Future.class)
         public QueueTaskFuture<Executable> getFuture() { return future; }
@@ -1847,9 +1862,9 @@ public class Queue extends ResourceController implements Saveable {
             int r = this.timestamp.getTime().compareTo(that.timestamp.getTime());
             if (r != 0) return r;
 
-            if (this.id < that.id) {
+            if (this.getId() < that.getId()) {
                 return -1;
-            } else if (this.id == that.id) {
+            } else if (this.getId() == that.getId()) {
                 return 0;
             } else {
                 return 1;
@@ -2121,7 +2136,7 @@ public class Queue extends ResourceController implements Saveable {
 
         @Override
         void enter(Queue q) {
-            q.leftItems.put(id,this);
+            q.leftItems.put(getId(),this);
             for (QueueListener ql : QueueListener.all()) {
                 try {
                     ql.onLeft(this);

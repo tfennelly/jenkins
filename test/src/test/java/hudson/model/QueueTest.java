@@ -650,7 +650,7 @@ public class QueueTest {
         
         Queue.Item item = Queue.getInstance().getItem(p);
         assertNotNull(item);
-        Queue.getInstance().doCancelItem(item.id);
+        Queue.getInstance().doCancelItem(item.getId());
         assertNull(Queue.getInstance().getItem(p));
         
         try {
@@ -673,7 +673,7 @@ public class QueueTest {
             @Override
             public void run() {
                    try {
-                       Queue.getInstance().doCancelItem(item.id);
+                       Queue.getInstance().doCancelItem(item.getId());
                    } catch (IOException e) {
                        e.printStackTrace();
                    } catch (ServletException e) {
