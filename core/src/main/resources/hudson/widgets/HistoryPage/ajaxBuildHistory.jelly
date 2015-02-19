@@ -23,13 +23,12 @@ THE SOFTWARE.
 -->
 
 <!--
-  Render build histories. 
 -->
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
-  <j:set target="${it}" property="nextBuildNumberToFetch" value="${it.nextBuildNumber}"/>
-  <!-- build history -->
-  <j:forEach var="build" items="${it.runs}">
-    <st:include page="/hudson/widgets/HistoryWidget/entry.jelly" />
-  </j:forEach>
+  <l:ajax>
+    <table class="pane">
+      <st:include page="entries.jelly" />
+    </table>
+  </l:ajax>
 </j:jelly>
