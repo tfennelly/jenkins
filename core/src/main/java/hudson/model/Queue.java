@@ -109,6 +109,7 @@ import jenkins.security.QueueItemAuthenticator;
 import jenkins.util.AtmostOneTaskExecutor;
 import org.acegisecurity.AccessDeniedException;
 import org.acegisecurity.Authentication;
+import org.jenkinsci.bytecode.AdaptField;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.export.Exported;
@@ -1509,6 +1510,7 @@ public class Queue extends ResourceController implements Saveable {
          * in the queue (each represented by different subtypes of {@link Item}.
          */
         @Exported
+        @AdaptField(was=int.class)
     	public final long id;
 
 		/**
