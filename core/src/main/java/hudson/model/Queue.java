@@ -1522,7 +1522,7 @@ public class Queue extends ResourceController implements Saveable {
             if (id > Integer.MAX_VALUE) {
                 throw new IllegalStateException("Sorry, you need to update any Plugins attempting to " +
                         "assign 'Queue.Item.id' to an int value. 'Queue.Item.id' is now a long value and " +
-                        "has incremented to a value greater than Integer.MAX_VALUE (2^32).");
+                        "has incremented to a value greater than Integer.MAX_VALUE (2^31 - 1).");
             }
             return (int) id;
         }
