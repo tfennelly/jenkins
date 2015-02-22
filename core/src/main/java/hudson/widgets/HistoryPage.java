@@ -185,7 +185,7 @@ public class HistoryPage<T> {
 
     protected long getQueueId(@Nonnull T entry) {
         if (entry instanceof Queue.Item) {
-            return ((Queue.Item) entry).id;
+            return ((Queue.Item) entry).getId();
         } else if (entry instanceof Run) {
             return ((Run) entry).getQueueId();
         } else {
@@ -208,7 +208,7 @@ public class HistoryPage<T> {
     }
 
     private void addQueueItem(Queue.Item item) {
-        updateNewestOldest(item.id);
+        updateNewestOldest(item.getId());
         queueItems.add(item);
     }
 
