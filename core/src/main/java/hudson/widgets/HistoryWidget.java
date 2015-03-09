@@ -150,10 +150,11 @@ public class HistoryWidget<O extends ModelObject,T> extends Widget {
     /**
      * Render a "page" of records.
      */
-    public HistoryPage getPage() {
-	HistoryPage<T> historyPage = new HistoryPage<T>(THRESHOLD, newerThan, olderThan);
-	historyPage.add(IteratorUtils.toList(baseList.iterator()));
-	return historyPage;
+    public HistoryPageFilter getPage() {
+	HistoryPageFilter<T> historyPageFilter = new HistoryPageFilter<T>(THRESHOLD, newerThan, olderThan);
+	historyPageFilter.add(IteratorUtils.toList(baseList.iterator()));
+	historyPageFilter.widget = this;
+	return historyPageFilter;
     }
 
     public boolean isTrimmed() {
@@ -205,12 +206,11 @@ public class HistoryWidget<O extends ModelObject,T> extends Widget {
 
         baseList = items;
 
-        rsp.setHeader("n",nn);
-        firstTransientBuildKey = nn; // all builds >= nn should be marked transient
+	rsp.setHeader("n",nn);
+	firstTransientBuildKey = nn; // all builds >= nn should be marked transient
 
-	HistoryPage page = getPage();
+	HistoryPageFilter page = getPage();
 	updateFirstTransientBuildKey(page.runs);
-	page.firstTransientBuildKey = firstTransientBuildKey;
 	req.getView(page,"ajaxBuildHistory.jelly").forward(req,rsp);
     }
 

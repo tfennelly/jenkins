@@ -71,14 +71,15 @@ public class BuildHistoryWidget<T> extends HistoryWidget<Task,T> {
     }
 
     @Override
-    public HistoryPage getPage() {
-	final HistoryPage<ModelObject> historyPage = new HistoryPage<ModelObject>(THRESHOLD, newerThan, olderThan);
+    public HistoryPageFilter getPage() {
+	final HistoryPageFilter<ModelObject> historyPageFilter = new HistoryPageFilter<ModelObject>(THRESHOLD, newerThan, olderThan);
 	List<ModelObject> items = new LinkedList<ModelObject>();
 
 	items.addAll(getQueuedItems());
 	items.addAll(IteratorUtils.toList(baseList.iterator()));
-	historyPage.add(items);
+	historyPageFilter.add(items);
+	historyPageFilter.widget = this;
 
-	return historyPage;
+	return historyPageFilter;
     }
 }
