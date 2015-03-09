@@ -34,11 +34,11 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * History page.
+ * History page filter.
  *
  * @author <a href="mailto:tom.fennelly@gmail.com">tom.fennelly@gmail.com</a>
  */
-public class HistoryPage<T> {
+public class HistoryPageFilter<T> {
 
     private final int maxEntries;
     private final Long newerThan;
@@ -50,16 +50,16 @@ public class HistoryPage<T> {
     public final List<Queue.Item> queueItems = new ArrayList<Queue.Item>();
     public final List<Run> runs = new ArrayList<Run>();
 
-    public boolean hasUpPage = false; // there are also newer builds than on this page
-    public boolean hasDownPage = false; // there are also older builds than on this page
+    public boolean hasUpPage = false; // there are newer builds than on this page
+    public boolean hasDownPage = false; // there are older builds than on this page
     public long nextBuildNumber;
-    public String firstTransientBuildKey; // Mapped from HistoryWidget.firstTransientBuildKey
+    public HistoryWidget widget;
 
     public long newestOnPage = Long.MIN_VALUE; // see updateNewestOldest()
     public long oldestOnPage = Long.MAX_VALUE; // see updateNewestOldest()
 
     /**
-     * Create a history page.
+     * Create a history page filter instance.
      *
      * @param maxEntries The max number of entries allowed for the page.
      * @param newerThan Queue IDs newer/greater than this queue ID take precedence on this page. <strong>Should not be set
@@ -67,7 +67,7 @@ public class HistoryPage<T> {
      * @param olderThan Queue IDs older/less than this queue ID take precedence on this page. <strong>Should not be set if
      *                  setting the {@code newerThan} parameter (will be ignored).</strong>
      */
-    public HistoryPage(int maxEntries, Long newerThan, Long olderThan) {
+    public HistoryPageFilter(int maxEntries, Long newerThan, Long olderThan) {
         this.maxEntries = maxEntries;
         this.newerThan = newerThan;
         this.olderThan = olderThan;
@@ -164,8 +164,8 @@ public class HistoryPage<T> {
     private void sort(List<T> items) {
         // Queue items can start building out of order with how they got added to the queue. Sorting them
         // before adding to the page. They'll still get displayed before the building items coz they end
-        // up in a different list in HistoryPage.
-        final HistoryPage thisPage = this;
+        // up in a different list in HistoryPageFilter.
+        final HistoryPageFilter thisPage = this;
         Collections.sort(items, new Comparator<T>() {
             @Override
             public int compare(T o1, T o2) {
