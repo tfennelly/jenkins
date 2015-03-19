@@ -68,20 +68,20 @@ public class HistoryPageFilterTest {
 	itemList.addAll(newQueueItems(3, 4));
 
 	// want to make sure the list items are ordered by id in descending order
-	Assert.assertEquals(1, historyPageFilter.getQueueId(itemList.get(0)));
+	Assert.assertEquals(1, HistoryPageEntry.getQueueId(itemList.get(0)));
 	historyPageFilter.add(itemList);
-	Assert.assertEquals(4, historyPageFilter.getQueueId(itemList.get(0)));
+	Assert.assertEquals(4, HistoryPageEntry.getQueueId(itemList.get(0)));
 
 	Assert.assertEquals(false, historyPageFilter.hasUpPage);
 	Assert.assertEquals(false, historyPageFilter.hasDownPage);
 	Assert.assertEquals(2, historyPageFilter.queueItems.size());
 	Assert.assertEquals(2, historyPageFilter.runs.size());
 
-	Assert.assertEquals(4, historyPageFilter.getQueueId(historyPageFilter.queueItems.get(0)));
+	Assert.assertEquals(4, historyPageFilter.queueItems.get(0).getEntryId());
 	Assert.assertEquals(4, historyPageFilter.newestOnPage);
-	Assert.assertEquals(3, historyPageFilter.getQueueId(historyPageFilter.queueItems.get(1)));
-	Assert.assertEquals(2, historyPageFilter.getQueueId(historyPageFilter.runs.get(0)));
-	Assert.assertEquals(1, historyPageFilter.getQueueId(historyPageFilter.runs.get(1)));
+	Assert.assertEquals(3, historyPageFilter.queueItems.get(1).getEntryId());
+	Assert.assertEquals(2, historyPageFilter.runs.get(0).getEntryId());
+	Assert.assertEquals(1, historyPageFilter.runs.get(1).getEntryId());
 	Assert.assertEquals(1, historyPageFilter.oldestOnPage);
     }
 
@@ -103,9 +103,9 @@ public class HistoryPageFilterTest {
 	Assert.assertEquals(2, historyPageFilter.queueItems.size());
 	Assert.assertEquals(3, historyPageFilter.runs.size());
 
-	Assert.assertEquals(12, historyPageFilter.getQueueId(historyPageFilter.queueItems.get(0)));
+	Assert.assertEquals(12, historyPageFilter.queueItems.get(0).getEntryId());
 	Assert.assertEquals(12, historyPageFilter.newestOnPage);
-	Assert.assertEquals(10, historyPageFilter.getQueueId(historyPageFilter.runs.get(0)));
+	Assert.assertEquals(10, historyPageFilter.runs.get(0).getEntryId());
     }
 
     /**

@@ -46,9 +46,8 @@ public class HistoryPageFilter<T> {
 
     // Need to use different Lists for Queue.Items and Runs because
     // we need access to them separately in the jelly files for rendering.
-    // TODO: unless there's a way of using a single list and then defining separate jelly files by class type? Though that's just moving the problem/confusion somewhere else.
-    public final List<Queue.Item> queueItems = new ArrayList<Queue.Item>();
-    public final List<Run> runs = new ArrayList<Run>();
+    public final List<HistoryPageEntry<Queue.Item>> queueItems = new ArrayList<HistoryPageEntry<Queue.Item>>();
+    public final List<HistoryPageEntry<Run>> runs = new ArrayList<HistoryPageEntry<Run>>();
 
     public boolean hasUpPage = false; // there are newer builds than on this page
     public boolean hasDownPage = false; // there are older builds than on this page
@@ -100,8 +99,8 @@ public class HistoryPageFilter<T> {
 	    if (toFillCount > 0) {
 		// Locate the point in the items list where the 'newerThan' build item is. Once located,
 		// add a max of 'getFillCount' build items before that build item.
-		long newestInList = getQueueId(items.get(0));
-		long oldestInList = getQueueId(items.get(items.size() - 1));
+		long newestInList = HistoryPageEntry.getQueueId(items.get(0));
+		long oldestInList = HistoryPageEntry.getQueueId(items.get(items.size() - 1));
 		int newerThanIdx = -1;
 
 		if (newerThan > newestInList) {
@@ -111,7 +110,7 @@ public class HistoryPageFilter<T> {
 		    // go through the list and locate the cut-off point.
 		    for (int i = 0; i < items.size(); i++) {
 			T item = items.get(i);
-			if (getQueueId(item) <= newerThan) {
+			if (HistoryPageEntry.getQueueId(item) <= newerThan) {
 			    newerThanIdx = i;
 			    break;
 			}
@@ -146,7 +145,7 @@ public class HistoryPageFilter<T> {
 	} else if (olderThan != null) {
 	    for (int i = 0; i < items.size(); i++) {
 		T item = items.get(i);
-		if (getQueueId(item) >= olderThan) {
+		if (HistoryPageEntry.getQueueId(item) >= olderThan) {
 		    hasUpPage = true;
 		} else {
 		    add(item);
@@ -169,8 +168,8 @@ public class HistoryPageFilter<T> {
 	Collections.sort(items, new Comparator<T>() {
 	    @Override
 	    public int compare(T o1, T o2) {
-		long o1QID = thisPage.getQueueId(o1);
-		long o2QID = thisPage.getQueueId(o2);
+		long o1QID = HistoryPageEntry.getQueueId(o1);
+		long o2QID = HistoryPageEntry.getQueueId(o2);
 
 		if (o1QID < o2QID) {
 		    return 1;
@@ -181,16 +180,6 @@ public class HistoryPageFilter<T> {
 		}
 	    }
 	});
-    }
-
-    protected long getQueueId(@Nonnull T entry) {
-	if (entry instanceof Queue.Item) {
-	    return ((Queue.Item) entry).getId();
-	} else if (entry instanceof Run) {
-	    return ((Run) entry).getQueueId();
-	} else {
-	    return Run.QUEUE_ID_UNKNOWN;
-	}
     }
 
     private long getNextBuildNumber(@Nonnull T entry) {
@@ -204,17 +193,17 @@ public class HistoryPageFilter<T> {
 	}
 
 	// TODO maybe this should be an error?
-	return getQueueId(entry) + 1;
+	return HistoryPageEntry.getQueueId(entry) + 1;
     }
 
     private void addQueueItem(Queue.Item item) {
 	updateNewestOldest(item.getId());
-	queueItems.add(item);
+	queueItems.add(new HistoryPageEntry(item));
     }
 
     private void addRun(Run run) {
 	updateNewestOldest(run.getQueueId());
-	runs.add(run);
+	runs.add(new HistoryPageEntry(run));
     }
 
     private void updateNewestOldest(long queueId) {
