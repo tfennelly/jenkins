@@ -51,10 +51,12 @@ THE SOFTWARE.
     </span>
   </j:parse>
 
-  <l:pane width="3" title="${h.runScript(paneTitle)}${it.displayName}" footer="${h.runScript(paneFooter)}" id="buildHistory" class="stripped">
+  <j:set var="page" value="${it.page}" />
+  <div class="buildHistoryPage" page-entry-newest="${page.newestOnPage}" page-entry-oldest="${page.oldestOnPage}" page-has-up="${page.hasUpPage}" page-has-down="${page.hasDownPage}">
+    <l:pane width="3" title="${h.runScript(paneTitle)}${it.displayName}" footer="${h.runScript(paneFooter)}" id="buildHistory" class="stripped">
 
     <!-- build history -->
-    <st:include page="entries.jelly" />
+    <st:include page="entries.jelly" it="${page}" />
 
     <!--
       If we are trimming the build history because it's too long,
@@ -97,6 +99,8 @@ THE SOFTWARE.
       </tr>
     </j:if>
   </l:pane>
+  </div>
+
   <script defer="true">
     updateBuildHistory("${it.baseUrl}/buildHistory/ajax",${it.owner.nextBuildNumber});
   </script>

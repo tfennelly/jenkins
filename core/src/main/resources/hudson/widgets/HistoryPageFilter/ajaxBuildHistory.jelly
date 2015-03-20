@@ -27,7 +27,7 @@ THE SOFTWARE.
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
   <l:ajax>
-    <table class="pane">
+    <table class="pane" page-entry-newest="${it.newestOnPage}" page-entry-oldest="${it.oldestOnPage}" page-has-up="${it.hasUpPage}" page-has-down="${it.hasDownPage}">
       <st:include page="entries.jelly" />
     </table>
   </l:ajax>

@@ -28,5 +28,5 @@ THE SOFTWARE.
 -->
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler">
-  <st:include page="entries.jelly" it="${it.page}"/>
+  <st:include page="entries.jelly" />
 </j:jelly>
