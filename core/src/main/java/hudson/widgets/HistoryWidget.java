@@ -38,6 +38,7 @@ import org.kohsuke.stapler.StaplerResponse;
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -112,11 +113,13 @@ public class HistoryWidget<O extends ModelObject,T> extends Widget {
         return firstTransientBuildKey;
     }
 
-    private Iterable<T> updateFirstTransientBuildKey(Iterable<T> source) {
+    private Iterable<HistoryPageEntry<T>> updateFirstTransientBuildKey(Iterable<HistoryPageEntry<T>> source) {
         String key=null;
-        for (T t : source)
-            if(adapter.isBuilding(t))
-                key = adapter.getKey(t);
+	for (HistoryPageEntry<T> t : source) {
+	    if(adapter.isBuilding(t.getEntry())) {
+		key = adapter.getKey(t.getEntry());
+	    }
+	}
         firstTransientBuildKey = key;
         return source;
     }
@@ -124,27 +127,34 @@ public class HistoryWidget<O extends ModelObject,T> extends Widget {
     /**
      * The records to be rendered this time.
      */
-    public Iterable<T> getRenderList() {
+    public Iterable<HistoryPageEntry<T>> getRenderList() {
         if(trimmed) {
-            List<T> lst;
-            if (baseList instanceof List) {
-                lst = (List<T>) baseList;
-                if(lst.size()>THRESHOLD)
-                    return updateFirstTransientBuildKey(lst.subList(0,THRESHOLD));
-                trimmed=false;
-                return updateFirstTransientBuildKey(lst);
+	    List<HistoryPageEntry<T>> pageEntries = toPageEntries(baseList);
+	    if(pageEntries.size() > THRESHOLD) {
+		return updateFirstTransientBuildKey(pageEntries.subList(0,THRESHOLD));
             } else {
-                lst = new ArrayList<T>(THRESHOLD);
-                Iterator<T> itr = baseList.iterator();
-                while(lst.size()<=THRESHOLD && itr.hasNext())
-                    lst.add(itr.next());
-                trimmed = itr.hasNext(); // if we don't have enough items in the base list, setting this to false will optimize the next getRenderList() invocation.
-                return updateFirstTransientBuildKey(lst);
+		trimmed=false;
+		return updateFirstTransientBuildKey(pageEntries);
             }
         } else {
             // to prevent baseList's concrete type from getting picked up by <j:forEach> in view
-            return updateFirstTransientBuildKey(Iterators.wrap(baseList));
+	    return updateFirstTransientBuildKey(toPageEntries(baseList));
+	}
+    }
+
+    private List<HistoryPageEntry<T>> toPageEntries(Iterable<T> historyItemList) {
+	Iterator<T> iterator = historyItemList.iterator();
+
+	if (!iterator.hasNext()) {
+	    return Collections.EMPTY_LIST;
+	}
+
+	List<HistoryPageEntry<T>> pageEntries = new ArrayList<HistoryPageEntry<T>>();
+	while (iterator.hasNext()) {
+	    pageEntries.add(new HistoryPageEntry<T>(iterator.next()));
         }
+
+	return pageEntries;
     }
 
     /**

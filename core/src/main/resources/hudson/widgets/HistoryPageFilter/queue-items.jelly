@@ -31,9 +31,10 @@ THE SOFTWARE.
   <!-- pending build -->
   <j:set var="queuedItems" value="${it.queueItems}" />
   <j:if test="${!queuedItems.isEmpty()}">
-    <j:forEach var="item" items="${queuedItems}" indexVar="i">
+    <j:forEach var="pageEntry" items="${queuedItems}" indexVar="i">
+      <j:set var="item" value="${pageEntry.entry}"/>
       <j:set var="id" value="${h.generateId()}"/>
-      <tr class="build-row build-pending transitive single-line" id="${id}">
+      <tr class="build-row build-pending transitive single-line" id="${item.id}">
 	<td class="build-row-cell">
 	  <div class="pane build-name">
 	    <div class="build-icon">
