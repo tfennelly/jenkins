@@ -68,9 +68,9 @@ public class HistoryPageFilterTest {
 	itemList.addAll(newQueueItems(3, 4));
 
 	// want to make sure the list items are ordered by id in descending order
-	Assert.assertEquals(1, HistoryPageEntry.getQueueId(itemList.get(0)));
+	Assert.assertEquals(1, HistoryPageEntry.getEntryId(itemList.get(0)));
 	historyPageFilter.add(itemList);
-	Assert.assertEquals(4, HistoryPageEntry.getQueueId(itemList.get(0)));
+	Assert.assertEquals(4, HistoryPageEntry.getEntryId(itemList.get(0)));
 
 	Assert.assertEquals(false, historyPageFilter.hasUpPage);
 	Assert.assertEquals(false, historyPageFilter.hasDownPage);

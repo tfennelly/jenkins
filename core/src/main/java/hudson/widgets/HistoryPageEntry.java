@@ -44,10 +44,10 @@ public class HistoryPageEntry<T> {
     }
 
     public long getEntryId() {
-	return getQueueId(entry);
+	return getEntryId(entry);
     }
 
-    protected static long getQueueId(@Nonnull Object entry) {
+    protected static long getEntryId(@Nonnull Object entry) {
 	if (entry instanceof Queue.Item) {
 	    return ((Queue.Item) entry).getId();
 	} else if (entry instanceof Run) {
