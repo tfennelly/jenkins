@@ -53,6 +53,12 @@ THE SOFTWARE.
 
   <j:set var="page" value="${it.page}" />
   <div class="buildHistoryPage" page-entry-newest="${page.newestOnPage}" page-entry-oldest="${page.oldestOnPage}" page-has-up="${page.hasUpPage}" page-has-down="${page.hasDownPage}">
+    <div class="buildHistoryPageNav">
+      <div class="nav pageOne" title="Page 1 (Newest/Latest Builds)"></div>
+      <div class="nav pageUp" title="Newer Builds"></div>
+      <div class="nav pageDown" title="Older Builds "></div>
+      <div class="nav find" title="Find Builds"></div>
+    </div>
     <l:pane width="3" title="${h.runScript(paneTitle)}${it.displayName}" footer="${h.runScript(paneFooter)}" id="buildHistory" class="stripped">
 
     <!-- build history -->
