@@ -1586,6 +1586,25 @@ function updateBuildHistory(ajaxUrl,nBuild) {
 
     bh.headers = ["n",nBuild];
 
+    function showHistoryNav() {
+	var sidePanel = $('side-panel');
+	var buildHistoryPageNav = $('buildHistoryPageNav');
+
+	sidePanel.observe('mouseover', function() {
+	    Element.addClassName($(buildHistoryPageNav), "mouseOverSidePanel");
+	});
+	sidePanel.observe('mouseout', function() {
+	    Element.removeClassName($(buildHistoryPageNav), "mouseOverSidePanel");
+	});
+	bh.observe('mouseover', function() {
+	    Element.addClassName($(buildHistoryPageNav), "mouseOverSidePanelBuildHistory");
+	});
+	bh.observe('mouseout', function() {
+	    Element.removeClassName($(buildHistoryPageNav), "mouseOverSidePanelBuildHistory");
+	});
+    }
+    showHistoryNav();
+
     function getDataTable(buildHistoryDiv) {
         return $(buildHistoryDiv).getElementsBySelector('table.pane')[0];
     }
