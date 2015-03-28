@@ -967,19 +967,20 @@ table.parameters > tbody:hover {
   float: right;
 }
 
-.buildHistoryPage {
+#buildHistoryPage {
   position: relative;
 }
-.buildHistoryPageNav {
+#buildHistoryPageNav {
   position: absolute;
   right: -21px;
   top: 33px;
-  border: 1px #bbb solid;
+  border: 1px solid;
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
+  visibility: hidden;
 }
 
-.buildHistoryPageNav .nav {
+#buildHistoryPageNav .nav {
   width: 16px;
   height: 16px;
   background: no-repeat;
@@ -989,16 +990,27 @@ table.parameters > tbody:hover {
   cursor: pointer;
 }
 
-.buildHistoryPageNav .pageOne {
+.mouseOverSidePanel {
+  visibility: visible !important;
+  border-color: #f0f0f0 !important;
+}
+.mouseOverSidePanelBuildHistory {
+  border-color: #bbb !important;
+}
+#buildHistoryPageNav:hover {
+  border-color: #bbb !important;
+}
+
+#buildHistoryPageNav .pageOne {
   background-image: url(../images/16x16/bullseye.png);
 }
-.buildHistoryPageNav .pageUp {
+#buildHistoryPageNav .pageUp {
   background-image: url(../images/16x16/go_up.png);
 }
-.buildHistoryPageNav .pageDown {
+#buildHistoryPageNav .pageDown {
   background-image: url(../images/16x16/go_down.png);
 }
-.buildHistoryPageNav .find {
+#buildHistoryPageNav .find {
   background-image: url(../images/16x16/find.png);
 }
 
