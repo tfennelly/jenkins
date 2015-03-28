@@ -990,11 +990,11 @@ table.parameters > tbody:hover {
   cursor: pointer;
 }
 
-.mouseOverSidePanel {
-  visibility: visible !important;
+#buildHistoryPageNav.mouseOverSidePanel {
+  visibility: visible;
   border-color: #f0f0f0 !important;
 }
-.mouseOverSidePanelBuildHistory {
+#buildHistoryPageNav.mouseOverSidePanelBuildHistory {
   border-color: #bbb !important;
 }
 #buildHistoryPageNav:hover {
