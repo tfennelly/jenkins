@@ -183,41 +183,41 @@ public class HistoryWidget<O extends ModelObject,T> extends Widget {
      *      uses non-numbers as the build key.
      */
     public void doAjax( StaplerRequest req, StaplerResponse rsp,
-                  @Header("n") String n ) throws IOException, ServletException {
+		  @Header("n") String n ) throws IOException, ServletException {
 
-        if (n==null)    throw HttpResponses.error(SC_BAD_REQUEST,new Exception("Missing the 'n' HTTP header"));
+	rsp.setContentType("text/html;charset=UTF-8");
 
-        rsp.setContentType("text/html;charset=UTF-8");
+	// pick up builds to send back
+	List<T> items = new ArrayList<T>();
 
-        // pick up builds to send back
-        List<T> items = new ArrayList<T>();
+	if (n != null) {
+	    String nn=null; // we'll compute next n here
 
-        String nn=null; // we'll compute next n here
+	    // list up all builds >=n.
+	    for (T t : baseList) {
+		if(adapter.compare(t,n)>=0) {
+		    items.add(t);
+		    if(adapter.isBuilding(t))
+			nn = adapter.getKey(t); // the next fetch should start from youngest build in progress
+		} else
+		    break;
+	    }
 
-        // list up all builds >=n.
-        for (T t : baseList) {
-            if(adapter.compare(t,n)>=0) {
-                items.add(t);
-                if(adapter.isBuilding(t))
-                    nn = adapter.getKey(t); // the next fetch should start from youngest build in progress
-            } else
-                break;
-        }
+	    if (nn==null) {
+		if (items.isEmpty()) {
+		    // nothing to report back. next fetch should retry the same 'n'
+		    nn=n;
+		} else {
+		    // every record fetched this time is frozen. next fetch should start from the next build
+		    nn=adapter.getNextKey(adapter.getKey(items.get(0)));
+		}
+	    }
 
-        if (nn==null) {
-            if (items.isEmpty()) {
-                // nothing to report back. next fetch should retry the same 'n'
-                nn=n;
-            } else {
-                // every record fetched this time is frozen. next fetch should start from the next build
-                nn=adapter.getNextKey(adapter.getKey(items.get(0)));
-            }
-        }
+	    baseList = items;
 
-        baseList = items;
-
-	rsp.setHeader("n",nn);
-	firstTransientBuildKey = nn; // all builds >= nn should be marked transient
+	    rsp.setHeader("n",nn);
+	    firstTransientBuildKey = nn; // all builds >= nn should be marked transient
+	}
 
 	HistoryPageFilter page = getPage();
 	updateFirstTransientBuildKey(page.runs);
