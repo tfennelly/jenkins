@@ -1586,25 +1586,6 @@ function updateBuildHistory(ajaxUrl,nBuild) {
 
     bh.headers = ["n",nBuild];
 
-    function showHistoryNav() {
-        var sidePanel = $('side-panel');
-        var buildHistoryPageNav = $('buildHistoryPageNav');
-
-        sidePanel.observe('mouseover', function() {
-            Element.addClassName($(buildHistoryPageNav), "mouseOverSidePanel");
-        });        
-        sidePanel.observe('mouseout', function() {
-            Element.removeClassName($(buildHistoryPageNav), "mouseOverSidePanel");
-        });    
-        bh.observe('mouseover', function() {
-            Element.addClassName($(buildHistoryPageNav), "mouseOverSidePanelBuildHistory");
-        });        
-        bh.observe('mouseout', function() {
-            Element.removeClassName($(buildHistoryPageNav), "mouseOverSidePanelBuildHistory");
-        });    
-    }    
-    showHistoryNav();
-
     function getDataTable(buildHistoryDiv) {
         return $(buildHistoryDiv).getElementsBySelector('table.pane')[0];
     }
@@ -1940,9 +1921,8 @@ function updateBuildHistory(ajaxUrl,nBuild) {
 
                     // next update
                     bh.headers = ["n",rsp.getResponseHeader("n")];
-                    createRefreshTimeout();
-
                     checkAllRowCellOverflows();
+                    createRefreshTimeout();
                 }
             });
         } else {
@@ -1969,6 +1949,105 @@ function updateBuildHistory(ajaxUrl,nBuild) {
     onBuildHistoryChange(function() {
         checkAllRowCellOverflows();
     });
+    
+    function setupHistoryNav() {
+        var sidePanel = $('side-panel');
+        var buildHistoryPage = $('buildHistoryPage');
+        var buildHistoryPageNav = $('buildHistoryPageNav');
+
+        // Show/hide the nav as the mouse moves into the sidepanel and build history.
+        sidePanel.observe('mouseover', function() {
+            Element.addClassName($(buildHistoryPageNav), "mouseOverSidePanel");
+        });        
+        sidePanel.observe('mouseout', function() {
+            Element.removeClassName($(buildHistoryPageNav), "mouseOverSidePanel");
+        });    
+        bh.observe('mouseover', function() {
+            Element.addClassName($(buildHistoryPageNav), "mouseOverSidePanelBuildHistory");
+        });        
+        bh.observe('mouseout', function() {
+            Element.removeClassName($(buildHistoryPageNav), "mouseOverSidePanelBuildHistory");
+        });
+        
+        var pageOne = Element.getElementsBySelector(buildHistoryPageNav, '.pageOne')[0];
+        var pageUp = Element.getElementsBySelector(buildHistoryPageNav, '.pageUp')[0];
+        var pageDown = Element.getElementsBySelector(buildHistoryPageNav, '.pageDown')[0];
+        
+        function hasPageUp(el) {
+            el = (el !== undefined ? el : buildHistoryPage);
+            return buildHistoryPage.getAttribute('page-has-up') === 'true';
+        }
+        function hasPageDown(el) {
+            el = (el !== undefined ? el : buildHistoryPage);
+            return buildHistoryPage.getAttribute('page-has-down') === 'true';
+        }
+        function getNewestEntryId(el) {
+            el = (el !== undefined ? el : buildHistoryPage);
+            return parseInt(buildHistoryPage.getAttribute('page-entry-newest'));
+        }
+        function getOldestEntryId(el) {
+            el = (el !== undefined ? el : buildHistoryPage);
+            return parseInt(buildHistoryPage.getAttribute('page-entry-oldest'));
+        }
+        function logPageParams() {
+            console.log('Has up: '   + hasPageUp());
+            console.log('Has down: ' + hasPageDown());
+            console.log('Newest: '   + getNewestEntryId());
+            console.log('Oldest: '   + getOldestEntryId());
+        }
+
+        function loadPage(params) {
+            new Ajax.Request(ajaxUrl + toQueryString(params), {
+                onSuccess: function(rsp) {
+                    var dataTable = getDataTable(bh);
+                    var rows = dataTable.rows;
+
+                    // delete all rows
+                    while (rows.length > 0) {
+                        Element.remove(rows[0]);
+                    }
+                    
+                    // insert new rows
+                    var div = document.createElement('div');
+                    div.innerHTML = rsp.responseText;
+                    Behaviour.applySubtree(div);
+
+                    var newRows = getDataTable(div).rows;
+                    while (newRows.length > 0) {
+                        dataTable.appendChild(newRows[0]);
+                    }
+
+                    checkAllRowCellOverflows();
+                    logPageParams();
+                }
+            });            
+        }
+        
+        pageDown.observe('click', function() {
+            Element.addClassName($(buildHistoryPageNav), "hasUpPage");
+            cancelRefreshTimeout();
+            loadPage({'older-than': getOldestEntryId()});
+        });
+        
+        logPageParams();
+    }    
+    setupHistoryNav();
+    
+}
+
+function toQueryString(params) {
+    var query = '';
+    for (var paramName in params) {
+        if (params.hasOwnProperty(paramName)) {
+            if (query === '') {
+                query = '?';
+            } else {
+                query += '&';
+            } 
+            query += paramName + '=' + encodeURIComponent(params[paramName]);
+        }
+    }
+    return query;
 }
 
 function getElementOverflowParams(element) {
