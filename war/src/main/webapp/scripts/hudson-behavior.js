@@ -1903,7 +1903,6 @@ function updateBuildHistory(ajaxUrl,nBuild) {
         }
     }
 
-    var updateBuildsRefreshInterval = 5000;
     function updateBuilds() {
         if(isPageVisible()){
             if (bh.headers == null) {
@@ -1941,17 +1940,31 @@ function updateBuildHistory(ajaxUrl,nBuild) {
 
                     // next update
                     bh.headers = ["n",rsp.getResponseHeader("n")];
-                    window.setTimeout(updateBuilds, updateBuildsRefreshInterval);
+		    createRefreshTimeout();
 
                     checkAllRowCellOverflows();
                 }
             });
         } else {
             // Reschedule again
-            window.setTimeout(updateBuilds, updateBuildsRefreshInterval);
+	    createRefreshTimeout();
         }
     }
-    window.setTimeout(updateBuilds, updateBuildsRefreshInterval);
+
+    var updateBuildsRefreshInterval = 5000;
+    var buildRefreshTimeout;
+    function createRefreshTimeout() {
+	cancelRefreshTimeout();
+	buildRefreshTimeout = window.setTimeout(updateBuilds, updateBuildsRefreshInterval);
+    }
+    function cancelRefreshTimeout() {
+	if (buildRefreshTimeout) {
+	    window.clearTimeout(buildRefreshTimeout);
+	    buildRefreshTimeout = undefined;
+	}
+    }
+
+    createRefreshTimeout();
 
     onBuildHistoryChange(function() {
         checkAllRowCellOverflows();
