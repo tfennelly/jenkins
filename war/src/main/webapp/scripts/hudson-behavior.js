@@ -1583,6 +1583,7 @@ function fireBuildHistoryChanged() {
 function updateBuildHistory(ajaxUrl,nBuild) {
     if(isRunAsTest) return;
     var bh = $('buildHistory');
+    var buildHistoryPage = $('buildHistoryPage');
 
     bh.headers = ["n",nBuild];
 
@@ -1907,7 +1908,8 @@ function updateBuildHistory(ajaxUrl,nBuild) {
                     Behaviour.applySubtree(div);
 
                     var pivot = rows[0];
-                    var newRows = getDataTable(div).rows;
+		    var newDataTable = getDataTable(div);
+		    var newRows = newDataTable.rows;
                     while (newRows.length > 0) {
                         if (pivot !== undefined) {
                             // The data table has rows.  Insert before a "pivot" row (first row).
@@ -1916,8 +1918,12 @@ function updateBuildHistory(ajaxUrl,nBuild) {
                             // The data table has no rows.  In this case, we just add all new rows directly to the
                             // table, one after the other i.e. we don't insert before a "pivot" row (first row).
                             dataTable.appendChild(newRows[0]);
-                        }
-                    }
+			}
+		    }
+
+		    if (Element.hasClassName(newDataTable, 'hasPageData')) {
+			buildHistoryPage.setAttribute('page-entry-newest', newDataTable.getAttribute('page-entry-newest'));
+		    }
 
 		    // next update
 		    bh.headers = ["n",rsp.getResponseHeader("n")];
@@ -1952,7 +1958,6 @@ function updateBuildHistory(ajaxUrl,nBuild) {
 
     function setupHistoryNav() {
 	var sidePanel = $('side-panel');
-	var buildHistoryPage = $('buildHistoryPage');
 	var buildHistoryPageNav = $('buildHistoryPageNav');
 
 	// Show/hide the nav as the mouse moves into the sidepanel and build history.
