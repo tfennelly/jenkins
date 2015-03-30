@@ -2048,12 +2048,15 @@ function updateBuildHistory(ajaxUrl,nBuild) {
 	    });
 	}
 
-	pageDown.observe('click', function() {
-	    cancelRefreshTimeout();
-	    loadPage({'older-than': getOldestEntryId()});
+	pageOne.observe('click', function() {
+	    loadPage();
 	});
 	pageUp.observe('click', function() {
 	    loadPage({'newer-than': getNewestEntryId()});
+	});
+	pageDown.observe('click', function() {
+	    cancelRefreshTimeout();
+	    loadPage({'older-than': getOldestEntryId()});
 	});
 
 	togglePageUpDown();
@@ -2065,14 +2068,16 @@ function updateBuildHistory(ajaxUrl,nBuild) {
 
 function toQueryString(params) {
     var query = '';
-    for (var paramName in params) {
-	if (params.hasOwnProperty(paramName)) {
-	    if (query === '') {
-		query = '?';
-	    } else {
-		query += '&';
+    if (params) {
+	for (var paramName in params) {
+	    if (params.hasOwnProperty(paramName)) {
+		if (query === '') {
+		    query = '?';
+		} else {
+		    query += '&';
+		}
+		query += paramName + '=' + encodeURIComponent(params[paramName]);
 	    }
-	    query += paramName + '=' + encodeURIComponent(params[paramName]);
 	}
     }
     return query;
