@@ -1973,27 +1973,41 @@ function updateBuildHistory(ajaxUrl,nBuild) {
         var pageUp = Element.getElementsBySelector(buildHistoryPageNav, '.pageUp')[0];
         var pageDown = Element.getElementsBySelector(buildHistoryPageNav, '.pageDown')[0];
         
-        function hasPageUp(el) {
-            el = (el !== undefined ? el : buildHistoryPage);
+        function hasPageUp() {
             return buildHistoryPage.getAttribute('page-has-up') === 'true';
         }
-        function hasPageDown(el) {
-            el = (el !== undefined ? el : buildHistoryPage);
+        function hasPageDown() {
             return buildHistoryPage.getAttribute('page-has-down') === 'true';
         }
-        function getNewestEntryId(el) {
-            el = (el !== undefined ? el : buildHistoryPage);
+        function getNewestEntryId() {
             return parseInt(buildHistoryPage.getAttribute('page-entry-newest'));
         }
-        function getOldestEntryId(el) {
-            el = (el !== undefined ? el : buildHistoryPage);
+        function getOldestEntryId() {
             return parseInt(buildHistoryPage.getAttribute('page-entry-oldest'));
         }
+        function updatePageParams(dataTable) {
+            buildHistoryPage.setAttribute('page-has-up', dataTable.getAttribute('page-has-up'));            
+            buildHistoryPage.setAttribute('page-has-down', dataTable.getAttribute('page-has-down'));            
+            buildHistoryPage.setAttribute('page-entry-newest', dataTable.getAttribute('page-entry-newest'));            
+            buildHistoryPage.setAttribute('page-entry-oldest', dataTable.getAttribute('page-entry-oldest'));            
+        }
+        function togglePageUpDown() {
+            Element.removeClassName($(buildHistoryPageNav), "hasUpPage");
+            Element.removeClassName($(buildHistoryPageNav), "hasDownPage");
+            if (hasPageUp()) {
+                Element.addClassName($(buildHistoryPageNav), "hasUpPage");
+            }
+            if (hasPageDown()) {
+                Element.addClassName($(buildHistoryPageNav), "hasDownPage");
+            }
+        }
         function logPageParams() {
+            console.log('-----');
             console.log('Has up: '   + hasPageUp());
             console.log('Has down: ' + hasPageDown());
             console.log('Newest: '   + getNewestEntryId());
             console.log('Oldest: '   + getOldestEntryId());
+            console.log('-----');
         }
 
         function loadPage(params) {
@@ -2012,24 +2026,33 @@ function updateBuildHistory(ajaxUrl,nBuild) {
                     div.innerHTML = rsp.responseText;
                     Behaviour.applySubtree(div);
 
-                    var newRows = getDataTable(div).rows;
+                    var newDataTable = getDataTable(div);
+                    var newRows = newDataTable.rows;
                     while (newRows.length > 0) {
                         dataTable.appendChild(newRows[0]);
                     }
 
                     checkAllRowCellOverflows();
+                    updatePageParams(newDataTable);
+                    togglePageUpDown();
+                    if (!hasPageUp()) {
+                        createRefreshTimeout();
+                    }
                     logPageParams();
                 }
             });            
         }
         
         pageDown.observe('click', function() {
-            Element.addClassName($(buildHistoryPageNav), "hasUpPage");
             cancelRefreshTimeout();
             loadPage({'older-than': getOldestEntryId()});
         });
+        pageUp.observe('click', function() {
+            loadPage({'newer-than': getNewestEntryId()});
+        });
         
-        logPageParams();
+        togglePageUpDown();
+        //logPageParams();
     }    
     setupHistoryNav();
     
