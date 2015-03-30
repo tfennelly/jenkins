@@ -2043,7 +2043,7 @@ function updateBuildHistory(ajaxUrl,nBuild) {
 		    if (!hasPageUp()) {
 			createRefreshTimeout();
 		    }
-		    logPageParams();
+		    //logPageParams();
 		}
 	    });
 	}
