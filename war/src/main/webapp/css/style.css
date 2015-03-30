@@ -990,10 +990,13 @@ table.parameters > tbody:hover {
   cursor: pointer;
 }
 
-#buildHistoryPageNav .nav.pageOne, #buildHistoryPageNav .nav.pageUp {
+#buildHistoryPageNav .nav {
   display: none;
 }
-#buildHistoryPageNav.hasUpPage .nav {
+#buildHistoryPageNav.hasUpPage .nav.pageOne, #buildHistoryPageNav.hasUpPage .nav.pageUp {
+  display: block !important;
+}
+#buildHistoryPageNav.hasDownPage .nav.pageDown {
   display: block !important;
 }
 

@@ -120,7 +120,7 @@ public class HistoryPageFilter<T> {
 		}
 
 		if (newerThanIdx != -1) {
-		    if (newerThanIdx < maxEntries) {
+		    if (newerThanIdx <= maxEntries) {
 			// If there's less than a full page of items newer than "newerThan", then it's ok to
 			// fill the page with items older than "newerThan".
 			int itemCountToAdd = Math.min(toFillCount, items.size());
@@ -158,6 +158,10 @@ public class HistoryPageFilter<T> {
 		}
 	    }
 	}
+    }
+
+    public int size() {
+	return queueItems.size() + runs.size();
     }
 
     private void sort(List<T> items) {
@@ -233,9 +237,5 @@ public class HistoryPageFilter<T> {
      */
     private int getFillCount() {
 	return Math.max(0, (maxEntries - size()));
-    }
-
-    private int size() {
-	return queueItems.size() + runs.size();
     }
 }
