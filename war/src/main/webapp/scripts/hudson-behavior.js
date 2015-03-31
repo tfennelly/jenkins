@@ -1908,8 +1908,8 @@ function updateBuildHistory(ajaxUrl,nBuild) {
                     Behaviour.applySubtree(div);
 
                     var pivot = rows[0];
-		    var newDataTable = getDataTable(div);
-		    var newRows = newDataTable.rows;
+                    var newDataTable = getDataTable(div);
+                    var newRows = newDataTable.rows;
                     while (newRows.length > 0) {
                         if (pivot !== undefined) {
                             // The data table has rows.  Insert before a "pivot" row (first row).
@@ -1918,36 +1918,36 @@ function updateBuildHistory(ajaxUrl,nBuild) {
                             // The data table has no rows.  In this case, we just add all new rows directly to the
                             // table, one after the other i.e. we don't insert before a "pivot" row (first row).
                             dataTable.appendChild(newRows[0]);
-			}
-		    }
+			            }
+			    }
 
-		    if (Element.hasClassName(newDataTable, 'hasPageData')) {
-			buildHistoryPage.setAttribute('page-entry-newest', newDataTable.getAttribute('page-entry-newest'));
-		    }
+                    if (Element.hasClassName(newDataTable, 'hasPageData')) {
+                        buildHistoryPage.setAttribute('page-entry-newest', newDataTable.getAttribute('page-entry-newest'));
+                    }
 
-		    // next update
-		    bh.headers = ["n",rsp.getResponseHeader("n")];
-		    checkAllRowCellOverflows();
-		    createRefreshTimeout();
-		}
-	    });
+                    // next update
+                    bh.headers = ["n",rsp.getResponseHeader("n")];
+                    checkAllRowCellOverflows();
+                    createRefreshTimeout();
+                }
+	        });
 	} else {
             // Reschedule again
-	    createRefreshTimeout();
+	        createRefreshTimeout();
         }
     }
 
     var updateBuildsRefreshInterval = 5000;
     var buildRefreshTimeout;
     function createRefreshTimeout() {
-	cancelRefreshTimeout();
-	buildRefreshTimeout = window.setTimeout(updateBuilds, updateBuildsRefreshInterval);
+        cancelRefreshTimeout();
+        buildRefreshTimeout = window.setTimeout(updateBuilds, updateBuildsRefreshInterval);
     }
     function cancelRefreshTimeout() {
-	if (buildRefreshTimeout) {
-	    window.clearTimeout(buildRefreshTimeout);
-	    buildRefreshTimeout = undefined;
-	}
+        if (buildRefreshTimeout) {
+            window.clearTimeout(buildRefreshTimeout);
+            buildRefreshTimeout = undefined;
+        }
     }
 
     createRefreshTimeout();
@@ -2000,10 +2000,10 @@ function updateBuildHistory(ajaxUrl,nBuild) {
 	    Element.removeClassName($(buildHistoryPageNav), "hasUpPage");
 	    Element.removeClassName($(buildHistoryPageNav), "hasDownPage");
 	    if (hasPageUp()) {
-		Element.addClassName($(buildHistoryPageNav), "hasUpPage");
+		    Element.addClassName($(buildHistoryPageNav), "hasUpPage");
 	    }
 	    if (hasPageDown()) {
-		Element.addClassName($(buildHistoryPageNav), "hasDownPage");
+		    Element.addClassName($(buildHistoryPageNav), "hasDownPage");
 	    }
 	}
 	function logPageParams() {
@@ -2023,7 +2023,7 @@ function updateBuildHistory(ajaxUrl,nBuild) {
 
 		    // delete all rows
 		    while (rows.length > 0) {
-			Element.remove(rows[0]);
+			    Element.remove(rows[0]);
 		    }
 
 		    // insert new rows
@@ -2034,14 +2034,14 @@ function updateBuildHistory(ajaxUrl,nBuild) {
 		    var newDataTable = getDataTable(div);
 		    var newRows = newDataTable.rows;
 		    while (newRows.length > 0) {
-			dataTable.appendChild(newRows[0]);
+			    dataTable.appendChild(newRows[0]);
 		    }
 
 		    checkAllRowCellOverflows();
 		    updatePageParams(newDataTable);
 		    togglePageUpDown();
 		    if (!hasPageUp()) {
-			createRefreshTimeout();
+			    createRefreshTimeout();
 		    }
 		    //logPageParams();
 		}
@@ -2069,16 +2069,16 @@ function updateBuildHistory(ajaxUrl,nBuild) {
 function toQueryString(params) {
     var query = '';
     if (params) {
-	for (var paramName in params) {
-	    if (params.hasOwnProperty(paramName)) {
-		if (query === '') {
-		    query = '?';
-		} else {
-		    query += '&';
-		}
-		query += paramName + '=' + encodeURIComponent(params[paramName]);
-	    }
-	}
+        for (var paramName in params) {
+            if (params.hasOwnProperty(paramName)) {
+                if (query === '') {
+                    query = '?';
+                } else {
+                    query += '&';
+                }
+                query += paramName + '=' + encodeURIComponent(params[paramName]);
+            }
+        }
     }
     return query;
 }
