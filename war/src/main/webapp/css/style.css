@@ -990,16 +990,6 @@ table.parameters > tbody:hover {
   cursor: pointer;
 }
 
-#buildHistoryPageNav .nav {
-  display: none;
-}
-#buildHistoryPageNav.hasUpPage .nav.pageOne, #buildHistoryPageNav.hasUpPage .nav.pageUp {
-  display: block !important;
-}
-#buildHistoryPageNav.hasDownPage .nav.pageDown {
-  display: block !important;
-}
-
 #buildHistoryPageNav.mouseOverSidePanel {
   visibility: visible;
   border-color: #f0f0f0 !important;
