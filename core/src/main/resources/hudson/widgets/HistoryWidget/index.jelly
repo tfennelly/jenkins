@@ -57,9 +57,14 @@ THE SOFTWARE.
       <div class="nav pageOne" title="Page 1 (Newest/Latest Builds)"></div>
       <div class="nav pageUp" title="Newer Builds"></div>
       <div class="nav pageDown" title="Older Builds "></div>
-      <div class="nav find" title="Find Builds"></div>
     </div>
     <l:pane width="3" title="${h.runScript(paneTitle)}${it.displayName}" footer="${h.runScript(paneFooter)}" id="buildHistory" class="stripped">
+
+    <tr class="build-search-row">
+      <td colspan="3">
+        [Find builds goes here]
+      </td>
+    </tr>
 
     <!-- build history -->
     <st:include page="entries.jelly" it="${page}" />

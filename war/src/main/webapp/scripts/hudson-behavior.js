@@ -1898,8 +1898,12 @@ function updateBuildHistory(ajaxUrl,nBuild) {
                     var rows = dataTable.rows;
 
                     //delete rows with transitive data
-                    while (rows.length > 0 && Element.hasClassName(rows[0], "transitive")) {
-                        Element.remove(rows[0]);
+                    var firstBuildRow = 0;
+                    if (Element.hasClassName(rows[firstBuildRow], "build-search-row")) {
+                        firstBuildRow++;
+                    }
+                    while (rows.length > 0 && Element.hasClassName(rows[firstBuildRow], "transitive")) {
+                        Element.remove(rows[firstBuildRow]);
                     }
 
                     // insert new rows
@@ -1907,7 +1911,7 @@ function updateBuildHistory(ajaxUrl,nBuild) {
                     div.innerHTML = rsp.responseText;
                     Behaviour.applySubtree(div);
 
-                    var pivot = rows[0];
+                    var pivot = rows[firstBuildRow];
                     var newDataTable = getDataTable(div);
                     var newRows = newDataTable.rows;
                     while (newRows.length > 0) {
@@ -2022,9 +2026,16 @@ function updateBuildHistory(ajaxUrl,nBuild) {
 		    var rows = dataTable.rows;
 
 		    // delete all rows
+            var searchRow;
+            if (Element.hasClassName(rows[0], "build-search-row")) {
+                searchRow = rows[0];
+            }
 		    while (rows.length > 0) {
 			    Element.remove(rows[0]);
 		    }
+            if (searchRow) {
+			    dataTable.appendChild(searchRow);
+            }
 
 		    // insert new rows
 		    var div = document.createElement('div');
