@@ -976,11 +976,18 @@ table.parameters > tbody:hover {
 }
 #buildHistoryPage .build-search-row .clear {
     position: absolute;
-    padding: 4px;
+    padding: 0px 4px;
     cursor: pointer;
-    top: 3px;
-    right: 8px;
+    top: 7px;
+    right: 6px;
     opacity: 0.5;
+}
+#buildHistoryPage .build-search-row .clear:hover {
+    background-color: #d3d3d3;
+    border: 1px solid #bbb;
+    top: 6px;
+    right: 5px;
+    border-top-right-radius: 2px;
 }
 #buildHistoryPage .build-search-row input {
     width: 100%;
