@@ -36,32 +36,32 @@ public class HistoryPageEntry<T> {
     private final T entry;
 
     public HistoryPageEntry(T entry) {
-	this.entry = entry;
+        this.entry = entry;
     }
 
     public T getEntry() {
-	return entry;
+        return entry;
     }
 
     public long getEntryId() {
-	return getEntryId(entry);
+        return getEntryId(entry);
     }
 
     protected static long getEntryId(@Nonnull Object entry) {
-	if (entry instanceof Queue.Item) {
-	    return ((Queue.Item) entry).getId();
-	} else if (entry instanceof Run) {
-	    Run run = (Run) entry;
-	    long queueId = run.getQueueId();
-	    if (queueId == Run.QUEUE_ID_UNKNOWN) {
-		// Backward compatibility. This is a run from before the Queue.Item IDs
-		// were mapped onto their resulting Run instance.
-		return (Integer.MIN_VALUE + run.getNumber());
-	    } else {
-		return queueId;
-	    }
-	} else {
-	    return Run.QUEUE_ID_UNKNOWN;
-	}
+        if (entry instanceof Queue.Item) {
+            return ((Queue.Item) entry).getId();
+        } else if (entry instanceof Run) {
+            Run run = (Run) entry;
+            long queueId = run.getQueueId();
+            if (queueId == Run.QUEUE_ID_UNKNOWN) {
+                // Backward compatibility. This is a run from before the Queue.Item IDs
+                // were mapped onto their resulting Run instance.
+                return (Integer.MIN_VALUE + run.getNumber());
+            } else {
+                return queueId;
+            }
+        } else {
+            return Run.QUEUE_ID_UNKNOWN;
+        }
     }
 }
