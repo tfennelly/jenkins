@@ -1978,6 +1978,8 @@ function updateBuildHistory(ajaxUrl,nBuild) {
             Element.removeClassName($(buildHistoryPageNav), "mouseOverSidePanelBuildHistory");
         });
 
+        var pageSearchInput = Element.getElementsBySelector(bh, '.build-search-row input')[0];
+        var pageSearchClear = Element.getElementsBySelector(bh, '.build-search-row .clear')[0];
         var pageOne = Element.getElementsBySelector(buildHistoryPageNav, '.pageOne')[0];
         var pageUp = Element.getElementsBySelector(buildHistoryPageNav, '.pageUp')[0];
         var pageDown = Element.getElementsBySelector(buildHistoryPageNav, '.pageDown')[0];
@@ -2020,45 +2022,65 @@ function updateBuildHistory(ajaxUrl,nBuild) {
         }
 
         function loadPage(params) {
-            new Ajax.Request(ajaxUrl + toQueryString(params), {
-            onSuccess: function(rsp) {
-                var dataTable = getDataTable(bh);
-                var rows = dataTable.rows;
+            var searchString = pageSearchInput.value;
 
-                // delete all rows
-                var searchRow;
-                if (Element.hasClassName(rows[0], "build-search-row")) {
-                    searchRow = rows[0];
+            if (searchString !== '') {
+                if (params === undefined) {
+                    params = {};
                 }
-                while (rows.length > 0) {
-                    Element.remove(rows[0]);
-                }
-                if (searchRow) {
-                    dataTable.appendChild(searchRow);
-                }
-
-                // insert new rows
-                var div = document.createElement('div');
-                div.innerHTML = rsp.responseText;
-                Behaviour.applySubtree(div);
-
-                var newDataTable = getDataTable(div);
-                var newRows = newDataTable.rows;
-                while (newRows.length > 0) {
-                    dataTable.appendChild(newRows[0]);
-                }
-
-                checkAllRowCellOverflows();
-                updatePageParams(newDataTable);
-                togglePageUpDown();
-                if (!hasPageUp()) {
-                    createRefreshTimeout();
-                }
-                //logPageParams();
+                params.search = searchString;
             }
+
+            new Ajax.Request(ajaxUrl + toQueryString(params), {
+                onSuccess: function(rsp) {
+                    var dataTable = getDataTable(bh);
+                    var rows = dataTable.rows;
+
+                    // delete all rows
+                    var searchRow;
+                    if (Element.hasClassName(rows[0], "build-search-row")) {
+                        searchRow = rows[0];
+                    }
+                    while (rows.length > 0) {
+                        Element.remove(rows[0]);
+                    }
+                    if (searchRow) {
+                        dataTable.appendChild(searchRow);
+                    }
+
+                    // insert new rows
+                    var div = document.createElement('div');
+                    div.innerHTML = rsp.responseText;
+                    Behaviour.applySubtree(div);
+
+                    var newDataTable = getDataTable(div);
+                    var newRows = newDataTable.rows;
+                    while (newRows.length > 0) {
+                        dataTable.appendChild(newRows[0]);
+                    }
+
+                    checkAllRowCellOverflows();
+                    updatePageParams(newDataTable);
+                    togglePageUpDown();
+                    if (!hasPageUp()) {
+                        createRefreshTimeout();
+                    }
+                    //logPageParams();
+                }
             });
         }
 
+        pageSearchInput.observe('keypress', function(e) {
+            var key = e.which || e.keyCode;
+            // On enter
+            if (key === 13) {
+                loadPage();
+            }
+        });
+        pageSearchClear.observe('click', function() {
+            pageSearchInput.value = '';
+            loadPage();
+        });
         pageOne.observe('click', function() {
             loadPage();
         });
