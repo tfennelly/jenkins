@@ -2021,7 +2021,7 @@ function updateBuildHistory(ajaxUrl,nBuild) {
             console.log('-----');
         }
 
-        function loadPage(params) {
+        function loadPage(params, focusOnSearch) {
             var searchString = pageSearchInput.value;
 
             if (searchString !== '') {
@@ -2065,6 +2065,10 @@ function updateBuildHistory(ajaxUrl,nBuild) {
                     if (!hasPageUp()) {
                         createRefreshTimeout();
                     }
+
+                    if (focusOnSearch) {
+                        pageSearchInput.focus();
+                    }
                     //logPageParams();
                 }
             });
@@ -2074,12 +2078,12 @@ function updateBuildHistory(ajaxUrl,nBuild) {
             var key = e.which || e.keyCode;
             // On enter
             if (key === 13) {
-                loadPage();
+                loadPage({}, true);
             }
         });
         pageSearchClear.observe('click', function() {
             pageSearchInput.value = '';
-            loadPage();
+            loadPage({}, true);
         });
         pageOne.observe('click', function() {
             loadPage();

@@ -110,4 +110,69 @@ public class BuildSearchParamProcessorTest {
         Assert.assertTrue(processor.fitsSearchParams(DateProcessorFactory.toTimeInMillis("2015-02-21")));
         Assert.assertTrue(processor.fitsSearchParams(DateProcessorFactory.toTimeInMillis("2015-03-21")));
     }
+
+    @Test
+    public void test_date_short() {
+        List<BuildSearchParamProcessor> processors = new BuildSearchParamProcessorList(new BuildSearchParams("date-from: 02-20")).getProcessors();
+        BuildSearchParamProcessor<Long> processor = processors.get(0);
+
+        Assert.assertFalse(processor.fitsSearchParams(DateProcessorFactory.toTimeInMillis(DateProcessorFactory.getCurrentYearString() + "-02-19")));
+        Assert.assertTrue(processor.fitsSearchParams(DateProcessorFactory.toTimeInMillis(DateProcessorFactory.getCurrentYearString() + "-02-20")));
+    }
+
+    @Test
+    public void test_date_today() {
+        List<BuildSearchParamProcessor> processors = new BuildSearchParamProcessorList(new BuildSearchParams("date-from: today")).getProcessors();
+        BuildSearchParamProcessor<Long> processor = processors.get(0);
+
+        long now = System.currentTimeMillis();
+        Assert.assertFalse(processor.fitsSearchParams(now - DateProcessorFactory.DAY));
+        Assert.assertTrue(processor.fitsSearchParams(now));
+        Assert.assertTrue(processor.fitsSearchParams(now + DateProcessorFactory.DAY));
+    }
+
+    @Test
+    public void test_date_last_week_to_today() {
+        List<BuildSearchParamProcessor> processors = new BuildSearchParamProcessorList(new BuildSearchParams("date-from: week date-to: today")).getProcessors();
+        BuildSearchParamProcessor<Long> processor = processors.get(0);
+
+        long now = System.currentTimeMillis();
+        Assert.assertFalse(processor.fitsSearchParams(now - (DateProcessorFactory.DAY * 8)));
+        Assert.assertTrue(processor.fitsSearchParams(now - (DateProcessorFactory.DAY * 7)));
+        Assert.assertTrue(processor.fitsSearchParams(now - (DateProcessorFactory.DAY * 1)));
+        Assert.assertFalse(processor.fitsSearchParams(now));
+    }
+
+    @Test
+    public void test_date_days() {
+        List<BuildSearchParamProcessor> processors = new BuildSearchParamProcessorList(new BuildSearchParams("date-from: 5 days date-to: 1 day")).getProcessors();
+        BuildSearchParamProcessor<Long> processor = processors.get(0);
+
+        long now = System.currentTimeMillis();
+        Assert.assertFalse(processor.fitsSearchParams(now - (DateProcessorFactory.DAY * 6)));
+        Assert.assertTrue(processor.fitsSearchParams(now - (DateProcessorFactory.DAY * 5)));
+        Assert.assertFalse(processor.fitsSearchParams(now));
+    }
+
+    @Test
+    public void test_date_weeks() {
+        List<BuildSearchParamProcessor> processors = new BuildSearchParamProcessorList(new BuildSearchParams("date-from: 5 weeks date-to: 1 week")).getProcessors();
+        BuildSearchParamProcessor<Long> processor = processors.get(0);
+
+        long now = System.currentTimeMillis();
+        Assert.assertFalse(processor.fitsSearchParams(now - (DateProcessorFactory.WEEK * 6)));
+        Assert.assertTrue(processor.fitsSearchParams(now - (DateProcessorFactory.WEEK * 5)));
+        Assert.assertFalse(processor.fitsSearchParams(now - (DateProcessorFactory.DAY * 6)));
+    }
+
+    @Test
+    public void test_date_months() {
+        List<BuildSearchParamProcessor> processors = new BuildSearchParamProcessorList(new BuildSearchParams("date-from: 5 months date-to: 1 month")).getProcessors();
+        BuildSearchParamProcessor<Long> processor = processors.get(0);
+
+        long now = System.currentTimeMillis();
+        Assert.assertFalse(processor.fitsSearchParams(now - (DateProcessorFactory.MONTH * 6)));
+        Assert.assertTrue(processor.fitsSearchParams(now - (DateProcessorFactory.MONTH * 5)));
+        Assert.assertFalse(processor.fitsSearchParams(now - (DateProcessorFactory.MONTH - DateProcessorFactory.DAY)));
+    }
 }
