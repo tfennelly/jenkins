@@ -1923,7 +1923,7 @@ function updateBuildHistory(ajaxUrl,nBuild) {
                             // table, one after the other i.e. we don't insert before a "pivot" row (first row).
                             dataTable.appendChild(newRows[0]);
 			            }
-			    }
+			        }
 
                     if (Element.hasClassName(newDataTable, 'hasPageData')) {
                         buildHistoryPage.setAttribute('page-entry-newest', newDataTable.getAttribute('page-entry-newest'));
@@ -1961,120 +1961,119 @@ function updateBuildHistory(ajaxUrl,nBuild) {
     });
 
     function setupHistoryNav() {
-	var sidePanel = $('side-panel');
-	var buildHistoryPageNav = $('buildHistoryPageNav');
+        var sidePanel = $('side-panel');
+        var buildHistoryPageNav = $('buildHistoryPageNav');
 
-	// Show/hide the nav as the mouse moves into the sidepanel and build history.
-	sidePanel.observe('mouseover', function() {
-	    Element.addClassName($(buildHistoryPageNav), "mouseOverSidePanel");
-	});
-	sidePanel.observe('mouseout', function() {
-	    Element.removeClassName($(buildHistoryPageNav), "mouseOverSidePanel");
-	});
-	bh.observe('mouseover', function() {
-	    Element.addClassName($(buildHistoryPageNav), "mouseOverSidePanelBuildHistory");
-	});
-	bh.observe('mouseout', function() {
-	    Element.removeClassName($(buildHistoryPageNav), "mouseOverSidePanelBuildHistory");
-	});
+        // Show/hide the nav as the mouse moves into the sidepanel and build history.
+        sidePanel.observe('mouseover', function() {
+            Element.addClassName($(buildHistoryPageNav), "mouseOverSidePanel");
+        });
+        sidePanel.observe('mouseout', function() {
+            Element.removeClassName($(buildHistoryPageNav), "mouseOverSidePanel");
+        });
+        bh.observe('mouseover', function() {
+            Element.addClassName($(buildHistoryPageNav), "mouseOverSidePanelBuildHistory");
+        });
+        bh.observe('mouseout', function() {
+            Element.removeClassName($(buildHistoryPageNav), "mouseOverSidePanelBuildHistory");
+        });
 
-	var pageOne = Element.getElementsBySelector(buildHistoryPageNav, '.pageOne')[0];
-	var pageUp = Element.getElementsBySelector(buildHistoryPageNav, '.pageUp')[0];
-	var pageDown = Element.getElementsBySelector(buildHistoryPageNav, '.pageDown')[0];
+        var pageOne = Element.getElementsBySelector(buildHistoryPageNav, '.pageOne')[0];
+        var pageUp = Element.getElementsBySelector(buildHistoryPageNav, '.pageUp')[0];
+        var pageDown = Element.getElementsBySelector(buildHistoryPageNav, '.pageDown')[0];
 
-	function hasPageUp() {
-	    return buildHistoryPage.getAttribute('page-has-up') === 'true';
-	}
-	function hasPageDown() {
-	    return buildHistoryPage.getAttribute('page-has-down') === 'true';
-	}
-	function getNewestEntryId() {
-	    return parseInt(buildHistoryPage.getAttribute('page-entry-newest'));
-	}
-	function getOldestEntryId() {
-	    return parseInt(buildHistoryPage.getAttribute('page-entry-oldest'));
-	}
-	function updatePageParams(dataTable) {
-	    buildHistoryPage.setAttribute('page-has-up', dataTable.getAttribute('page-has-up'));
-	    buildHistoryPage.setAttribute('page-has-down', dataTable.getAttribute('page-has-down'));
-	    buildHistoryPage.setAttribute('page-entry-newest', dataTable.getAttribute('page-entry-newest'));
-	    buildHistoryPage.setAttribute('page-entry-oldest', dataTable.getAttribute('page-entry-oldest'));
-	}
-	function togglePageUpDown() {
-	    Element.removeClassName($(buildHistoryPageNav), "hasUpPage");
-	    Element.removeClassName($(buildHistoryPageNav), "hasDownPage");
-	    if (hasPageUp()) {
-		    Element.addClassName($(buildHistoryPageNav), "hasUpPage");
-	    }
-	    if (hasPageDown()) {
-		    Element.addClassName($(buildHistoryPageNav), "hasDownPage");
-	    }
-	}
-	function logPageParams() {
-	    console.log('-----');
-	    console.log('Has up: '   + hasPageUp());
-	    console.log('Has down: ' + hasPageDown());
-	    console.log('Newest: '   + getNewestEntryId());
-	    console.log('Oldest: '   + getOldestEntryId());
-	    console.log('-----');
-	}
-
-	function loadPage(params) {
-	    new Ajax.Request(ajaxUrl + toQueryString(params), {
-		onSuccess: function(rsp) {
-		    var dataTable = getDataTable(bh);
-		    var rows = dataTable.rows;
-
-		    // delete all rows
-            var searchRow;
-            if (Element.hasClassName(rows[0], "build-search-row")) {
-                searchRow = rows[0];
+        function hasPageUp() {
+            return buildHistoryPage.getAttribute('page-has-up') === 'true';
+        }
+        function hasPageDown() {
+            return buildHistoryPage.getAttribute('page-has-down') === 'true';
+        }
+        function getNewestEntryId() {
+            return parseInt(buildHistoryPage.getAttribute('page-entry-newest'));
+        }
+        function getOldestEntryId() {
+            return parseInt(buildHistoryPage.getAttribute('page-entry-oldest'));
+        }
+        function updatePageParams(dataTable) {
+            buildHistoryPage.setAttribute('page-has-up', dataTable.getAttribute('page-has-up'));
+            buildHistoryPage.setAttribute('page-has-down', dataTable.getAttribute('page-has-down'));
+            buildHistoryPage.setAttribute('page-entry-newest', dataTable.getAttribute('page-entry-newest'));
+            buildHistoryPage.setAttribute('page-entry-oldest', dataTable.getAttribute('page-entry-oldest'));
+        }
+        function togglePageUpDown() {
+            Element.removeClassName($(buildHistoryPageNav), "hasUpPage");
+            Element.removeClassName($(buildHistoryPageNav), "hasDownPage");
+            if (hasPageUp()) {
+                Element.addClassName($(buildHistoryPageNav), "hasUpPage");
             }
-		    while (rows.length > 0) {
-			    Element.remove(rows[0]);
-		    }
-            if (searchRow) {
-			    dataTable.appendChild(searchRow);
+            if (hasPageDown()) {
+                Element.addClassName($(buildHistoryPageNav), "hasDownPage");
             }
+        }
+        function logPageParams() {
+            console.log('-----');
+            console.log('Has up: '   + hasPageUp());
+            console.log('Has down: ' + hasPageDown());
+            console.log('Newest: '   + getNewestEntryId());
+            console.log('Oldest: '   + getOldestEntryId());
+            console.log('-----');
+        }
 
-		    // insert new rows
-		    var div = document.createElement('div');
-		    div.innerHTML = rsp.responseText;
-		    Behaviour.applySubtree(div);
+        function loadPage(params) {
+            new Ajax.Request(ajaxUrl + toQueryString(params), {
+            onSuccess: function(rsp) {
+                var dataTable = getDataTable(bh);
+                var rows = dataTable.rows;
 
-		    var newDataTable = getDataTable(div);
-		    var newRows = newDataTable.rows;
-		    while (newRows.length > 0) {
-			    dataTable.appendChild(newRows[0]);
-		    }
+                // delete all rows
+                var searchRow;
+                if (Element.hasClassName(rows[0], "build-search-row")) {
+                    searchRow = rows[0];
+                }
+                while (rows.length > 0) {
+                    Element.remove(rows[0]);
+                }
+                if (searchRow) {
+                    dataTable.appendChild(searchRow);
+                }
 
-		    checkAllRowCellOverflows();
-		    updatePageParams(newDataTable);
-		    togglePageUpDown();
-		    if (!hasPageUp()) {
-			    createRefreshTimeout();
-		    }
-		    //logPageParams();
-		}
-	    });
-	}
+                // insert new rows
+                var div = document.createElement('div');
+                div.innerHTML = rsp.responseText;
+                Behaviour.applySubtree(div);
 
-	pageOne.observe('click', function() {
-	    loadPage();
-	});
-	pageUp.observe('click', function() {
-	    loadPage({'newer-than': getNewestEntryId()});
-	});
-	pageDown.observe('click', function() {
-	    cancelRefreshTimeout();
-	    loadPage({'older-than': getOldestEntryId()});
-	});
+                var newDataTable = getDataTable(div);
+                var newRows = newDataTable.rows;
+                while (newRows.length > 0) {
+                    dataTable.appendChild(newRows[0]);
+                }
 
-	togglePageUpDown();
-	//logPageParams();
+                checkAllRowCellOverflows();
+                updatePageParams(newDataTable);
+                togglePageUpDown();
+                if (!hasPageUp()) {
+                    createRefreshTimeout();
+                }
+                //logPageParams();
+            }
+            });
+        }
+
+        pageOne.observe('click', function() {
+            loadPage();
+        });
+        pageUp.observe('click', function() {
+            loadPage({'newer-than': getNewestEntryId()});
+        });
+        pageDown.observe('click', function() {
+            cancelRefreshTimeout();
+            loadPage({'older-than': getOldestEntryId()});
+        });
+
+        togglePageUpDown();
+        //logPageParams();
     }
     setupHistoryNav();
-
 }
 
 function toQueryString(params) {
