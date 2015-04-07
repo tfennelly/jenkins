@@ -1,13 +1,13 @@
-__TODO__: Move to Wiki
+__TODO__: Move to jenkins-ci web/wiki if changes accepted.
 
 ## Search Terms
 
-* [__name:__] : Is contained in the name of the build..
+* [__name:__] : Is contained in the name of the build.
 * [__desc:__] : Is contained in the description of the build.d.
 * [__result:__] : Is the "result" of the build (SUCCESS, UNSTABLE, FAILURE, NOT_BUILT, ABORTED).
 * [__date-from:__] and/or [__date-to:__] : Build date is before, after or between. Date format is *yyyy-MM-yy*. Date is start of day i.e. 00:00. Also supports some shorthands e.g. "today", "yesterday", "1 day", "2 days", "2 weeks", "2 months".
 
-Different search terms are __AND__ together to result in a matching Build, while multiples of the same search term are __OR__'d e.g.
+Different search terms are __AND__ together to result in a matching Build, while multiples of the same search term are __OR__'d together e.g.
 
 * result: FAILURE desc: staging desc: production
 
@@ -17,7 +17,7 @@ Is interpreted as:
 
 ## Examples
 
-Builds that contain the words "staging" and "production" in the description:
+Builds that contain the words "staging" or "production" in the description:
 
 * desc: staging desc: production
 
