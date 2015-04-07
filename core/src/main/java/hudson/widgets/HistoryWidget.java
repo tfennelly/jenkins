@@ -77,6 +77,7 @@ public class HistoryWidget<O extends ModelObject,T> extends Widget {
 
     final Long newerThan;
     final Long olderThan;
+    final String searchString;
 
     /**
      * First transient build record. Everything >= this will be discarded when AJAX call is made.
@@ -91,10 +92,11 @@ public class HistoryWidget<O extends ModelObject,T> extends Widget {
 	StaplerRequest currentRequest = Stapler.getCurrentRequest();
         this.adapter = adapter;
         this.baseList = baseList;
-	this.baseUrl = Functions.getNearestAncestorUrl(currentRequest,owner);
+        this.baseUrl = Functions.getNearestAncestorUrl(currentRequest,owner);
         this.owner = owner;
-	this.newerThan = getPagingParam(currentRequest, "newer-than");
-	this.olderThan = getPagingParam(currentRequest, "older-than");
+        this.newerThan = getPagingParam(currentRequest, "newer-than");
+        this.olderThan = getPagingParam(currentRequest, "older-than");
+        this.searchString = currentRequest.getParameter("search");;
     }
 
     /**
@@ -115,11 +117,11 @@ public class HistoryWidget<O extends ModelObject,T> extends Widget {
 
     private Iterable<HistoryPageEntry<T>> updateFirstTransientBuildKey(Iterable<HistoryPageEntry<T>> source) {
         String key=null;
-	for (HistoryPageEntry<T> t : source) {
-	    if(adapter.isBuilding(t.getEntry())) {
-		key = adapter.getKey(t.getEntry());
-	    }
-	}
+        for (HistoryPageEntry<T> t : source) {
+            if(adapter.isBuilding(t.getEntry())) {
+                key = adapter.getKey(t.getEntry());
+            }
+        }
         firstTransientBuildKey = key;
         return source;
     }
@@ -129,29 +131,29 @@ public class HistoryWidget<O extends ModelObject,T> extends Widget {
      */
     public Iterable<HistoryPageEntry<T>> getRenderList() {
         if(trimmed) {
-	    List<HistoryPageEntry<T>> pageEntries = toPageEntries(baseList);
-	    if(pageEntries.size() > THRESHOLD) {
-		return updateFirstTransientBuildKey(pageEntries.subList(0,THRESHOLD));
+            List<HistoryPageEntry<T>> pageEntries = toPageEntries(baseList);
+            if(pageEntries.size() > THRESHOLD) {
+                return updateFirstTransientBuildKey(pageEntries.subList(0,THRESHOLD));
             } else {
-		trimmed=false;
-		return updateFirstTransientBuildKey(pageEntries);
+                trimmed=false;
+                return updateFirstTransientBuildKey(pageEntries);
             }
         } else {
-            // to prevent baseList's concrete type from getting picked up by <j:forEach> in view
-	    return updateFirstTransientBuildKey(toPageEntries(baseList));
-	}
+                // to prevent baseList's concrete type from getting picked up by <j:forEach> in view
+            return updateFirstTransientBuildKey(toPageEntries(baseList));
+        }
     }
 
     private List<HistoryPageEntry<T>> toPageEntries(Iterable<T> historyItemList) {
-	Iterator<T> iterator = historyItemList.iterator();
+        Iterator<T> iterator = historyItemList.iterator();
 
-	if (!iterator.hasNext()) {
-	    return Collections.EMPTY_LIST;
-	}
+        if (!iterator.hasNext()) {
+            return Collections.EMPTY_LIST;
+        }
 
-	List<HistoryPageEntry<T>> pageEntries = new ArrayList<HistoryPageEntry<T>>();
-	while (iterator.hasNext()) {
-	    pageEntries.add(new HistoryPageEntry<T>(iterator.next()));
+        List<HistoryPageEntry<T>> pageEntries = new ArrayList<HistoryPageEntry<T>>();
+        while (iterator.hasNext()) {
+	        pageEntries.add(new HistoryPageEntry<T>(iterator.next()));
         }
 
 	return pageEntries;
@@ -161,10 +163,27 @@ public class HistoryWidget<O extends ModelObject,T> extends Widget {
      * Render a "page" of records.
      */
     public HistoryPageFilter getPage() {
-	HistoryPageFilter<T> historyPageFilter = new HistoryPageFilter<T>(THRESHOLD, newerThan, olderThan);
-	historyPageFilter.add(IteratorUtils.toList(baseList.iterator()));
-	historyPageFilter.widget = this;
-	return historyPageFilter;
+        HistoryPageFilter<T> historyPageFilter = newPageFilter();
+
+        historyPageFilter.add(IteratorUtils.toList(baseList.iterator()));
+        historyPageFilter.widget = this;
+        return historyPageFilter;
+    }
+
+    protected HistoryPageFilter<T> newPageFilter() {
+        HistoryPageFilter<T> historyPageFilter = new HistoryPageFilter<T>(THRESHOLD);
+
+        if (newerThan != null) {
+            historyPageFilter.setNewerThan(newerThan);
+        } else if (olderThan != null) {
+            historyPageFilter.setOlderThan(olderThan);
+        }
+
+        if (searchString != null) {
+            historyPageFilter.setSearchString(searchString);
+        }
+
+        return historyPageFilter;
     }
 
     public boolean isTrimmed() {
@@ -185,43 +204,43 @@ public class HistoryWidget<O extends ModelObject,T> extends Widget {
     public void doAjax( StaplerRequest req, StaplerResponse rsp,
 		  @Header("n") String n ) throws IOException, ServletException {
 
-	rsp.setContentType("text/html;charset=UTF-8");
+        rsp.setContentType("text/html;charset=UTF-8");
 
-	// pick up builds to send back
-	List<T> items = new ArrayList<T>();
+        // pick up builds to send back
+        List<T> items = new ArrayList<T>();
 
-	if (n != null) {
-	    String nn=null; // we'll compute next n here
+        if (n != null) {
+            String nn=null; // we'll compute next n here
 
-	    // list up all builds >=n.
-	    for (T t : baseList) {
-		if(adapter.compare(t,n)>=0) {
-		    items.add(t);
-		    if(adapter.isBuilding(t))
-			nn = adapter.getKey(t); // the next fetch should start from youngest build in progress
-		} else
-		    break;
-	    }
+            // list up all builds >=n.
+            for (T t : baseList) {
+                if(adapter.compare(t,n)>=0) {
+                    items.add(t);
+                    if(adapter.isBuilding(t))
+                    nn = adapter.getKey(t); // the next fetch should start from youngest build in progress
+                } else
+                    break;
+            }
 
-	    if (nn==null) {
-		if (items.isEmpty()) {
-		    // nothing to report back. next fetch should retry the same 'n'
-		    nn=n;
-		} else {
-		    // every record fetched this time is frozen. next fetch should start from the next build
-		    nn=adapter.getNextKey(adapter.getKey(items.get(0)));
-		}
-	    }
+            if (nn==null) {
+                if (items.isEmpty()) {
+                    // nothing to report back. next fetch should retry the same 'n'
+                    nn=n;
+                } else {
+                    // every record fetched this time is frozen. next fetch should start from the next build
+                    nn=adapter.getNextKey(adapter.getKey(items.get(0)));
+                }
+            }
 
-	    baseList = items;
+            baseList = items;
 
-	    rsp.setHeader("n",nn);
-	    firstTransientBuildKey = nn; // all builds >= nn should be marked transient
-	}
+            rsp.setHeader("n",nn);
+            firstTransientBuildKey = nn; // all builds >= nn should be marked transient
+        }
 
-	HistoryPageFilter page = getPage();
-	updateFirstTransientBuildKey(page.runs);
-	req.getView(page,"ajaxBuildHistory.jelly").forward(req,rsp);
+        HistoryPageFilter page = getPage();
+        updateFirstTransientBuildKey(page.runs);
+        req.getView(page,"ajaxBuildHistory.jelly").forward(req,rsp);
     }
 
     static final int THRESHOLD = Integer.getInteger(HistoryWidget.class.getName()+".threshold",30);
@@ -245,14 +264,14 @@ public class HistoryWidget<O extends ModelObject,T> extends Widget {
     }
 
     private Long getPagingParam(StaplerRequest currentRequest, String name) {
-	String paramVal = currentRequest.getParameter(name);
-	if (paramVal == null) {
-	    return null;
-	}
-	try {
-	    return new Long(paramVal);
-	} catch (NumberFormatException nfe) {
-	    return null;
-	}
+        String paramVal = currentRequest.getParameter(name);
+        if (paramVal == null) {
+            return null;
+        }
+        try {
+            return new Long(paramVal);
+        } catch (NumberFormatException nfe) {
+            return null;
+        }
     }
 }

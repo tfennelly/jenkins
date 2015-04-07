@@ -29,6 +29,7 @@ import hudson.model.Queue.Item;
 import hudson.model.Queue.Task;
 import org.apache.commons.collections.IteratorUtils;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -72,14 +73,15 @@ public class BuildHistoryWidget<T> extends HistoryWidget<Task,T> {
 
     @Override
     public HistoryPageFilter getPage() {
-	final HistoryPageFilter<ModelObject> historyPageFilter = new HistoryPageFilter<ModelObject>(THRESHOLD, newerThan, olderThan);
-	List<ModelObject> items = new LinkedList<ModelObject>();
+        final HistoryPageFilter<T> historyPageFilter = newPageFilter();
 
-	items.addAll(getQueuedItems());
-	items.addAll(IteratorUtils.toList(baseList.iterator()));
-	historyPageFilter.add(items);
-	historyPageFilter.widget = this;
+        List<T> items = new LinkedList<T>();
 
-	return historyPageFilter;
+        items.addAll((Collection<? extends T>) getQueuedItems());
+        items.addAll(IteratorUtils.toList(baseList.iterator()));
+        historyPageFilter.add(items);
+        historyPageFilter.widget = this;
+
+        return historyPageFilter;
     }
 }

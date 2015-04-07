@@ -279,7 +279,13 @@ public class HistoryPageFilterTest {
     }
 
     private HistoryPageFilter<ModelObject> newPage(int maxEntries, Long newerThan, Long olderThan) {
-        return new HistoryPageFilter<ModelObject>(maxEntries, newerThan, olderThan);
+        HistoryPageFilter<ModelObject> pageFilter = new HistoryPageFilter<ModelObject>(maxEntries);
+        if (newerThan != null) {
+            pageFilter.setNewerThan(newerThan);
+        } else if (olderThan != null) {
+            pageFilter.setOlderThan(olderThan);
+        }
+        return pageFilter;
     }
 
     @SuppressWarnings("unchecked")

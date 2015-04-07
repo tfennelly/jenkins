@@ -38,7 +38,7 @@ public class BuildSearchParamProcessorTest {
     @Test
     public void test_name() {
         BuildSearchParams searchParams = new BuildSearchParams(" name: Build1 name: Build2 ");
-        List<BuildSearchParamProcessor> processors = BuildSearchParamProcessor.getProcessors(searchParams);
+        List<BuildSearchParamProcessor> processors = new BuildSearchParamProcessorList(searchParams).getProcessors();
 
         Assert.assertEquals(1, processors.size());
 
@@ -51,7 +51,7 @@ public class BuildSearchParamProcessorTest {
     @Test
     public void test_description() {
         BuildSearchParams searchParams = new BuildSearchParams(" desc: Build1 desc: Build2 ");
-        List<BuildSearchParamProcessor> processors = BuildSearchParamProcessor.getProcessors(searchParams);
+        List<BuildSearchParamProcessor> processors = new BuildSearchParamProcessorList(searchParams).getProcessors();
 
         Assert.assertEquals(1, processors.size());
 
@@ -64,7 +64,7 @@ public class BuildSearchParamProcessorTest {
     @Test
     public void test_result() {
         BuildSearchParams searchParams = new BuildSearchParams(" result: UNSTABLE result: aborted result: BLAH ");
-        List<BuildSearchParamProcessor> processors = BuildSearchParamProcessor.getProcessors(searchParams);
+        List<BuildSearchParamProcessor> processors = new BuildSearchParamProcessorList(searchParams).getProcessors();
 
         Assert.assertEquals(1, processors.size());
 
@@ -79,7 +79,7 @@ public class BuildSearchParamProcessorTest {
     public void test_date_from_and_to_ok() {
         BuildSearchParams searchParams = new BuildSearchParams("date-from: 2015-02-20 date-to: 2015-03-20");
 
-        List<BuildSearchParamProcessor> processors = BuildSearchParamProcessor.getProcessors(searchParams);
+        List<BuildSearchParamProcessor> processors = new BuildSearchParamProcessorList(searchParams).getProcessors();
 
         Assert.assertEquals(1, processors.size());
 
@@ -99,7 +99,7 @@ public class BuildSearchParamProcessorTest {
     public void test_date_from_and_to_with_to_before_from() {
         BuildSearchParams searchParams = new BuildSearchParams("date-from:2015-02-20 date-to:2015-02-10");
 
-        List<BuildSearchParamProcessor> processors = BuildSearchParamProcessor.getProcessors(searchParams);
+        List<BuildSearchParamProcessor> processors = new BuildSearchParamProcessorList(searchParams).getProcessors();
 
         Assert.assertEquals(1, processors.size());
 

@@ -26,6 +26,9 @@ package hudson.widgets;
 import hudson.model.Job;
 import hudson.model.Queue;
 import hudson.model.Run;
+import hudson.widgets.buildsearch.BuildSearchParamProcessor;
+import hudson.widgets.buildsearch.BuildSearchParamProcessorList;
+import hudson.widgets.buildsearch.BuildSearchParams;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -41,8 +44,9 @@ import java.util.List;
 public class HistoryPageFilter<T> {
 
     private final int maxEntries;
-    private final Long newerThan;
-    private final Long olderThan;
+    private Long newerThan;
+    private Long olderThan;
+    private BuildSearchParamProcessorList searchParamProcessorList;
 
     // Need to use different Lists for Queue.Items and Runs because
     // we need access to them separately in the jelly files for rendering.
@@ -61,15 +65,40 @@ public class HistoryPageFilter<T> {
      * Create a history page filter instance.
      *
      * @param maxEntries The max number of entries allowed for the page.
-     * @param newerThan  Queue IDs newer/greater than this queue ID take precedence on this page. <strong>Should not be set
-     *                   if setting the {@code olderThan} parameter.</strong>
-     * @param olderThan  Queue IDs older/less than this queue ID take precedence on this page. <strong>Should not be set if
-     *                   setting the {@code newerThan} parameter (will be ignored).</strong>
      */
-    public HistoryPageFilter(int maxEntries, Long newerThan, Long olderThan) {
+    public HistoryPageFilter(int maxEntries) {
         this.maxEntries = maxEntries;
+    }
+
+    /**
+     * Set the 'newerThan' queue ID.
+     * @param newerThan Queue IDs newer/greater than this queue ID take precedence on this page.
+     */
+    public void setNewerThan(Long newerThan) {
+        if (olderThan != null) {
+            throw new UnsupportedOperationException("Cannot set 'newerThan'. 'olderThan' already set.");
+        }
         this.newerThan = newerThan;
+    }
+
+    /**
+     * Set the 'olderThan' queue ID.
+     * @param olderThan Queue IDs older/less than this queue ID take precedence on this page.
+     */
+    public void setOlderThan(Long olderThan) {
+        if (newerThan != null) {
+            throw new UnsupportedOperationException("Cannot set 'olderThan'. 'newerThan' already set.");
+        }
         this.olderThan = olderThan;
+    }
+
+    /**
+     * Set the search string used to narrow the filtered set of builds.
+     * @param searchString The search string.
+     */
+    public void setSearchString(@Nonnull String searchString) {
+        BuildSearchParams searchParams = new BuildSearchParams(searchString);
+        this.searchParamProcessorList = new BuildSearchParamProcessorList(searchParams);
     }
 
     /**
@@ -219,10 +248,18 @@ public class HistoryPageFilter<T> {
         // Purposely not calling isFull(). May need to add a greater number of entries
         // to the page initially, newerThan then cutting it back down to size using cutLeading()
         if (entry instanceof Queue.Item) {
-            addQueueItem((Queue.Item) entry);
+            Queue.Item item = (Queue.Item) entry;
+            if (searchParamProcessorList != null && !searchParamProcessorList.fitsSearchParams(item)) {
+                return false;
+            }
+            addQueueItem(item);
             return true;
         } else if (entry instanceof Run) {
-            addRun((Run) entry);
+            Run run = (Run) entry;
+            if (searchParamProcessorList != null && !searchParamProcessorList.fitsSearchParams(run)) {
+                return false;
+            }
+            addRun(run);
             return true;
         }
         return false;

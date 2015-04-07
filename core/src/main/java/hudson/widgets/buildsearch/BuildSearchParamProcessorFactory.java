@@ -41,7 +41,8 @@ import java.util.Set;
 /**
  * Implementations of this class create {@link BuildSearchParamProcessor} instances from a set
  * of {@link BuildSearchParams}. The set of {@link BuildSearchParamProcessor} instances are then used
- * by the {@link hudson.widgets.HistoryPageFilter} class to filter the build history.
+ * by the {@link hudson.widgets.HistoryPageFilter} class to filter the build history (via an instance of
+ * {@link BuildSearchParamProcessorList}).
  *
  * <p>
  * Each {@link BuildSearchParamProcessor} implementation processes one or more search terms e.g. the
