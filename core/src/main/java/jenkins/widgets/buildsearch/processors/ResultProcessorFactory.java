@@ -21,29 +21,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package hudson.widgets.buildsearch.processors;
+package jenkins.widgets.buildsearch.processors;
 
 import hudson.model.Queue;
+import hudson.model.Result;
 import hudson.model.Run;
-import hudson.widgets.buildsearch.BuildSearchParamProcessor;
-import hudson.widgets.buildsearch.BuildSearchParamProcessorFactory;
-import hudson.widgets.buildsearch.BuildSearchParams;
+import jenkins.widgets.buildsearch.BuildSearchParamProcessor;
+import jenkins.widgets.buildsearch.BuildSearchParamProcessorFactory;
+import jenkins.widgets.buildsearch.BuildSearchParams;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Search build history by {@link hudson.model.Run} description.
+ * Search build history by {@link hudson.model.Run} result.
  *
  * @author <a href="mailto:tom.fennelly@gmail.com">tom.fennelly@gmail.com</a>
  */
-public class DescriptionProcessorFactory extends BuildSearchParamProcessorFactory {
+public class ResultProcessorFactory extends BuildSearchParamProcessorFactory {
 
     /**
-     * "desc" (description) search term.
+     * "result" search term.
      */
-    public static final String DESC_ST = "desc";
-    
-    private static final String[] SEARCH_TERMS = new String[] {DESC_ST}; // Build description
+    public static final String RESULT_ST = "result";
+
+    private static final String[] SEARCH_TERMS = new String[] {RESULT_ST}; // TODO: Could do "status" too or maybe that's different
 
     /**
      * {@inheritDoc}
@@ -58,34 +60,38 @@ public class DescriptionProcessorFactory extends BuildSearchParamProcessorFactor
      */
     @Override
     public BuildSearchParamProcessor createProcessor(BuildSearchParams searchParams) {
-        final List<BuildSearchParams.BuildSearchParam> descParams = searchParams.getParams(DESC_ST);
+        List<BuildSearchParams.BuildSearchParam> resultParams = searchParams.getParams(RESULT_ST);
 
-        if (descParams.isEmpty()) {
-            // "desc" search term not specified in search
+        if (resultParams.isEmpty()) {
+            // "result" search term not specified in search
             return null;
         }
 
-        return new BuildSearchParamProcessor<String>() {
+        final List<Result> interestingResults = new ArrayList<Result>();
+        for (BuildSearchParams.BuildSearchParam resultParam : resultParams) {
+            Result result = Result.fromString(resultParam.get());
+            // Result.fromString returns Result.FAILURE if there's no match. We don't want that.
+            if (result.toString().equalsIgnoreCase(resultParam.get())) {
+                interestingResults.add(result);
+            }
+        }
+
+        return new BuildSearchParamProcessor<Result>() {
 
             @Override
-            public boolean fitsSearchParams(String description) {
-                // It fits if it contains any of the specified "desc" search terms.
-                for (BuildSearchParams.BuildSearchParam nameParam : descParams) {
-                    if (description.contains(nameParam.get())) {
-                        return true;
-                    }
-                }
-                return false;
+            public boolean fitsSearchParams(Result result) {
+                // It fits if it's any of the specified "result" search terms.
+                return interestingResults.contains(result);
             }
 
             @Override
             public boolean fitsSearchParams(Queue.Item item) {
-                // Queue items don't have a description.
+                // Queue items don't have a Result.
                 return false;
             }
             @Override
             public boolean fitsSearchParams(Run run) {
-                return fitsSearchParams(run.getDescription());
+                return fitsSearchParams(run.getResult());
             }
         };
     }
