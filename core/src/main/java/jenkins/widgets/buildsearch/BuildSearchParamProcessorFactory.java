@@ -56,15 +56,15 @@ import java.util.Set;
 public abstract class BuildSearchParamProcessorFactory implements ExtensionPoint {
 
     private static List<BuildSearchParamProcessorFactory> coreParamProcessorFactories = new ArrayList<BuildSearchParamProcessorFactory>();
-
+    
     static {
         // Statically adding the core BuildSearchParamProcessorFactory impls Vs adding via @Extension.
         // Makes testing easier coz no need to create a JenkinsRule instance + put in test harness etc.
         // Plugins etc can still contribute via @Extension.
-        coreParamProcessorFactories.add(new NameProcessorFactory());
-        coreParamProcessorFactories.add(new DescriptionProcessorFactory());
-        coreParamProcessorFactories.add(new ResultProcessorFactory());
-        coreParamProcessorFactories.add(new DateProcessorFactory());
+//        coreParamProcessorFactories.add(new NameProcessorFactory());
+//        coreParamProcessorFactories.add(new DescriptionProcessorFactory());
+//        coreParamProcessorFactories.add(new ResultProcessorFactory());
+//        coreParamProcessorFactories.add(new DateProcessorFactory());
     }
 
     /**

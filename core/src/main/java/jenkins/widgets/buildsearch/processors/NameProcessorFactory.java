@@ -23,6 +23,7 @@
  */
 package jenkins.widgets.buildsearch.processors;
 
+import hudson.Extension;
 import hudson.model.Queue;
 import hudson.model.Run;
 import jenkins.widgets.buildsearch.BuildSearchParamProcessor;
@@ -36,6 +37,7 @@ import java.util.List;
  *
  * @author <a href="mailto:tom.fennelly@gmail.com">tom.fennelly@gmail.com</a>
  */
+@Extension
 public class NameProcessorFactory extends BuildSearchParamProcessorFactory {
 
     /**
