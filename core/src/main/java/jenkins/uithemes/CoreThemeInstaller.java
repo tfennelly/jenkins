@@ -23,7 +23,6 @@
  */
 package jenkins.uithemes;
 
-import hudson.Extension;
 import hudson.init.InitMilestone;
 import hudson.init.Initializer;
 import jenkins.model.Jenkins;
@@ -48,7 +47,6 @@ public class CoreThemeInstaller {
         // Set up the environment variables for this Jenkins instance.
         Properties jenkinsEnv = new Properties();
         jenkinsEnv.setProperty("rootURL", ".."); // TODO: Jenkins.getInstance().getRootUrl() returns null ?? Probably needs the context of a request.
-        UIThemesProcessor.createJenkinsEnvVariablesLESSFile(jenkinsEnv);
 
         // Delete all user theme pre-generated data, forcing a refresh.
         themesProcessor.deleteAllUserThemes();
