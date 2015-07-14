@@ -42,6 +42,11 @@ THE SOFTWARE.
       <param-value>false</param-value>
     </init-param>
   </servlet>
+    
+  <context-param>
+      <param-name>hudson.PluginManager.impl</param-name>
+      <param-value>com.cloudbees.jenkins.CBPluginManager</param-value>
+  </context-param>
 
   <servlet-mapping>
     <servlet-name>Stapler</servlet-name>

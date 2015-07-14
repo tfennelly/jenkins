@@ -24,6 +24,7 @@
 
 package hudson;
 
+import hudson.model.UpdateCenter;
 import jenkins.model.Jenkins;
 
 import javax.servlet.ServletContext;
@@ -43,12 +44,20 @@ import java.util.logging.Logger;
  * @author Kohsuke Kawaguchi
  */
 public class LocalPluginManager extends PluginManager {
+    
+    private transient final UpdateCenter updateCenter = new UpdateCenter();        
+    
     public LocalPluginManager(Jenkins jenkins) {
         super(jenkins.servletContext, new File(jenkins.getRootDir(),"plugins"));
     }
 
     public LocalPluginManager(File rootDir) {
         super(null, new File(rootDir,"plugins"));
+    }
+
+    @Override
+    public UpdateCenter getUpdateCenter() {
+        return updateCenter;
     }
 
     /**

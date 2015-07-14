@@ -548,7 +548,7 @@ public class Jenkins extends AbstractCIBase implements DirectlyModifiableTopLeve
     /**
      * Loaded plugins.
      */
-    public transient final PluginManager pluginManager;
+    public transient PluginManager pluginManager;
 
     public transient volatile TcpSlaveAgentListener tcpSlaveAgentListener;
 
@@ -652,7 +652,7 @@ public class Jenkins extends AbstractCIBase implements DirectlyModifiableTopLeve
     /**
      * {@link AdjunctManager}
      */
-    private transient final AdjunctManager adjuncts;
+    private transient AdjunctManager adjuncts;
 
     /**
      * Code that handles {@link ItemGroup} work.
@@ -718,8 +718,6 @@ public class Jenkins extends AbstractCIBase implements DirectlyModifiableTopLeve
      * accidental exposure.
      */
     private transient final String secretKey;
-
-    private transient final UpdateCenter updateCenter = new UpdateCenter();
 
     /**
      * True if the user opted out from the statistics tracking. We'll never send anything if this is true.
@@ -803,12 +801,13 @@ public class Jenkins extends AbstractCIBase implements DirectlyModifiableTopLeve
                 LOGGER.log(SEVERE, "Failed to load proxy configuration", e);
             }
 
-            if (pluginManager==null)
+            boolean pluginManagerPredefined = (pluginManager != null);
+            if (!pluginManagerPredefined)
                 pluginManager = new LocalPluginManager(this);
-            this.pluginManager = pluginManager;
-            // JSON binding needs to be able to see all the classes from all the plugins
-            WebApp.get(servletContext).setClassLoader(pluginManager.uberClassLoader);
 
+            // JSON binding needs to be able to see all the classes from all the plugins
+            this.pluginManager = pluginManager;
+            WebApp.get(servletContext).setClassLoader(pluginManager.uberClassLoader);
             adjuncts = new AdjunctManager(servletContext, pluginManager.uberClassLoader,"adjuncts/"+SESSION_HASH, TimeUnit2.DAYS.toMillis(365));
 
             // initialization consists of ...
@@ -820,6 +819,47 @@ public class Jenkins extends AbstractCIBase implements DirectlyModifiableTopLeve
 
             if(KILL_AFTER_LOAD)
                 System.exit(0);
+
+            // If the PluginManager was not predefined, allow a custom impl.
+            if (!pluginManagerPredefined) {
+                String pluginManageImplClassName = context.getInitParameter(PluginManager.class.getName() + ".impl");
+                if (pluginManageImplClassName != null) {  
+                    PluginManager customPluginManager = null;
+                    
+                    for (PluginWrapper plugin : pluginManager.getPlugins()) {
+                        try {
+                            Class<?> pluginManageImplClass = plugin.classLoader.loadClass(pluginManageImplClassName);
+                            customPluginManager = (PluginManager) pluginManageImplClass.newInstance();
+                            break;
+                        } catch (ClassNotFoundException e) {
+                            // Okay, not in this plugin. Try the next.
+                        } catch (Exception e) {
+                            // The class is define in this plugin, but we can't get it for some reason.
+                            throw new Error(String.format("Unexpected startup error. PluginManager implementation " +
+                                    "class '%s' is defined in Plugin '%s', but cannot be instantiated.", 
+                                    pluginManageImplClassName, plugin.getDisplayName()), e);
+                        }
+                    }
+                    
+                    if (customPluginManager != null) {
+                        // TODO: So what about the initialization that's already been done with the "original" PluginManager
+                        // See executeReactor etc above
+                        // My gut feeling is there's a bit of a Chicken & Egg happening here. CJP-2508 suggests that the 
+                        // custom PluginManager should be located in a Plugin, but you seem to need a PluginManager in
+                        // order to get at classes in a plugin. It's probably possible create and init a custom UberClassloader,
+                        // but it seems like it would be less funky to just bundle the custom PluginManager in a jar in
+                        // the customized jenkins.war and so make it directly loadable from here e.g. CJE. 
+                        this.pluginManager = customPluginManager;
+            
+                        // Swap PluginManager impls...
+                        // This smells really really bad ... see comment above re not trying to load custom PM from plugins.
+                        WebApp.get(servletContext).setClassLoader(customPluginManager.uberClassLoader);
+                        adjuncts = new AdjunctManager(servletContext, customPluginManager.uberClassLoader,"adjuncts/"+SESSION_HASH, TimeUnit2.DAYS.toMillis(365));
+                    } else {
+                        LOGGER.log(SEVERE, "PluginManager implementation " + pluginManageImplClassName + " not found. Falling back to default PluginManager.");
+                    }
+                }                
+            }
 
             if(slaveAgentPort!=-1) {
                 try {
@@ -979,7 +1019,7 @@ public class Jenkins extends AbstractCIBase implements DirectlyModifiableTopLeve
     }
 
     public UpdateCenter getUpdateCenter() {
-        return updateCenter;
+        return pluginManager.getUpdateCenter();
     }
 
     public boolean isUsageStatisticsCollected() {

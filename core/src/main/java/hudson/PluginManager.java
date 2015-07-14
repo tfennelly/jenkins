@@ -215,6 +215,8 @@ public abstract class PluginManager extends AbstractModelObject implements OnMas
         return new Api(this);
     }
 
+    public abstract UpdateCenter getUpdateCenter();
+
     /**
      * Called immediately after the construction.
      * This is a separate method so that code executed from here will see a valid value in

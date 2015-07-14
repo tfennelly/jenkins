@@ -28,6 +28,7 @@ import hudson.Plugin;
 import hudson.PluginManager;
 import hudson.PluginWrapper;
 import hudson.Util;
+import hudson.model.UpdateCenter;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -53,11 +54,19 @@ import java.util.logging.Logger;
  * @see HudsonTestCase#useLocalPluginManager
  */
 public class TestPluginManager extends PluginManager {
+        
+    private transient final UpdateCenter updateCenter = new UpdateCenter();            
+    
     public static final PluginManager INSTANCE;
 
     private TestPluginManager() throws IOException {
         // TestPluginManager outlives a Jetty server, so can't pass in ServletContext.
         super(null, Util.createTempDir());
+    }
+
+    @Override
+    public UpdateCenter getUpdateCenter() {
+        return updateCenter;
     }
 
     @Override
