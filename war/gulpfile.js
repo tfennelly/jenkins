@@ -19,3 +19,11 @@ builder.bundle('src/main/js/jenkins.js')
     .withExternalModuleMapping('bootstrap-detached-3.3', 'bootstrap:bootstrap3')
     .withExternalModuleMapping('moment', 'momentjs:momentjs2')
     .inDir('src/main/webapp/bundles');
+
+//
+// Create the Backward Compatibility module to globalize some modularized functions 
+// that existing non-modularized code will expect to be in the global scope, and
+// expect them to be there immediately (i.e. no async waiting for other modules to load).
+//
+builder.bundle('src/main/js/jenkins-backcompat.js')
+    .inDir('src/main/webapp/bundles');
