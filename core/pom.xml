@@ -46,6 +46,11 @@ THE SOFTWARE.
 
   <dependencies>
     <dependency>
+      <groupId>org.jenkins-ci</groupId>
+      <artifactId>event-bus</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
       <groupId>org.jenkins-ci.plugins.icon-shim</groupId>
       <artifactId>icon-set</artifactId>
       <version>1.0.5</version>

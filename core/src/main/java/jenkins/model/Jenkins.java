@@ -194,6 +194,7 @@ import jenkins.ExtensionRefreshException;
 import jenkins.InitReactorRunner;
 import jenkins.install.InstallState;
 import jenkins.install.InstallUtil;
+import jenkins.eventbus.EventBusException;
 import jenkins.model.ProjectNamingStrategy.DefaultProjectNamingStrategy;
 import jenkins.security.ConfidentialKey;
 import jenkins.security.ConfidentialStore;
@@ -344,6 +345,11 @@ public class Jenkins extends AbstractCIBase implements DirectlyModifiableTopLeve
      * Job allocation strategy.
      */
     private Mode mode = Mode.NORMAL;
+
+    /**
+     * Jenkins event bus.
+     */
+    private EventBus eventBus;
 
     /**
      * False to enable anyone to do anything.
@@ -816,6 +822,12 @@ public class Jenkins extends AbstractCIBase implements DirectlyModifiableTopLeve
                 LOGGER.log(SEVERE, "Failed to load proxy configuration", e);
             }
 
+            try {
+                eventBus = EventBus.start();
+            } catch (EventBusException e) {
+                throw new Error("Error starting event bus.", e);
+            }
+
             if (pluginManager==null)
                 pluginManager = new LocalPluginManager(this);
             this.pluginManager = pluginManager;
@@ -883,6 +895,10 @@ public class Jenkins extends AbstractCIBase implements DirectlyModifiableTopLeve
         } finally {
             SecurityContextHolder.clearContext();
         }
+    }
+
+    public EventBus getEventBus() {
+        return eventBus;
     }
 
     private void resolveDependantPlugins() throws InterruptedException, ReactorException, IOException {
@@ -2913,6 +2929,8 @@ public class Jenkins extends AbstractCIBase implements DirectlyModifiableTopLeve
             }
 
         LogFactory.releaseAll();
+
+        eventBus.stop();
 
         theInstance = null;
     }
