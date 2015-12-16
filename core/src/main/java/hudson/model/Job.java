@@ -33,6 +33,7 @@ import hudson.ExtensionPoint;
 import hudson.PermalinkList;
 import hudson.Util;
 import hudson.cli.declarative.CLIResolver;
+import hudson.init.Initializer;
 import hudson.model.Descriptor.FormException;
 import hudson.model.Fingerprint.Range;
 import hudson.model.Fingerprint.RangeSet;
@@ -62,6 +63,7 @@ import hudson.util.TextFile;
 import hudson.widgets.HistoryWidget;
 import hudson.widgets.HistoryWidget.Adapter;
 import hudson.widgets.Widget;
+import jenkins.eventbus.PubSubEventPublisher;
 import jenkins.model.BuildDiscarder;
 import jenkins.model.DirectlyModifiableTopLevelItemGroup;
 import jenkins.model.Jenkins;
@@ -103,6 +105,7 @@ import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
+import static hudson.init.InitMilestone.JOB_LOADED;
 import static javax.servlet.http.HttpServletResponse.*;
 import jenkins.model.ModelObjectWithChildren;
 import jenkins.model.RunIdMigrator;
@@ -165,6 +168,8 @@ public abstract class Job<JobT extends Job<JobT, RunT>, RunT extends Run<JobT, R
     // this should have been DescribableList but now it's too late
     protected CopyOnWriteList<JobProperty<? super JobT>> properties = new CopyOnWriteList<JobProperty<? super JobT>>();
 
+    private static PubSubEventPublisher jobEventPublisher;
+
     @Restricted(NoExternalUse.class)
     public transient RunIdMigrator runIdMigrator;
 
@@ -182,6 +187,21 @@ public abstract class Job<JobT extends Job<JobT, RunT>, RunT extends Run<JobT, R
         super.onCreatedFromScratch();
         runIdMigrator = new RunIdMigrator();
         runIdMigrator.created(getBuildDir());
+    }
+
+    /**
+     * Register the Job Event publisher.
+     */
+    @Initializer(after=JOB_LOADED)
+    public static void init(Jenkins jenkins) {
+        jobEventPublisher = jenkins.getEventBus().newPubSubEventPublisher("job", "Job events.");
+    }
+
+    public static PubSubEventPublisher getJobEventPublisher() {
+        if (jobEventPublisher == null) {
+            throw new IllegalStateException("Build event publisher not yet initialized.");
+        }
+        return jobEventPublisher;
     }
 
     @Override
