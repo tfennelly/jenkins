@@ -46,8 +46,7 @@ import java.util.Properties;
  */
 public class JenkinsBusEvent extends Properties {
     
-    public static @Nonnull
-    JenkinsBusEvent newEvent(@Nonnull String eventType) {
+    public static @Nonnull JenkinsBusEvent newEvent(@Nonnull String eventType) {
         JenkinsBusEvent jenkinsBusEvent = new JenkinsBusEvent();
         jenkinsBusEvent.setProperty("type", eventType);
         return jenkinsBusEvent;

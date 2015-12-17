@@ -63,6 +63,7 @@ import hudson.util.TextFile;
 import hudson.widgets.HistoryWidget;
 import hudson.widgets.HistoryWidget.Adapter;
 import hudson.widgets.Widget;
+import jenkins.eventbus.EventConsumer;
 import jenkins.eventbus.PubSubEventPublisher;
 import jenkins.model.BuildDiscarder;
 import jenkins.model.DirectlyModifiableTopLevelItemGroup;

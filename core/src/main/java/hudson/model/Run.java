@@ -32,6 +32,7 @@ import com.thoughtworks.xstream.XStream;
 import hudson.AbortException;
 import hudson.BulkChange;
 import hudson.EnvVars;
+import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import hudson.FeedAdapter;
@@ -45,6 +46,7 @@ import hudson.model.Run.RunExecution;
 import hudson.model.listeners.RunListener;
 import hudson.model.listeners.SaveableListener;
 import hudson.model.queue.Executables;
+import hudson.model.queue.QueueListener;
 import hudson.model.queue.SubTask;
 import hudson.search.SearchIndexBuilder;
 import hudson.security.ACL;
@@ -100,6 +102,7 @@ import jenkins.model.ArtifactManagerConfiguration;
 import jenkins.model.ArtifactManagerFactory;
 import jenkins.model.BuildDiscarder;
 import jenkins.model.Jenkins;
+import jenkins.model.JenkinsBusEvent;
 import jenkins.model.JenkinsLocationConfiguration;
 import jenkins.model.PeepholePermalink;
 import jenkins.model.RunAction2;
@@ -1868,6 +1871,7 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
         startTime = System.currentTimeMillis();
         if (runner!=null)
             RunnerStack.INSTANCE.push(runner);
+        publishRunStateChange(this);
     }
 
     /**
@@ -1889,6 +1893,7 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
         }
 
         RunListener.fireFinalized(this);
+        publishRunStateChange(this);
     }
 
     /**
@@ -2450,5 +2455,30 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
                 "Not found</body></html>");
             out.flush();
         }
+    }
+    
+    @Extension
+    public static class JobEventNotificationListener extends QueueListener {
+        @Override
+        public void onEnterWaiting(Queue.WaitingItem wi) {
+            publishRunStateChange(wi);
+        }
+        @Override
+        public void onEnterBlocked(Queue.BlockedItem bi) {
+            publishRunStateChange(bi);
+        }
+        @Override
+        public void onEnterBuildable(Queue.BuildableItem bi) {
+            publishRunStateChange(bi);            
+        }
+        @Override
+        public void onLeft(Queue.LeftItem li) {
+            publishRunStateChange(li);            
+        }
+    }
+
+    private static void publishRunStateChange(Object from) {
+        JenkinsBusEvent event = JenkinsBusEvent.newEvent("runStateChange", from);
+        Job.getJobEventPublisher().publish(event);
     }
 }
