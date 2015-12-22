@@ -32,7 +32,7 @@ import javax.annotation.Nonnull;
 import java.util.Properties;
 
 /**
- * Simple event implementation for the {@link EventBus}.
+ * Simple event implementation for the {@link jenkins.model.EventBus}.
  * <p>
  * The idea of these event is NOT to transmit every possible piece of information
  * that the receiver may want, as that would result in huge/bloated events. Instead,
@@ -45,7 +45,9 @@ import java.util.Properties;
  * @since FIXME
  */
 public class JenkinsBusEvent extends Properties {
-    
+
+    private static final long serialVersionUID = 4147621317843356567L;
+
     public static @Nonnull JenkinsBusEvent newEvent(@Nonnull String eventType) {
         JenkinsBusEvent jenkinsBusEvent = new JenkinsBusEvent();
         jenkinsBusEvent.setProperty("type", eventType);
