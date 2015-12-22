@@ -83,8 +83,8 @@ public class EventBus {
         return eventBusServer.onPubSubEvent(eventName, eventConsumer);
     }
 
-    public boolean onPubSubEvent(@Nonnull String eventName, @Nonnull Properties eventProperties, @Nonnull EventConsumer eventConsumer) {
-        return eventBusServer.onPubSubEvent(eventName, eventProperties, eventConsumer);
+    public boolean onPubSubEvent(@Nonnull String eventName, @Nonnull EventConsumer eventConsumer, @Nonnull Properties eventProperties) {
+        return eventBusServer.onPubSubEvent(eventName, eventConsumer, eventProperties);
     }
 
     public void offPubSubEvent(@Nonnull EventConsumer eventConsumer) {
