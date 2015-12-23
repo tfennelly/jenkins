@@ -31,8 +31,8 @@ THE SOFTWARE.
   <description>Build management system</description>
 
   <servlet>
-    <servlet-name>Stapler</servlet-name>
-    <servlet-class>org.kohsuke.stapler.Stapler</servlet-class>
+    <servlet-name>Jenkins</servlet-name>
+    <servlet-class>jenkins.model.JenkinsServlet</servlet-class>
     <init-param>
       <param-name>default-encodings</param-name>
       <param-value>text/html=UTF-8</param-value>
@@ -47,9 +47,13 @@ THE SOFTWARE.
       <param-name>install-wizard-path</param-name>
       <param-value>jsbundles/pluginSetupWizard</param-value>
   </context-param>
+  <context-param>
+      <param-name>org.apache.activemq.brokerURL</param-name>
+      <param-value>vm://jenkins</param-value>
+  </context-param>
 
   <servlet-mapping>
-    <servlet-name>Stapler</servlet-name>
+    <servlet-name>Jenkins</servlet-name>
     <url-pattern>/*</url-pattern>
   </servlet-mapping>
 

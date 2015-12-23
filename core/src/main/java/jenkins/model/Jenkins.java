@@ -347,11 +347,6 @@ public class Jenkins extends AbstractCIBase implements DirectlyModifiableTopLeve
     private Mode mode = Mode.NORMAL;
 
     /**
-     * Jenkins event bus.
-     */
-    private EventBus eventBus;
-
-    /**
      * False to enable anyone to do anything.
      * Left as a field so that we can still read old data that uses this flag.
      *
@@ -774,6 +769,12 @@ public class Jenkins extends AbstractCIBase implements DirectlyModifiableTopLeve
             if(theInstance!=null)
                 throw new IllegalStateException("second instance");
             theInstance = this;
+                        
+            try {
+                EventBus.start();
+            } catch (EventBusException e) {
+                throw new Error("Error starting event bus.", e);
+            }            
 
             installState = InstallUtil.getInstallState();
             if (installState == InstallState.RESTART || installState == InstallState.DOWNGRADE) {                
@@ -821,13 +822,7 @@ public class Jenkins extends AbstractCIBase implements DirectlyModifiableTopLeve
             } catch (IOException e) {
                 LOGGER.log(SEVERE, "Failed to load proxy configuration", e);
             }
-
-            try {
-                eventBus = EventBus.start();
-            } catch (EventBusException e) {
-                throw new Error("Error starting event bus.", e);
-            }
-
+            
             if (pluginManager==null)
                 pluginManager = new LocalPluginManager(this);
             this.pluginManager = pluginManager;
@@ -895,10 +890,6 @@ public class Jenkins extends AbstractCIBase implements DirectlyModifiableTopLeve
         } finally {
             SecurityContextHolder.clearContext();
         }
-    }
-
-    public EventBus getEventBus() {
-        return eventBus;
     }
 
     private void resolveDependantPlugins() throws InterruptedException, ReactorException, IOException {
@@ -2930,8 +2921,8 @@ public class Jenkins extends AbstractCIBase implements DirectlyModifiableTopLeve
 
         LogFactory.releaseAll();
 
-        eventBus.stop();
-
+        EventBus.getInstance().stop();
+        
         theInstance = null;
     }
 

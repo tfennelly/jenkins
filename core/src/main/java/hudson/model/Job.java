@@ -63,10 +63,10 @@ import hudson.util.TextFile;
 import hudson.widgets.HistoryWidget;
 import hudson.widgets.HistoryWidget.Adapter;
 import hudson.widgets.Widget;
-import jenkins.eventbus.EventConsumer;
 import jenkins.eventbus.PubSubEventPublisher;
 import jenkins.model.BuildDiscarder;
 import jenkins.model.DirectlyModifiableTopLevelItemGroup;
+import jenkins.model.EventBus;
 import jenkins.model.Jenkins;
 import jenkins.model.ProjectNamingStrategy;
 import jenkins.security.HexStringConfidentialKey;
@@ -195,7 +195,7 @@ public abstract class Job<JobT extends Job<JobT, RunT>, RunT extends Run<JobT, R
      */
     @Initializer(after=JOB_LOADED)
     public static void init(Jenkins jenkins) {
-        jobEventPublisher = jenkins.getEventBus().newPubSubEventPublisher("job", "Job events.");
+        jobEventPublisher = EventBus.getInstance().newPubSubEventPublisher("job", "Job events.");
     }
 
     public static PubSubEventPublisher getJobEventPublisher() {

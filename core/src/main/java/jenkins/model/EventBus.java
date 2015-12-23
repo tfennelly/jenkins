@@ -39,6 +39,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author <a href="mailto:tom.fennelly@gmail.com">tom.fennelly@gmail.com</a>
  */
 public class EventBus {
+    
+    private static EventBus SINGLETON = null;
 
     // See https://github.com/tfennelly/jenkins-event-bus
     private EventBusServer eventBusServer;
@@ -48,15 +50,26 @@ public class EventBus {
     private EventBus() {
     }
 
-    synchronized static @Nonnull EventBus start() throws EventBusException {
-        EventBus eventBus = new EventBus();
-        eventBus.eventBusServer = new EventBusServer();
-        eventBus.eventBusServer.start();
-        return eventBus;
+    public static synchronized EventBus getInstance() {
+        if (SINGLETON == null) {
+            throw new IllegalStateException("Bus not started.");            
+        }
+        return SINGLETON;
     }
 
-    void stop() {
+    static synchronized @Nonnull EventBus start() throws EventBusException {
+        if (SINGLETON == null) {
+            SINGLETON = new EventBus();
+            SINGLETON.eventBusServer = new EventBusServer();
+            SINGLETON.eventBusServer.start();
+        }
+        return SINGLETON;
+    }
+
+    synchronized void stop() {
         eventBusServer.stop();
+        eventBusServer = null;
+        SINGLETON = null;
     }
 
     public @Nonnull PubSubEventPublisher newPubSubEventPublisher(@Nonnull String eventName, @Nonnull String description) {
