@@ -1585,6 +1585,13 @@ function fireBuildHistoryChanged() {
     Event.fire(window, 'jenkins:buildHistoryChanged');
 }
 
+function onRunStateChange(handler) {
+    Event.observe(window, 'jenkins:runStateChanged', handler);
+}
+function fireRunStateChanged() {
+    Event.fire(window, 'jenkins:runStateChanged');
+}
+
 function updateBuildHistory(ajaxUrl,nBuild) {
     if(isRunAsTest) return;
     var bh = $('buildHistory');
@@ -1944,34 +1951,18 @@ function updateBuildHistory(ajaxUrl,nBuild) {
                     // next update
                     bh.headers = ["n",rsp.getResponseHeader("n")];
                     checkAllRowCellOverflows();
-                    createRefreshTimeout();
                 }
 	        });
-	} else {
-            // Reschedule again
-	        createRefreshTimeout();
         }
     }
 
-    var updateBuildsRefreshInterval = 5000;
-    var buildRefreshTimeout;
-    function createRefreshTimeout() {
-        cancelRefreshTimeout();
-        buildRefreshTimeout = window.setTimeout(updateBuilds, updateBuildsRefreshInterval);
-    }
-    function cancelRefreshTimeout() {
-        if (buildRefreshTimeout) {
-            window.clearTimeout(buildRefreshTimeout);
-            buildRefreshTimeout = undefined;
-        }
-    }
-
-    createRefreshTimeout();
     checkAllRowCellOverflows();
-    window.setTimeout(updateBuilds, updateBuildsRefreshInterval);
 
     onBuildHistoryChange(function() {
         checkAllRowCellOverflows();
+    });
+    onRunStateChange(function() {
+        updateBuilds();
     });
 
     function setupHistoryNav() {
@@ -2076,9 +2067,6 @@ function updateBuildHistory(ajaxUrl,nBuild) {
                     checkAllRowCellOverflows();
                     updatePageParams(newDataTable);
                     togglePageUpDown();
-                    if (!hasPageUp()) {
-                        createRefreshTimeout();
-                    }
 
                     if (focusOnSearch) {
                         pageSearchInput.focus();
@@ -2106,7 +2094,6 @@ function updateBuildHistory(ajaxUrl,nBuild) {
             loadPage({'newer-than': getNewestEntryId()});
         });
         pageDown.observe('click', function() {
-            cancelRefreshTimeout();
             loadPage({'older-than': getOldestEntryId()});
         });
 

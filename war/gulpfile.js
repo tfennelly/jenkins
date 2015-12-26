@@ -22,4 +22,5 @@ builder.bundle('src/main/js/pluginSetupWizard.js')
 //
 builder.bundle('src/main/js/buildHistoryListener.js')
     .withExternalModuleMapping('jenkins-js-eventbus', 'core-assets/jenkins:event-bus')
+    .withExternalModuleMapping('jquery-detached', 'core-assets/jquery-detached:jquery2')
     .inDir('src/main/webapp/jsbundles');
