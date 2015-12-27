@@ -72,7 +72,7 @@ public class JenkinsBusEvent extends Properties {
 
     private static void setItemInfo(JenkinsBusEvent jenkinsBusEvent, hudson.model.Item item) {
         jenkinsBusEvent.setProperty("name", item.getName());
-        jenkinsBusEvent.setProperty("url", getFullUrl(item));
+        jenkinsBusEvent.setProperty("url", getUrl(item));
     }
 
     private static void setQueueItemInfo(JenkinsBusEvent jenkinsBusEvent, Queue.Item item) {
@@ -80,7 +80,7 @@ public class JenkinsBusEvent extends Properties {
         if (item.task != null) {
             jenkinsBusEvent.setProperty("jobName", item.task.getName());
         }
-        jenkinsBusEvent.setProperty("url", getFullUrl(item));
+        jenkinsBusEvent.setProperty("url", getUrl(item));
         jenkinsBusEvent.setProperty("queueId", Long.toString(item.getId()));
         jenkinsBusEvent.setProperty("blocked", Boolean.toString(item.isBlocked()));
         jenkinsBusEvent.setProperty("buildable", Boolean.toString(item.isBuildable()));
@@ -90,7 +90,7 @@ public class JenkinsBusEvent extends Properties {
         jenkinsBusEvent.setProperty("runId", run.getId());
         jenkinsBusEvent.setProperty("runNumber", Integer.toString(run.getNumber()));
         jenkinsBusEvent.setProperty("queueId", Long.toString(run.getQueueId()));
-        jenkinsBusEvent.setProperty("url", getFullUrl(run));
+        jenkinsBusEvent.setProperty("url", getUrl(run));
         
         Result result = run.getResult();
         if (result != null) {
@@ -102,16 +102,16 @@ public class JenkinsBusEvent extends Properties {
         jenkinsBusEvent.setProperty("jobName", run.getParent().getName());
     }
     
-    private static String getFullUrl(Queue.Item item) {
-        return Jenkins.getInstance().getRootUrl() + "/" + item.getUrl();        
+    private static String getUrl(Queue.Item item) {
+        return item.getUrl();        
     }
     
-    private static String getFullUrl(hudson.model.Item item) {
-        return Jenkins.getInstance().getRootUrl() + "/" + item.getUrl();        
+    private static String getUrl(hudson.model.Item item) {
+        return item.getUrl();        
     }
 
-    private static String getFullUrl(Run run) {
-        return Jenkins.getInstance().getRootUrl() + "/" + run.getUrl();        
+    private static String getUrl(Run run) {
+        return run.getUrl();        
     }
 
     public String toString() {

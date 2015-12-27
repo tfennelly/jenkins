@@ -118,5 +118,5 @@ THE SOFTWARE.
     </j:if>
   </l:pane>
   </div>
-  <script id="buildHistoryListenerScript" src="${resURL}/jsbundles/buildHistoryListener.js" type="text/javascript" data-base-url="${it.baseUrl}" data-next-build-num="${it.owner.nextBuildNumber}" />
+  <script id="buildHistoryListenerScript" src="${resURL}/jsbundles/buildHistoryListener.js" type="text/javascript" data-job="${it.owner.name}" data-base-url="${it.baseUrl}" data-next-build-num="${it.owner.nextBuildNumber}" />
 </j:jelly>
