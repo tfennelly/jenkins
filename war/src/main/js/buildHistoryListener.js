@@ -22,6 +22,10 @@ eventBus.onPubSubEvent('job',
         // Hmmm ... for some reason, need to wait for a sec after receiving this
         // event before firing the refresh ... it's like subsequent build history Ajax calls
         // are not seeing any new data unless we wait for a second?
+        // TF guess ... using a QueueListener to fire events is not working for this because
+        // the internal state is not fully updated at the time the QueueListener is called and
+        // the event is published, resulting in the UI calling back to get data before the data
+        // changes are fully reflected in Jenkins internal state.
         eventHandleTimeout = setTimeout(function() {
             eventHandleTimeout = undefined;
             // Again, call the ugly global ....
