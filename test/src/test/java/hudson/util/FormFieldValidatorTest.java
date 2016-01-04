@@ -23,7 +23,6 @@
  */
 package hudson.util;
 
-import static org.junit.Assert.fail;
 
 import com.gargoylesoftware.htmlunit.WebResponseListener;
 import hudson.model.FreeStyleProject;
@@ -62,10 +61,6 @@ public class FormFieldValidatorTest {
 
             public void doCheckXyz() {
                 throw new Error("doCheckXyz is broken");
-            }
-
-            public String getDisplayName() {
-                return "I have broken form field validation";
             }
         }
 

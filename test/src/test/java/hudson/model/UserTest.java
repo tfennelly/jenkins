@@ -25,7 +25,6 @@
 package hudson.model;
 
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
-import com.gargoylesoftware.htmlunit.ScriptException;
 import com.gargoylesoftware.htmlunit.WebAssert;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
@@ -100,11 +99,6 @@ public class UserTest {
           @Override
           public UserProperty newInstance(User user) {
               return null;
-          }
-
-          @Override
-          public String getDisplayName() {
-              return "Property";
           }
       }
     }
@@ -546,10 +540,6 @@ public class UserTest {
          
         @TestExtension
         public static class DescriptorImpl extends UserPropertyDescriptor {
-            public String getDisplayName() {
-                return "UserProperty1";
-            }
-
             @Override
             public UserProperty newInstance(User user) {
                 return new SomeUserProperty();

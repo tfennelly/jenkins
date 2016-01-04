@@ -128,7 +128,6 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import javax.annotation.Nonnull;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 
@@ -145,7 +144,6 @@ import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
@@ -195,7 +193,6 @@ import com.gargoylesoftware.htmlunit.javascript.HtmlUnitContextFactory;
 import com.gargoylesoftware.htmlunit.javascript.host.xml.XMLHttpRequest;
 import com.gargoylesoftware.htmlunit.xml.XmlPage;
 
-import java.net.HttpURLConnection;
 
 import jenkins.model.JenkinsLocationConfiguration;
 
@@ -2065,11 +2062,6 @@ public abstract class HudsonTestCase extends TestCase implements RootAction {
             @Override
             public BuildWrapper newInstance(StaplerRequest req, JSONObject formData) {
                 throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public String getDisplayName() {
-                return this.getClass().getName();
             }
         }
     }

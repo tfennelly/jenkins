@@ -30,8 +30,6 @@ import hudson.EnvVars;
 import hudson.FilePath;
 import hudson.Functions;
 import hudson.Launcher;
-import hudson.console.AnnotatedLargeText;
-import hudson.console.ExpandableDetailsNote;
 import hudson.console.ModelHyperlinkNote;
 import hudson.model.Fingerprint.BuildPtr;
 import hudson.model.Fingerprint.RangeSet;
@@ -70,7 +68,6 @@ import javax.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.io.StringWriter;
 import java.lang.ref.WeakReference;
 import java.util.AbstractSet;
 import java.util.ArrayList;
@@ -742,13 +739,19 @@ public abstract class AbstractBuild<P extends AbstractProject<P,R>,R extends Abs
         }
 
         private void reportError(BuildStep bs, Throwable e, BuildListener listener, boolean phase) {
-            final String publisher = ((Publisher) bs).getDescriptor().getDisplayName();
+            final String buildStep;
+
+            if (bs instanceof Describable) {
+                buildStep = ((Describable) bs).getDescriptor().getDisplayName();
+            } else {
+                buildStep = bs.getClass().getName();
+            }
 
             if (e instanceof AbortException) {
-                LOGGER.log(Level.FINE, "{0} : {1} failed", new Object[] {AbstractBuild.this, publisher});
-                listener.error("Publisher '" + publisher + "' failed: " + e.getMessage());
+                LOGGER.log(Level.FINE, "{0} : {1} failed", new Object[] {AbstractBuild.this, buildStep});
+                listener.error("Step ‘" + buildStep + "’ failed: " + e.getMessage());
             } else {
-                String msg = "Publisher '" + publisher + "' aborted due to exception: ";
+                String msg = "Step ‘" + buildStep + "’ aborted due to exception: ";
                 e.printStackTrace(listener.error(msg));
                 LOGGER.log(WARNING, msg, e);
             }

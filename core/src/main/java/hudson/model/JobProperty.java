@@ -38,9 +38,12 @@ import java.util.Collection;
 import java.util.Collections;
 
 import jenkins.model.Jenkins;
+import jenkins.model.OptionalJobProperty;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.export.ExportedBean;
+
+import javax.annotation.Nonnull;
 
 /**
  * Extensible property of {@link Job}.
@@ -62,6 +65,8 @@ import org.kohsuke.stapler.export.ExportedBean;
  * can add actions to the new build. The {@link #perform(AbstractBuild, Launcher, BuildListener)}
  * and {@link #prebuild(AbstractBuild, BuildListener)} are invoked after those
  * of {@link Publisher}s.
+ *
+ * <p>Consider extending {@link OptionalJobProperty} instead.
  *
  * @param <J>
  *      When you restrict your job property to be only applicable to a certain
@@ -96,6 +101,7 @@ public abstract class JobProperty<J extends Job<?,?>> implements ReconfigurableD
     /**
      * {@inheritDoc}
      */
+    @Override
     public JobPropertyDescriptor getDescriptor() {
         return (JobPropertyDescriptor) Jenkins.getInstance().getDescriptorOrDie(getClass());
     }
@@ -129,6 +135,7 @@ public abstract class JobProperty<J extends Job<?,?>> implements ReconfigurableD
      * @see ProminentProjectAction
      * @see PermalinkProjectAction
      */
+    @Nonnull
     public Collection<? extends Action> getJobActions(J job) {
         // delegate to getJobAction (singular) for backward compatible behavior
         Action a = getJobAction(job);
@@ -150,6 +157,7 @@ public abstract class JobProperty<J extends Job<?,?>> implements ReconfigurableD
      * <p>
      * Invoked after {@link Publisher}s have run.
      */
+    @Override
     public boolean perform(AbstractBuild<?,?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         return true;
     }
@@ -166,6 +174,7 @@ public abstract class JobProperty<J extends Job<?,?>> implements ReconfigurableD
         return getJobAction((J)project);
     }
 
+    @Nonnull
     public final Collection<? extends Action> getProjectActions(AbstractProject<?,?> project) {
         return getJobActions((J)project);
     }
