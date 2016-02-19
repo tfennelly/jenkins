@@ -1,12 +1,11 @@
 var jQD = require('jquery-detached');
 var tableMetadata = require('./model/ConfigTableMetaData.js');
-debugger;
+
 exports.addTabsOnFirst = function() {
     return exports.addTabs(tableMetadata.findConfigTables().first());
 };
 
 exports.addTabs = function(configTable) {
-    debugger;
     var $ = jQD.getJQuery();
     var configTableMetadata;
 
@@ -68,7 +67,6 @@ exports.addTabs = function(configTable) {
 };
 
 exports.addTabsActivator = function(configTable) {
-
     var $ = jQD.getJQuery();
     var configWidgets = $('<div class="jenkins-config-widgets"><div class="showTabs" title="Add configuration section tabs">Add tabs</div></div>');
     configWidgets.insertBefore(configTable.parent());
