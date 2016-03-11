@@ -7,6 +7,7 @@ import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
 import org.kohsuke.stapler.export.Flavor;
 
+import javax.annotation.Nonnull;
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.io.Serializable;
@@ -28,6 +29,15 @@ public class Categories implements HttpResponse, Serializable {
     @Exported(name = "categories")
     public List<Category> getItems() {
         return items;
+    }
+    
+    public Category getItem(@Nonnull String id) {
+        for (Category category : items) {
+            if (category.getId().equals(id)) {
+                return category;
+            }
+        }
+        return null;
     }
 
     @Override

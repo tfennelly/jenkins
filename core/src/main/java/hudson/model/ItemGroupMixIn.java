@@ -345,26 +345,20 @@ public abstract class ItemGroupMixIn {
         Categories categories = new Categories();
         for (TopLevelItemDescriptor descriptor : Items.all(a, c)) {
             ItemCategory ic = ItemCategoryConfigurator.getCategory(descriptor);
-            int i = 0;
-            boolean found = false;
-            while (i < categories.getItems().size() && !found) {
-                if (categories.getItems().get(i).getId() == ic.getId()) {
-                    Map<String, String> metadata = new HashMap<String, String>();
-                    metadata.put("class", descriptor.clazz.getName());
-                    metadata.put("iconClassName", "item-icon-" + descriptor.clazz.getName().substring(descriptor.clazz.getName().lastIndexOf(".") + 1).toLowerCase());
-                    categories.getItems().get(i).getItems().add(metadata);
-                    found = true;
-                }
-                i++;
-            }
-            if (!found) {
-                Map<String, String> metadata = new HashMap<String, String>();
-                metadata.put("class", descriptor.clazz.getName());
-                metadata.put("iconClassName", "item-icon-" + descriptor.clazz.getName().substring(descriptor.clazz.getName().lastIndexOf(".") + 1).toLowerCase());
+            Map<String, String> metadata = new HashMap<String, String>();
+
+            metadata.put("class", descriptor.clazz.getName());
+            metadata.put("iconClassName", "item-icon-" + descriptor.clazz.getName().substring(descriptor.clazz.getName().lastIndexOf(".") + 1).toLowerCase());
+
+            Category category = categories.getItem(ic.getId());
+            if (category != null) {
+                category.getItems().add(metadata);
+            } else {
                 List<Map<String, String>> temp = new ArrayList<Map<String, String>>();
                 temp.add(metadata);
-                categories.getItems().add(new Category(ic.getId(), ic.getDisplayName(), ic.getDescription(),
-                        ic.getIconClassName(), ic.getWeight(), temp));
+                category = new Category(ic.getId(), ic.getDisplayName(), ic.getDescription(),
+                        ic.getIconClassName(), ic.getWeight(), temp);
+                categories.getItems().add(category);
             }
         }
         return categories;
