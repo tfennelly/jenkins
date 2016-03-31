@@ -83,6 +83,10 @@ public class UpgradeWizard extends PageDecorator {
         if (upToDate)
             return false;
 
+        if (jenkins.getInstallState() == InstallState.TEST || jenkins.getInstallState() == InstallState.DEVELOPMENT) {
+            return false;
+        }
+
         // only admin users should see this
         if (!jenkins.hasPermission(Jenkins.ADMINISTER))
             return false;

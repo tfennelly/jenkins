@@ -27,6 +27,7 @@ public class UpgradeWizardTest {
     @Before
     public void setup() {
         j.jenkins.getInjector().injectMembers(this);
+        j.jenkins.setInstallState(InstallState.RESTART);
     }
 
     @Test
