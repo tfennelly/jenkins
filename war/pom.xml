@@ -736,7 +736,7 @@ THE SOFTWARE.
                   <goal>gulp</goal>
                 </goals>
                 <configuration>
-                  <arguments>lint bundle</arguments>
+                  <arguments>jshint bundle</arguments>
                 </configuration>
               </execution>
 
