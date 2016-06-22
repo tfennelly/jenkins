@@ -57,8 +57,6 @@ builder.bundle('src/main/js/add-item.js')
     .less('src/main/js/add-item.less')
     .inDir('src/main/webapp/jsbundles');
 
-
-
 //
 // Bundle Remodal library for New Item dialog modal window.
 //
