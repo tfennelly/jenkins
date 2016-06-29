@@ -2,6 +2,8 @@
 var $ = require('jquery-detached').getJQuery();
 var $remodal = require('remodal-detached').getRemodal();
 
+$remodal('head').attr('data-tom-test', 'hello samat!!');
+
 var getItems = function() {
   var d = $.Deferred();
   $.get('itemCategories?depth=3').done(
