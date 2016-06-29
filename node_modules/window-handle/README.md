@@ -1,0 +1,1 @@
+Wrapped/indirect access to the global window obect, allowing mocking etc.
