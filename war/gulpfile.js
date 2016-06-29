@@ -53,3 +53,11 @@ builder.bundle('src/main/js/add-item.js')
     .withExternalModuleMapping('jquery-detached', 'core-assets/jquery-detached:jquery2')
     .less('src/main/js/add-item.less')
     .inDir('src/main/webapp/jsbundles');
+
+//
+// Bundle Remodal library for New Item dialog modal window.
+//
+builder.bundle('src/main/js/add-item.js')
+    .withExternalModuleMapping('jquery-detached', 'core-assets/jquery-detached:jquery2')
+    .less('src/main/js/remodal.css')
+    .inDir('src/main/webapp/jsbundles');
